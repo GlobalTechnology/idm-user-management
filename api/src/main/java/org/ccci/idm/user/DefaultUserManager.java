@@ -112,4 +112,28 @@ public class DefaultUserManager implements UserManager {
             user.setForcePasswordChange(true);
         }
     }
+
+    @Override
+    @Transactional(readOnly = false)
+    @Audit(applicationCode = AUDIT_APPLICATION_CODE, action = "UPDATE_USER", actionResolverName = AUDIT_ACTION_RESOLVER,
+            resourceResolverName = "IDM_USER_MANAGER_UPDATE_USER_RESOURCE_RESOLVER")
+    public void updateUser(final User user) throws UserNotFoundException {
+        final User original = this.getFreshUser(user);
+        this.userDao.update(original, user);
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public User getFreshUser(final User user) throws UserNotFoundException {
+        // attempt retrieving the fresh user object using the original users guid
+        final User fresh = userDao.findByGuid(user.getGuid());
+
+        // throw an error if the guid wasn't found
+        if (fresh == null) {
+            throw new UserNotFoundException("Cannot find a fresh instance of the specified user");
+        }
+
+        // return the fresh user object
+        return fresh;
+    }
 }
