@@ -36,6 +36,22 @@ public interface UserDao {
     User findByEmail(String email);
 
     /**
+     * Find the user with the specified guid.
+     *
+     * @param guid guid for lookup.
+     * @return Request {@link User} or <tt>null</tt> if not found.
+     */
+    User findByGuid(String guid);
+
+    /**
+     * Find the user with the specified Relay guid.
+     *
+     * @param guid guid for lookup.
+     * @return Request {@link User} or <tt>null</tt> if not found.
+     */
+    User findByRelayGuid(String guid);
+
+    /**
      * Find the user with the specified The Key guid.
      *
      * @param guid guid for lookup.

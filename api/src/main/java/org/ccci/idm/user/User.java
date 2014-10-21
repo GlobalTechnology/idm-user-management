@@ -4,10 +4,15 @@ import java.io.Serializable;
 
 public class User implements Serializable {
     private String email;
+    private String password;
 
     private String guid;
     private String theKeyGuid;
     private String relayGuid;
+
+    // account flags
+    private boolean emailVerified = false;
+    private boolean forcePasswordChange = false;
 
     public String getEmail() {
         return this.email;
@@ -15,6 +20,14 @@ public class User implements Serializable {
 
     public void setEmail(final String email) {
         this.email = email;
+    }
+
+    public String getPassword() {
+        return this.password;
+    }
+
+    public void setPassword(final String password) {
+        this.password = password;
     }
 
     public String getGuid() {
@@ -47,5 +60,21 @@ public class User implements Serializable {
 
     public void setRelayGuid(final String guid) {
         this.relayGuid = guid;
+    }
+
+    public boolean isEmailVerified() {
+        return this.emailVerified;
+    }
+
+    public void setEmailVerified(final boolean verified) {
+        this.emailVerified = verified;
+    }
+
+    public boolean isForcePasswordChange() {
+        return forcePasswordChange;
+    }
+
+    public void setForcePasswordChange(final boolean force) {
+        this.forcePasswordChange = force;
     }
 }
