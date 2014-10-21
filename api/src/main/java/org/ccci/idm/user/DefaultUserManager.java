@@ -123,6 +123,52 @@ public class DefaultUserManager implements UserManager {
     }
 
     @Override
+    @Transactional(readOnly = false)
+    @Audit(applicationCode = AUDIT_APPLICATION_CODE, action = "DEACTIVATE_USER",
+            actionResolverName = AUDIT_ACTION_RESOLVER, resourceResolverName =
+            "IDM_USER_MANAGER_DEACTIVATE_USER_RESOURCE_RESOLVER")
+    public void deactivateUser(final User user) throws UserException {
+        // Create a deep clone copy before proceeding
+        final User original = user.clone();
+
+        // Set a few flags to disable the account
+        user.setDeactivated(true);
+        user.setLoginDisabled(true);
+
+        // remove any federated identities
+        user.removeFacebookId(original.getFacebookId());
+
+        // update the user object
+        this.userDao.update(original, user);
+    }
+
+    @Override
+    @Transactional(readOnly = false)
+    @Audit(applicationCode = AUDIT_APPLICATION_CODE, action = "REACTIVATE_USER",
+            actionResolverName = AUDIT_ACTION_RESOLVER, resourceResolverName =
+            "IDM_USER_MANAGER_REACTIVATE_USER_RESOURCE_RESOLVER")
+    public void reactivateUser(final User user) throws UserException {
+        // Determine if the user already exists, and can't be reactivated
+        if (this.doesEmailExist(user.getEmail())) {
+            final String error = "Unable to reactivate user because an account with the email address '" + user
+                    .getEmail() + "' currently exists";
+            LOG.error(error);
+            throw new UserAlreadyExistsException(error);
+        }
+
+        // Create a deep clone copy before proceeding
+        final User original = user.clone();
+
+        // Restore several settings on the user object
+        user.setDeactivated(false);
+        user.setLoginDisabled(false);
+        user.setAllowPasswordChange(true);
+
+        // update the user object
+        this.userDao.update(original, user);
+    }
+
+    @Override
     @Transactional(readOnly = true)
     public User getFreshUser(final User user) throws UserNotFoundException {
         // attempt retrieving the fresh user object using the original users guid

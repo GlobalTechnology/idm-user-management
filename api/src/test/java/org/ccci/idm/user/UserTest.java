@@ -88,6 +88,8 @@ public class UserTest {
         user.setPassword("p@ssw0rd");
         user.setEmailVerified(true);
         user.setForcePasswordChange(true);
+        user.setDeactivated(true);
+        user.setLoginDisabled(true);
 
         // test cloning object
         final User duplicate = user.clone();
@@ -98,5 +100,7 @@ public class UserTest {
         assertEquals(user.getPassword(), duplicate.getPassword());
         assertEquals(user.isEmailVerified(), duplicate.isEmailVerified());
         assertEquals(user.isForcePasswordChange(), duplicate.isForcePasswordChange());
+        assertEquals(user.isDeactivated(), duplicate.isDeactivated());
+        assertEquals(user.isLoginDisabled(), duplicate.isLoginDisabled());
     }
 }
