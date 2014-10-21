@@ -1,5 +1,9 @@
 package org.ccci.idm.user;
 
+import org.ccci.idm.user.dao.ExceededMaximumAllowedResultsException;
+
+import java.util.List;
+
 public interface UserManager {
     boolean doesEmailExist(String email);
 
@@ -40,4 +44,73 @@ public interface UserManager {
      * @throws UserNotFoundException if the user can't be found
      */
     User getFreshUser(User user) throws UserException;
+
+    /**
+     * Locate the user with the specified e-mail address.
+     *
+     * @param email              E-mail address of user to find.
+     * @param includeDeactivated If <tt>true</tt> then deactivated accounts are included.
+     * @return {@link User} with the specified e-mail address, or <tt>null</tt> if not found.
+     */
+    User findUserByEmail(String email, boolean includeDeactivated);
+
+    /**
+     * Locate the user (not transitional) with the specified guid.
+     *
+     * @param guid GUID of user to find.
+     * @return {@link User} with the specified guid, or <tt>null</tt> if not found.
+     */
+    User findUserByGuid(String guid);
+
+    /**
+     * Locate the user (not transitional) with the specified Relay guid.
+     *
+     * @param guid GUID of user to find.
+     * @return {@link User} with the specified guid, or <tt>null</tt> if not found.
+     */
+    User findUserByRelayGuid(String guid);
+
+    /**
+     * Locate the user (not transitional) with the specified The Key guid.
+     *
+     * @param guid GUID of user to find.
+     * @return {@link User} with the specified guid, or <tt>null</tt> if not found.
+     */
+    User findUserByTheKeyGuid(String guid);
+
+    /**
+     * Locate the user with the specified facebook id.
+     *
+     * @param id the facebook id being search for
+     * @return {@link User} with the specified facebook id, or <tt>null</tt> if not found.
+     */
+    User findUserByFacebookId(String id);
+
+    /**
+     * Find all users matching the first name pattern.
+     *
+     * @param pattern Pattern used for matching first name.
+     * @return {@link java.util.List} of {@link User} objects.
+     * @throws ExceededMaximumAllowedResultsException
+     */
+    List<User> findAllByFirstName(String pattern) throws ExceededMaximumAllowedResultsException;
+
+    /**
+     * Find all users matching the last name pattern.
+     *
+     * @param pattern Pattern used for matching last name.
+     * @return {@link List} of {@link User} objects.
+     * @throws ExceededMaximumAllowedResultsException
+     */
+    List<User> findAllByLastName(String pattern) throws ExceededMaximumAllowedResultsException;
+
+    /**
+     * Find all users matching the userid pattern.
+     *
+     * @param pattern            Pattern used for matching email.
+     * @param includeDeactivated If <tt>true</tt> then deactivated accounts are included.
+     * @return {@link List} of {@link User} objects.
+     * @throws ExceededMaximumAllowedResultsException
+     */
+    List<User> findAllByEmail(String pattern, boolean includeDeactivated) throws ExceededMaximumAllowedResultsException;
 }

@@ -1,6 +1,7 @@
 package org.ccci.idm.user;
 
 import com.github.inspektr.audit.annotation.Audit;
+import org.ccci.idm.user.dao.ExceededMaximumAllowedResultsException;
 import org.ccci.idm.user.dao.UserDao;
 import org.ccci.idm.user.util.DefaultRandomPasswordGenerator;
 import org.ccci.idm.user.util.RandomPasswordGenerator;
@@ -11,6 +12,7 @@ import org.springframework.util.StringUtils;
 
 import javax.inject.Inject;
 import javax.validation.constraints.NotNull;
+import java.util.List;
 import java.util.Locale;
 import java.util.UUID;
 
@@ -181,5 +183,47 @@ public class DefaultUserManager implements UserManager {
 
         // return the fresh user object
         return fresh;
+    }
+
+    @Override
+    public User findUserByEmail(final String email, final boolean includeDeactivated) {
+        //TODO: implement includeDeactivated functionality
+        return this.userDao.findByEmail(email);
+    }
+
+    @Override
+    public User findUserByGuid(final String guid) {
+        return this.userDao.findByGuid(guid);
+    }
+
+    @Override
+    public User findUserByRelayGuid(final String guid) {
+        return this.userDao.findByRelayGuid(guid);
+    }
+
+    @Override
+    public User findUserByTheKeyGuid(final String guid) {
+        return this.userDao.findByTheKeyGuid(guid);
+    }
+
+    @Override
+    public User findUserByFacebookId(final String id) {
+        return this.userDao.findByFacebookId(id);
+    }
+
+    @Override
+    public List<User> findAllByFirstName(final String pattern) throws ExceededMaximumAllowedResultsException {
+        return this.userDao.findAllByFirstName(pattern);
+    }
+
+    @Override
+    public List<User> findAllByLastName(final String pattern) throws ExceededMaximumAllowedResultsException {
+        return this.userDao.findAllByLastName(pattern);
+    }
+
+    @Override
+    public List<User> findAllByEmail(final String pattern, final boolean includeDeactivated) throws
+            ExceededMaximumAllowedResultsException {
+        return this.userDao.findAllByEmail(pattern, includeDeactivated);
     }
 }

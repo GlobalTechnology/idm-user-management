@@ -62,17 +62,16 @@ public interface UserDao {
     /**
      * Find the user with the specified Facebook Id
      *
-     * @param facebookId the facebook id to search for
+     * @param id the facebook id to search for
      * @return Requested {@link User} or <tt>null</tt> if not found.
      */
-    User findByFacebookId(String facebookId);
+    User findByFacebookId(String id);
 
     /**
      * Find all users matching the first name pattern.
      *
      * @param pattern Pattern used for matching first name.
-     * @return {@link java.util.List} of {@link User} objects, or <tt>null</tt> if none
-     * are found.
+     * @return {@link java.util.List} of {@link User} objects, or <tt>null</tt> if none are found.
      * @throws ExceededMaximumAllowedResultsException
      */
     List<User> findAllByFirstName(String pattern) throws ExceededMaximumAllowedResultsException;
@@ -81,21 +80,18 @@ public interface UserDao {
      * Find all users matching the last name pattern.
      *
      * @param pattern Pattern used for matching last name.
-     * @return {@link List} of {@link User} objects, or <tt>null</tt> if none
-     * are found.
+     * @return {@link List} of {@link User} objects, or <tt>null</tt> if none are found.
      * @throws ExceededMaximumAllowedResultsException
      */
     List<User> findAllByLastName(String pattern) throws ExceededMaximumAllowedResultsException;
 
     /**
-     * Find all users matching the userid pattern.
+     * Find all users matching the email pattern.
      *
-     * @param pattern            Pattern used for matching userid.
+     * @param pattern            Pattern used for matching emails.
      * @param includeDeactivated If <tt>true</tt> then deactivated accounts are included.
-     * @return {@link List} of {@link User} objects, or <tt>null</tt> if none
-     * are found.
+     * @return {@link List} of {@link User} objects, or <tt>null</tt> if none are found.
      * @throws ExceededMaximumAllowedResultsException
      */
-    List<User> findAllByUserid(String pattern, boolean includeDeactivated) throws
-            ExceededMaximumAllowedResultsException;
+    List<User> findAllByEmail(String pattern, boolean includeDeactivated) throws ExceededMaximumAllowedResultsException;
 }
