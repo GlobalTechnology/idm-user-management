@@ -9,13 +9,22 @@ import org.slf4j.LoggerFactory;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
 
+import javax.inject.Inject;
+import javax.validation.constraints.NotNull;
 import java.util.Locale;
 import java.util.UUID;
 
 public class DefaultUserManager implements UserManager {
     private static final Logger LOG = LoggerFactory.getLogger(DefaultUserManager.class);
 
+    private static final String AUDIT_APPLICATION_CODE = "IDM";
+    private static final String AUDIT_ACTION_RESOLVER = "IDM_USER_MANAGER_ACTION_RESOLVER";
+
+    @NotNull
     protected RandomPasswordGenerator randomPasswordGenerator = new DefaultRandomPasswordGenerator();
+
+    @Inject
+    @NotNull
     protected UserDao userDao;
 
     public void setRandomPasswordGenerator(final RandomPasswordGenerator randomPasswordGenerator) {
@@ -46,7 +55,7 @@ public class DefaultUserManager implements UserManager {
 
     @Override
     @Transactional(readOnly = false)
-    @Audit(applicationCode = "IDM", action = "CREATE_USER", actionResolverName = "IDM_USER_MANAGER_ACTION_RESOLVER",
+    @Audit(applicationCode = AUDIT_APPLICATION_CODE, action = "CREATE_USER", actionResolverName = AUDIT_ACTION_RESOLVER,
             resourceResolverName = "IDM_USER_MANAGER_CREATE_USER_RESOURCE_RESOLVER")
     public void createUser(final User user) throws UserException {
         // validate user being created
