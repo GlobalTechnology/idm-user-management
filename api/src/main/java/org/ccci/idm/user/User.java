@@ -2,7 +2,7 @@ package org.ccci.idm.user;
 
 import java.io.Serializable;
 
-public class User implements Serializable {
+public class User implements Cloneable, Serializable {
     private String email;
     private String password;
 
@@ -13,6 +13,19 @@ public class User implements Serializable {
     // account flags
     private boolean emailVerified = false;
     private boolean forcePasswordChange = false;
+
+    public User() {
+    }
+
+    protected User(User source) {
+        this.email = source.email;
+        this.password = source.password;
+        this.guid = source.guid;
+        this.theKeyGuid = source.theKeyGuid;
+        this.relayGuid = source.relayGuid;
+        this.emailVerified = source.emailVerified;
+        this.forcePasswordChange = source.forcePasswordChange;
+    }
 
     public String getEmail() {
         return this.email;
@@ -76,5 +89,11 @@ public class User implements Serializable {
 
     public void setForcePasswordChange(final boolean force) {
         this.forcePasswordChange = force;
+    }
+
+    @Override
+    @SuppressWarnings({"CloneDoesntCallSuperClone", "CloneDoesntDeclareCloneNotSupportedException"})
+    protected User clone() {
+        return new User(this);
     }
 }

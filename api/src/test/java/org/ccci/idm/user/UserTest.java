@@ -9,13 +9,17 @@ import java.util.Locale;
 import java.util.UUID;
 
 public class UserTest {
+    private static String guid() {
+        return UUID.randomUUID().toString().toUpperCase(Locale.US);
+    }
+
     @Test
-    public void testGuidFallbacks() {
+    public void testGuidFallbacks() throws Exception {
         final User user = new User();
 
         // test behavior for non-existant Key & Relay guids
         {
-            final String guid = UUID.randomUUID().toString().toUpperCase(Locale.US);
+            final String guid = guid();
             user.setGuid(guid);
             user.setRelayGuid(null);
             user.setTheKeyGuid(null);
@@ -29,8 +33,8 @@ public class UserTest {
 
         // test Key override guid
         {
-            final String guid = UUID.randomUUID().toString().toUpperCase(Locale.US);
-            final String keyGuid = UUID.randomUUID().toString().toUpperCase(Locale.US);
+            final String guid = guid();
+            final String keyGuid = guid();
             user.setGuid(guid);
             user.setTheKeyGuid(keyGuid);
             user.setRelayGuid(null);
@@ -44,8 +48,8 @@ public class UserTest {
 
         // test Relay override guid
         {
-            final String guid = UUID.randomUUID().toString().toUpperCase(Locale.US);
-            final String relayGuid = UUID.randomUUID().toString().toUpperCase(Locale.US);
+            final String guid = guid();
+            final String relayGuid = guid();
             user.setGuid(guid);
             user.setTheKeyGuid(null);
             user.setRelayGuid(relayGuid);
@@ -59,9 +63,9 @@ public class UserTest {
 
         // test Relay & The Key override guids
         {
-            final String guid = UUID.randomUUID().toString().toUpperCase(Locale.US);
-            final String keyGuid = UUID.randomUUID().toString().toUpperCase(Locale.US);
-            final String relayGuid = UUID.randomUUID().toString().toUpperCase(Locale.US);
+            final String guid = guid();
+            final String keyGuid = guid();
+            final String relayGuid = guid();
             user.setGuid(guid);
             user.setTheKeyGuid(keyGuid);
             user.setRelayGuid(relayGuid);
@@ -72,5 +76,27 @@ public class UserTest {
             assertEquals(relayGuid, user.getRawRelayGuid());
             assertEquals(relayGuid, user.getRelayGuid());
         }
+    }
+
+    public void testClone() throws Exception {
+        // create and populate a User object
+        final User user = new User();
+        user.setGuid(guid());
+        user.setRelayGuid(guid());
+        user.setTheKeyGuid(guid());
+        user.setEmail("test@example.com");
+        user.setPassword("p@ssw0rd");
+        user.setEmailVerified(true);
+        user.setForcePasswordChange(true);
+
+        // test cloning object
+        final User duplicate = user.clone();
+        assertEquals(user.getGuid(), duplicate.getGuid());
+        assertEquals(user.getRelayGuid(), duplicate.getRelayGuid());
+        assertEquals(user.getTheKeyGuid(), duplicate.getTheKeyGuid());
+        assertEquals(user.getEmail(), duplicate.getEmail());
+        assertEquals(user.getPassword(), duplicate.getPassword());
+        assertEquals(user.isEmailVerified(), duplicate.isEmailVerified());
+        assertEquals(user.isForcePasswordChange(), duplicate.isForcePasswordChange());
     }
 }
