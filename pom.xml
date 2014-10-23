@@ -23,6 +23,15 @@
     <maven.compiler.target>1.6</maven.compiler.target>
   </properties>
 
+  <dependencyManagement>
+    <dependencies>
+      <dependency>
+        <groupId>org.ccci.gto</groupId>
+        <artifactId>idm-user-management-api</artifactId>
+        <version>${project.version}</version>
+      </dependency>
+    </dependencies>
+  </dependencyManagement>
   <dependencies>
     <dependency>
       <groupId>org.slf4j</groupId>

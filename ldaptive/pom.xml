@@ -9,4 +9,21 @@
   </parent>
 
   <artifactId>idm-user-management-ldaptive</artifactId>
+
+  <dependencies>
+    <dependency>
+      <groupId>org.ccci.gto</groupId>
+      <artifactId>idm-user-management-api</artifactId>
+    </dependency>
+
+    <dependency>
+      <groupId>org.ldaptive</groupId>
+      <artifactId>ldaptive-beans</artifactId>
+    </dependency>
+
+    <dependency>
+      <groupId>com.google.guava</groupId>
+      <artifactId>guava</artifactId>
+    </dependency>
+  </dependencies>
 </project>

@@ -2,13 +2,19 @@ package org.ccci.idm.user;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
 
+import org.apache.commons.collections.CollectionUtils;
 import org.junit.Test;
 
+import java.security.SecureRandom;
 import java.util.Locale;
+import java.util.Random;
 import java.util.UUID;
 
 public class UserTest {
+    private Random RAND = new SecureRandom();
+
     private static String guid() {
         return UUID.randomUUID().toString().toUpperCase(Locale.US);
     }
@@ -78,29 +84,53 @@ public class UserTest {
         }
     }
 
+    @Test
     public void testClone() throws Exception {
-        // create and populate a User object
-        final User user = new User();
-        user.setGuid(guid());
-        user.setRelayGuid(guid());
-        user.setTheKeyGuid(guid());
-        user.setEmail("test@example.com");
-        user.setPassword("p@ssw0rd");
-        user.setEmailVerified(true);
-        user.setForcePasswordChange(true);
-        user.setDeactivated(true);
-        user.setLoginDisabled(true);
+        // iterate several times to try cloning multiple random objects
+        for (int count = 0; count < 100; count++) {
+            // create and populate a User object with random values
+            final User user = new User();
+            user.setGuid(guid());
+            user.setRelayGuid(guid());
+            user.setTheKeyGuid(guid());
 
-        // test cloning object
-        final User duplicate = user.clone();
-        assertEquals(user.getGuid(), duplicate.getGuid());
-        assertEquals(user.getRelayGuid(), duplicate.getRelayGuid());
-        assertEquals(user.getTheKeyGuid(), duplicate.getTheKeyGuid());
-        assertEquals(user.getEmail(), duplicate.getEmail());
-        assertEquals(user.getPassword(), duplicate.getPassword());
-        assertEquals(user.isEmailVerified(), duplicate.isEmailVerified());
-        assertEquals(user.isForcePasswordChange(), duplicate.isForcePasswordChange());
-        assertEquals(user.isDeactivated(), duplicate.isDeactivated());
-        assertEquals(user.isLoginDisabled(), duplicate.isLoginDisabled());
+            // use random guid as random strings
+            user.setEmail(guid());
+            user.setPassword(guid());
+            user.setFirstName(guid());
+            user.setLastName(guid());
+
+            // set random flags
+            user.setEmailVerified(RAND.nextBoolean());
+            user.setAllowPasswordChange(RAND.nextBoolean());
+            user.setForcePasswordChange(RAND.nextBoolean());
+            user.setDeactivated(RAND.nextBoolean());
+            user.setLoginDisabled(RAND.nextBoolean());
+            user.setLocked(RAND.nextBoolean());
+
+            // populate multi-valued attributes with values
+            for(int i = 0; i < 10; i++) {
+                user.addDomainsVisited(guid());
+            }
+
+            // test cloning object
+            final User duplicate = user.clone();
+            assertEquals(user.getGuid(), duplicate.getGuid());
+            assertEquals(user.getRelayGuid(), duplicate.getRelayGuid());
+            assertEquals(user.getTheKeyGuid(), duplicate.getTheKeyGuid());
+            assertEquals(user.getEmail(), duplicate.getEmail());
+            assertEquals(user.getPassword(), duplicate.getPassword());
+            assertEquals(user.getFirstName(), duplicate.getFirstName());
+            assertEquals(user.getLastName(), duplicate.getLastName());
+            assertEquals(user.isEmailVerified(), duplicate.isEmailVerified());
+            assertEquals(user.isAllowPasswordChange(), duplicate.isAllowPasswordChange());
+            assertEquals(user.isForcePasswordChange(), duplicate.isForcePasswordChange());
+            assertEquals(user.isDeactivated(), duplicate.isDeactivated());
+            assertEquals(user.isLoginDisabled(), duplicate.isLoginDisabled());
+            assertEquals(user.isLocked(), duplicate.isLocked());
+
+            assertTrue(CollectionUtils.isEqualCollection(user.getDomainsVisited(), duplicate.getDomainsVisited()));
+            assertTrue(CollectionUtils.isEqualCollection(user.getGroups(), duplicate.getGroups()));
+        }
     }
 }
