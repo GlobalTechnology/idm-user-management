@@ -18,6 +18,10 @@
 
     <dependency>
       <groupId>org.ldaptive</groupId>
+      <artifactId>ldaptive</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.ldaptive</groupId>
       <artifactId>ldaptive-beans</artifactId>
     </dependency>
 
