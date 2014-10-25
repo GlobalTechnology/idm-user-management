@@ -19,9 +19,10 @@ public interface UserManager {
      * Update the specified {@link User}.
      *
      * @param user {@link User} to be updated.
+     * @param attrs The User attributes to be updated. An empty list means to update default attributes.
      * @throws UserNotFoundException The specified user cannot be found to be updated
      */
-    void updateUser(User user) throws UserException;
+    void updateUser(User user, User.Attr... attrs) throws UserException;
 
     /**
      * Deactivate the user by disabling the account and changing the e-mail address.

@@ -13,6 +13,10 @@ import java.util.Collections;
 import java.util.HashSet;
 
 public class User implements Cloneable, Serializable {
+    private static final long serialVersionUID = -1174980195690210236L;
+
+    public enum Attr {EMAIL, PASSWORD, NAME, LOGINTIME, FLAGS, SELFSERVICEKEYS, DOMAINSVISITED, FACEBOOK}
+
     private String email;
     private String password;
 

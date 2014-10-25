@@ -17,7 +17,7 @@ public interface UserDao {
      *
      * @param user User to be updated.
      */
-    void update(User user);
+    void update(User user, User.Attr... attrs);
 
     /**
      * Update an existing user in the persistent user store.
@@ -25,7 +25,7 @@ public interface UserDao {
      * @param original The original version of the user being updated
      * @param user     User to be updated.
      */
-    void update(User original, User user);
+    void update(User original, User user, User.Attr... attrs);
 
     /**
      * Find the user with the specified e-mail.

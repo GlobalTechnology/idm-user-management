@@ -119,9 +119,9 @@ public class DefaultUserManager implements UserManager {
     @Transactional(readOnly = false)
     @Audit(applicationCode = AUDIT_APPLICATION_CODE, action = "UPDATE_USER", actionResolverName = AUDIT_ACTION_RESOLVER,
             resourceResolverName = "IDM_USER_MANAGER_UPDATE_USER_RESOURCE_RESOLVER")
-    public void updateUser(final User user) throws UserNotFoundException {
+    public void updateUser(final User user, final User.Attr... attrs) throws UserNotFoundException {
         final User original = this.getFreshUser(user);
-        this.userDao.update(original, user);
+        this.userDao.update(original, user, attrs);
     }
 
     @Override

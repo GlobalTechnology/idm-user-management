@@ -1,4 +1,4 @@
-package org.ccci.idm.user.dao;
+package org.ccci.idm.user.dao.ldap;
 
 public class Constants {
     // LDAP Deactivated
