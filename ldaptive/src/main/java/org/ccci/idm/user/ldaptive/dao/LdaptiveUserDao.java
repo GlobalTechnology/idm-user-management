@@ -89,6 +89,10 @@ public class LdaptiveUserDao extends AbstractLdapUserDao {
         this.connectionFactory = factory;
     }
 
+    public void setUserMapper(final LdapEntryMapper<User> mapper) {
+        this.userMapper = mapper;
+    }
+
     public void setBaseSearchDn(final String dn) {
         this.baseSearchDn = dn;
     }
