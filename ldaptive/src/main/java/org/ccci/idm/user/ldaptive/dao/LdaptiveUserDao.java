@@ -23,7 +23,7 @@ import org.ccci.idm.user.dao.ldap.AbstractLdapUserDao;
 import org.ccci.idm.user.ldaptive.dao.filter.BaseFilter;
 import org.ccci.idm.user.ldaptive.dao.filter.EqualsFilter;
 import org.ccci.idm.user.ldaptive.dao.filter.LikeFilter;
-import org.ccci.idm.user.ldaptive.dao.filter.PresenceFilter;
+import org.ccci.idm.user.ldaptive.dao.filter.PresentFilter;
 import org.ccci.idm.user.ldaptive.dao.util.LdapUtils;
 import org.ldaptive.AddOperation;
 import org.ldaptive.AddRequest;
@@ -60,8 +60,6 @@ import java.util.Set;
 public class LdaptiveUserDao extends AbstractLdapUserDao {
     private static final Logger LOG = LoggerFactory.getLogger(LdaptiveUserDao.class);
 
-    private static final int SEARCH_NO_LIMIT = 0;
-
     // common LDAP search filters
     private static final EqualsFilter FILTER_PERSON = new EqualsFilter(LDAP_ATTR_OBJECTCLASS, LDAP_OBJECTCLASS_PERSON);
     private static final LikeFilter FILTER_DEACTIVATED = new LikeFilter(LDAP_ATTR_CN, LDAP_DEACTIVATED_PREFIX + "*");
@@ -82,8 +80,6 @@ public class LdaptiveUserDao extends AbstractLdapUserDao {
     protected LdapEntryMapper<User> userMapper;
 
     private String baseSearchDn = "";
-    private int maxSearchResults = SEARCH_NO_LIMIT;
-
 
     public void setConnectionFactory(final ConnectionFactory factory) {
         this.connectionFactory = factory;
@@ -95,10 +91,6 @@ public class LdaptiveUserDao extends AbstractLdapUserDao {
 
     public void setBaseSearchDn(final String dn) {
         this.baseSearchDn = dn;
-    }
-
-    public void setMaxSearchResults(final int limit) {
-        this.maxSearchResults = limit;
     }
 
     /**
@@ -204,14 +196,14 @@ public class LdaptiveUserDao extends AbstractLdapUserDao {
     public User findByRelayGuid(final String guid) {
         // relayGuid == {guid} || (guid == {guid} && relayGuid == null)
         return this.findByFilter(new EqualsFilter(LDAP_ATTR_RELAY_GUID, guid).or(new EqualsFilter(LDAP_ATTR_GUID,
-                guid).and(new PresenceFilter(LDAP_ATTR_RELAY_GUID).not())).and(FILTER_PERSON));
+                guid).and(new PresentFilter(LDAP_ATTR_RELAY_GUID).not())).and(FILTER_PERSON));
     }
 
     @Override
     public User findByTheKeyGuid(final String guid) {
         // theKeyGuid == {guid} || (guid == {guid} && theKeyGuid == null)
         return this.findByFilter(new EqualsFilter(LDAP_ATTR_THEKEY_GUID, guid).or(new EqualsFilter(LDAP_ATTR_GUID,
-                guid).and(new PresenceFilter(LDAP_ATTR_THEKEY_GUID).not())).and(FILTER_PERSON));
+                guid).and(new PresentFilter(LDAP_ATTR_THEKEY_GUID).not())).and(FILTER_PERSON));
     }
 
     @Override

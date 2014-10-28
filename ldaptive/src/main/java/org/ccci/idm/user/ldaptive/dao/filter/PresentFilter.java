@@ -1,7 +1,7 @@
 package org.ccci.idm.user.ldaptive.dao.filter;
 
-public class PresenceFilter extends FieldFilter {
-    public PresenceFilter(final String field) {
+public class PresentFilter extends FieldFilter {
+    public PresentFilter(final String field) {
         super(field);
     }
 

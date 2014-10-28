@@ -42,6 +42,14 @@ public abstract class AbstractLdapUserDao extends AbstractUserDao {
     private Set<String> MASK_DEFAULT = ImmutableSet.<String>builder().addAll(MASK.get(Attr.EMAIL)).addAll(MASK.get
             (Attr.NAME)).addAll(MASK.get(Attr.FLAGS)).build();
 
+    protected static final int SEARCH_NO_LIMIT = 0;
+
+    protected int maxSearchResults = SEARCH_NO_LIMIT;
+
+    public void setMaxSearchResults(final int limit) {
+        this.maxSearchResults = limit;
+    }
+
     protected Set<String> getAttributeMask(final Attr... attrs) {
         // return the default attribute mask
         if (attrs == null || attrs.length == 0) {

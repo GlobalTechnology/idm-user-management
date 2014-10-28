@@ -24,7 +24,7 @@ import static org.ccci.idm.user.dao.ldap.Constants.LDAP_FLAG_EMAILVERIFIED;
 import static org.ccci.idm.user.dao.ldap.Constants.LDAP_FLAG_LOCKED;
 import static org.ccci.idm.user.dao.ldap.Constants.LDAP_FLAG_LOGINDISABLED;
 import static org.ccci.idm.user.dao.ldap.Constants.LDAP_FLAG_STALEPASSWORD;
-import static org.ccci.idm.user.dao.ldap.Constants.LDAP_OBJECTCLASSES_KEYUSER;
+import static org.ccci.idm.user.dao.ldap.Constants.LDAP_OBJECTCLASSES_USER;
 
 import com.google.common.base.Joiner;
 import com.google.common.base.Throwables;
@@ -82,7 +82,7 @@ public abstract class AbstractUserLdapEntryMapper<O extends User> implements Lda
     @Override
     public void map(final O user, final LdapEntry entry) {
         // populate non-modifiable LdapAttributes
-        entry.addAttribute(new LdapAttribute(LDAP_ATTR_OBJECTCLASS, LDAP_OBJECTCLASSES_KEYUSER));
+        entry.addAttribute(new LdapAttribute(LDAP_ATTR_OBJECTCLASS, LDAP_OBJECTCLASSES_USER));
 
         // set the email for this user
         entry.addAttribute(this.attr(LDAP_ATTR_EMAIL, user.isDeactivated() ? LDAP_DEACTIVATED_PREFIX + user.getGuid()
