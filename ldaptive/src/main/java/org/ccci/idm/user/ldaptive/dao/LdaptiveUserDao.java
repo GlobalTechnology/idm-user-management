@@ -49,7 +49,6 @@ import org.ldaptive.control.ResponseControl;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.inject.Inject;
 import javax.validation.constraints.NotNull;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -72,7 +71,6 @@ public class LdaptiveUserDao extends AbstractLdapUserDao {
         }
     };
 
-    @Inject
     @NotNull
     protected ConnectionFactory connectionFactory;
 
