@@ -3,7 +3,6 @@ package org.ccci.idm.user.ldaptive.dao.mapper;
 import static org.ccci.idm.user.dao.ldap.Constants.LDAP_ATTR_CHANGEEMAILKEY;
 import static org.ccci.idm.user.dao.ldap.Constants.LDAP_ATTR_CN;
 import static org.ccci.idm.user.dao.ldap.Constants.LDAP_ATTR_DOMAINSVISITED;
-import static org.ccci.idm.user.dao.ldap.Constants.LDAP_ATTR_EMAIL;
 import static org.ccci.idm.user.dao.ldap.Constants.LDAP_ATTR_FACEBOOKID;
 import static org.ccci.idm.user.dao.ldap.Constants.LDAP_ATTR_FACEBOOKIDSTRENGTH;
 import static org.ccci.idm.user.dao.ldap.Constants.LDAP_ATTR_FIRSTNAME;
@@ -85,7 +84,7 @@ public abstract class AbstractUserLdapEntryMapper<O extends User> implements Lda
         entry.addAttribute(new LdapAttribute(LDAP_ATTR_OBJECTCLASS, LDAP_OBJECTCLASSES_USER));
 
         // set the email for this user
-        entry.addAttribute(this.attr(LDAP_ATTR_EMAIL, user.isDeactivated() ? LDAP_DEACTIVATED_PREFIX + user.getGuid()
+        entry.addAttribute(this.attr(LDAP_ATTR_CN, user.isDeactivated() ? LDAP_DEACTIVATED_PREFIX + user.getGuid()
                 : user.getEmail()));
         entry.addAttribute(this.attr(LDAP_ATTR_USERID, user.getEmail()));
 
