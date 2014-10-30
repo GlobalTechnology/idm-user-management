@@ -86,7 +86,7 @@ public class DefaultUserManager implements UserManager {
         if (user.getRawRelayGuid() != null && this.doesRelayGuidExist(user.getRawRelayGuid())) {
             throw new UserException("Relay guid '" + user.getRawRelayGuid() + "' already exists");
         }
-        if (user.getRawTheKeyGuid() != null && this.doesRelayGuidExist(user.getRawTheKeyGuid())) {
+        if (user.getRawTheKeyGuid() != null && this.doesTheKeyGuidExist(user.getRawTheKeyGuid())) {
             throw new UserException("The Key guid '" + user.getRawTheKeyGuid() + "' already exists");
         }
 
