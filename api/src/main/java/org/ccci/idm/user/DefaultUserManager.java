@@ -84,10 +84,10 @@ public class DefaultUserManager implements UserManager {
 
         // throw an error if the raw Relay or The Key guid exists already
         if (user.getRawRelayGuid() != null && this.doesRelayGuidExist(user.getRawRelayGuid())) {
-            throw new UserException("Relay guid '" + user.getRawRelayGuid() + "' already exists");
+            throw new RelayGuidAlreadyExistsException("Relay guid '" + user.getRawRelayGuid() + "' already exists");
         }
         if (user.getRawTheKeyGuid() != null && this.doesTheKeyGuidExist(user.getRawTheKeyGuid())) {
-            throw new UserException("The Key guid '" + user.getRawTheKeyGuid() + "' already exists");
+            throw new TheKeyGuidAlreadyExistsException("The Key guid '" + user.getRawTheKeyGuid() + "' already exists");
         }
 
         // generate a guid for the user if there isn't a valid one already set
