@@ -3,7 +3,6 @@ package org.ccci.idm.user.ldaptive.dao;
 import static org.junit.Assume.assumeNotNull;
 
 import org.ccci.idm.user.User;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Value;
@@ -41,7 +40,6 @@ public class LdaptiveUserDaoIT {
     }
 
     @Test
-    @Ignore
     public void testCreate() throws Exception {
         assumeConfigured();
 

@@ -2,7 +2,6 @@ package org.ccci.idm.user;
 
 import static org.junit.Assume.assumeNotNull;
 
-import org.junit.Ignore;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Value;
 
@@ -37,7 +36,6 @@ public abstract class AbstractDefaultUserManagerIT {
     }
 
     @Test
-    @Ignore
     public void testCreateUser() throws Exception {
         assumeConfigured();
 
