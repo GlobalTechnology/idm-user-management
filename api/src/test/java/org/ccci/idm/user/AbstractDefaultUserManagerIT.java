@@ -1,27 +1,23 @@
-package org.ccci.idm.user.ldaptive.dao;
+package org.ccci.idm.user;
 
 import static org.junit.Assume.assumeNotNull;
 
-import org.ccci.idm.user.User;
 import org.junit.Ignore;
 import org.junit.Test;
-import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 import javax.inject.Inject;
+import javax.validation.constraints.NotNull;
 import java.security.SecureRandom;
 import java.util.Random;
 import java.util.UUID;
 
-@RunWith(SpringJUnit4ClassRunner.class)
-@ContextConfiguration(locations = {"ldap.xml", "config.xml", "dao-default.xml"})
-public class LdaptiveUserDaoIT {
-    private static final Random RAND = new SecureRandom();
+public abstract class AbstractDefaultUserManagerIT {
+    protected static final Random RAND = new SecureRandom();
 
     @Inject
-    private LdaptiveUserDao dao;
+    @NotNull
+    protected DefaultUserManager userManager;
 
     // required config values for tests to pass successfully
     @Value("${ldap.url:#{null}}")
@@ -35,22 +31,24 @@ public class LdaptiveUserDaoIT {
     @Value("${ldap.dn.user:#{null}}")
     private String dn = null;
 
-    private void assumeConfigured() throws Exception {
+    protected void assumeConfigured() throws Exception {
         assumeNotNull(url, base, username, password, dn);
-        assumeNotNull(dao);
+        assumeNotNull(userManager);
     }
 
     @Test
     @Ignore
-    public void testCreate() throws Exception {
+    public void testCreateUser() throws Exception {
         assumeConfigured();
 
         final User user = new User();
         user.setEmail("test.user." + RAND.nextInt(Integer.MAX_VALUE) + "@example.com");
         user.setGuid(UUID.randomUUID().toString().toUpperCase());
+        user.setRelayGuid(UUID.randomUUID().toString().toUpperCase());
+        user.setPassword("testPassword");
         user.setFirstName("Test");
         user.setLastName("User");
 
-        this.dao.save(user);
+        this.userManager.createUser(user);
     }
 }
