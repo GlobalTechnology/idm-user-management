@@ -1,7 +1,9 @@
 package org.ccci.idm.user;
 
 import org.ccci.idm.user.dao.ExceededMaximumAllowedResultsException;
+import org.ccci.idm.user.exception.UserAlreadyExistsException;
 import org.ccci.idm.user.exception.UserException;
+import org.ccci.idm.user.exception.UserNotFoundException;
 
 import java.util.List;
 
@@ -12,7 +14,7 @@ public interface UserManager {
      * Create a new {@link User}.
      *
      * @param user {@link User} object to be saved.
-     * @throws org.ccci.idm.user.exception.UserAlreadyExistsException Thrown when the specified User conflicts with an existing user
+     * @throws UserAlreadyExistsException Thrown when the specified User conflicts with an existing user
      */
     void createUser(User user) throws UserException;
 
@@ -21,7 +23,7 @@ public interface UserManager {
      *
      * @param user {@link User} to be updated.
      * @param attrs The User attributes to be updated. An empty list means to update default attributes.
-     * @throws org.ccci.idm.user.exception.UserNotFoundException The specified user cannot be found to be updated
+     * @throws UserNotFoundException The specified user cannot be found to be updated
      */
     void updateUser(User user, User.Attr... attrs) throws UserException;
 
@@ -36,14 +38,14 @@ public interface UserManager {
      * Reactivate a previously deactivated user.
      *
      * @param user {@link User} to reactivate
-     * @throws org.ccci.idm.user.exception.UserAlreadyExistsException thrown if the user being reactivated already exists
+     * @throws UserAlreadyExistsException thrown if the user being reactivated already exists
      */
     void reactivateUser(User user) throws UserException;
 
     /**
      * @param user the {@link User} to retrieve a fresh instance of
      * @return a fresh copy of the {@link User} object
-     * @throws org.ccci.idm.user.exception.UserNotFoundException if the user can't be found
+     * @throws UserNotFoundException if the user can't be found
      */
     User getFreshUser(User user) throws UserException;
 
