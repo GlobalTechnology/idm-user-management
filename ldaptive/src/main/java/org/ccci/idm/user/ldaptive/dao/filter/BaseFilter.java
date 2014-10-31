@@ -1,9 +1,8 @@
 package org.ccci.idm.user.ldaptive.dao.filter;
 
+import com.google.common.base.Objects;
 import com.google.common.collect.ObjectArrays;
 import org.ldaptive.SearchFilter;
-
-import java.util.Objects;
 
 public abstract class BaseFilter extends SearchFilter {
     public AndFilter and(final SearchFilter... filters) {
@@ -21,7 +20,7 @@ public abstract class BaseFilter extends SearchFilter {
     @Override
     public boolean equals(final Object o) {
         // XXX: we ignore underlying equals because we don't care about the super object
-        return this == o || (o != null && Objects.equals(this.getClass(), o.getClass()));
+        return this == o || (o != null && Objects.equal(this.getClass(), o.getClass()));
     }
 
     @Override
