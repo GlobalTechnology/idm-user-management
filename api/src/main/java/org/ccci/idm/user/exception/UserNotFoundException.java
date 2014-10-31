@@ -1,4 +1,4 @@
-package org.ccci.idm.user;
+package org.ccci.idm.user.exception;
 
 public class UserNotFoundException extends UserException {
     private static final long serialVersionUID = 7539829450378233497L;
