@@ -1,8 +1,23 @@
 package org.ccci.idm.user.ldaptive.dao.mapper;
 
 import static org.ccci.idm.user.dao.ldap.Constants.LDAP_ATTR_CHANGEEMAILKEY;
+import static org.ccci.idm.user.dao.ldap.Constants.LDAP_ATTR_CITY;
 import static org.ccci.idm.user.dao.ldap.Constants.LDAP_ATTR_CN;
+import static org.ccci.idm.user.dao.ldap.Constants.LDAP_ATTR_COUNTRY;
+import static org.ccci.idm.user.dao.ldap.Constants.LDAP_ATTR_CRU_DESIGNATION;
+import static org.ccci.idm.user.dao.ldap.Constants.LDAP_ATTR_CRU_EMPLOYEE_STATUS;
+import static org.ccci.idm.user.dao.ldap.Constants.LDAP_ATTR_CRU_GENDER;
+import static org.ccci.idm.user.dao.ldap.Constants.LDAP_ATTR_CRU_HR_STATUS_CODE;
+import static org.ccci.idm.user.dao.ldap.Constants.LDAP_ATTR_CRU_JOB_CODE;
+import static org.ccci.idm.user.dao.ldap.Constants.LDAP_ATTR_CRU_MANAGER_ID;
+import static org.ccci.idm.user.dao.ldap.Constants.LDAP_ATTR_CRU_MINISTRY_CODE;
+import static org.ccci.idm.user.dao.ldap.Constants.LDAP_ATTR_CRU_PAY_GROUP;
+import static org.ccci.idm.user.dao.ldap.Constants.LDAP_ATTR_CRU_PREFERRED_NAME;
+import static org.ccci.idm.user.dao.ldap.Constants.LDAP_ATTR_CRU_PROXY_ADDRESSES;
+import static org.ccci.idm.user.dao.ldap.Constants.LDAP_ATTR_CRU_SUB_MINISTRY_CODE;
+import static org.ccci.idm.user.dao.ldap.Constants.LDAP_ATTR_DEPARTMENT_NUMBER;
 import static org.ccci.idm.user.dao.ldap.Constants.LDAP_ATTR_DOMAINSVISITED;
+import static org.ccci.idm.user.dao.ldap.Constants.LDAP_ATTR_EMPLOYEE_NUMBER;
 import static org.ccci.idm.user.dao.ldap.Constants.LDAP_ATTR_FACEBOOKID;
 import static org.ccci.idm.user.dao.ldap.Constants.LDAP_ATTR_FACEBOOKIDSTRENGTH;
 import static org.ccci.idm.user.dao.ldap.Constants.LDAP_ATTR_FIRSTNAME;
@@ -11,10 +26,13 @@ import static org.ccci.idm.user.dao.ldap.Constants.LDAP_ATTR_GUID;
 import static org.ccci.idm.user.dao.ldap.Constants.LDAP_ATTR_LASTNAME;
 import static org.ccci.idm.user.dao.ldap.Constants.LDAP_ATTR_OBJECTCLASS;
 import static org.ccci.idm.user.dao.ldap.Constants.LDAP_ATTR_PASSWORD;
+import static org.ccci.idm.user.dao.ldap.Constants.LDAP_ATTR_POSTAL_CODE;
 import static org.ccci.idm.user.dao.ldap.Constants.LDAP_ATTR_PROPOSEDEMAIL;
 import static org.ccci.idm.user.dao.ldap.Constants.LDAP_ATTR_RELAY_GUID;
 import static org.ccci.idm.user.dao.ldap.Constants.LDAP_ATTR_RESETPASSWORDKEY;
 import static org.ccci.idm.user.dao.ldap.Constants.LDAP_ATTR_SIGNUPKEY;
+import static org.ccci.idm.user.dao.ldap.Constants.LDAP_ATTR_STATE;
+import static org.ccci.idm.user.dao.ldap.Constants.LDAP_ATTR_TELEPHONE;
 import static org.ccci.idm.user.dao.ldap.Constants.LDAP_ATTR_THEKEY_GUID;
 import static org.ccci.idm.user.dao.ldap.Constants.LDAP_ATTR_USERID;
 import static org.ccci.idm.user.dao.ldap.Constants.LDAP_DEACTIVATED_PREFIX;
@@ -24,8 +42,10 @@ import static org.ccci.idm.user.dao.ldap.Constants.LDAP_FLAG_LOCKED;
 import static org.ccci.idm.user.dao.ldap.Constants.LDAP_FLAG_LOGINDISABLED;
 import static org.ccci.idm.user.dao.ldap.Constants.LDAP_FLAG_STALEPASSWORD;
 import static org.ccci.idm.user.dao.ldap.Constants.LDAP_OBJECTCLASSES_USER;
+import static org.ccci.idm.user.dao.ldap.Constants.LDAP_OBJECTCLASS_CRU_PERSON_ATTRIBUTES;
 
 import com.google.common.base.Joiner;
+import com.google.common.base.Strings;
 import com.google.common.base.Throwables;
 import org.ccci.idm.user.User;
 import org.ldaptive.LdapAttribute;
@@ -40,9 +60,12 @@ import org.slf4j.LoggerFactory;
 import org.springframework.util.StringUtils;
 
 import javax.validation.constraints.NotNull;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 public abstract class AbstractUserLdapEntryMapper<O extends User> implements LdapEntryMapper<O> {
@@ -81,7 +104,7 @@ public abstract class AbstractUserLdapEntryMapper<O extends User> implements Lda
     @Override
     public void map(final O user, final LdapEntry entry) {
         // populate non-modifiable LdapAttributes
-        entry.addAttribute(new LdapAttribute(LDAP_ATTR_OBJECTCLASS, LDAP_OBJECTCLASSES_USER));
+        entry.addAttribute(new LdapAttribute(LDAP_ATTR_OBJECTCLASS, getObjectClasses(user)));
 
         // set the email for this user
         entry.addAttribute(this.attr(LDAP_ATTR_CN, user.isDeactivated() ? LDAP_DEACTIVATED_PREFIX + user.getGuid()
@@ -124,6 +147,52 @@ public abstract class AbstractUserLdapEntryMapper<O extends User> implements Lda
         entry.addAttribute(this.attr(LDAP_ATTR_FACEBOOKID, facebookId));
         entry.addAttribute(this.attr(LDAP_ATTR_FACEBOOKIDSTRENGTH, encodeStrength(facebookId,
                 user.getFacebookIdStrengthFor(facebookId))));
+
+        // cru staff attributes
+        entry.addAttribute(this.attr(LDAP_ATTR_EMPLOYEE_NUMBER, user.getEmployeeId()));
+        entry.addAttribute(this.attr(LDAP_ATTR_DEPARTMENT_NUMBER, user.getDepartmentNumber()));
+        entry.addAttribute(this.attr(LDAP_ATTR_TELEPHONE, user.getTelephoneNumber()));
+
+        entry.addAttribute(this.attr(LDAP_ATTR_CRU_DESIGNATION, user.getCruDesignation()));
+        entry.addAttribute(this.attr(LDAP_ATTR_CRU_EMPLOYEE_STATUS, user.getCruEmployeeStatus()));
+        entry.addAttribute(this.attr(LDAP_ATTR_CRU_GENDER, user.getCruGender()));
+        entry.addAttribute(this.attr(LDAP_ATTR_CRU_HR_STATUS_CODE, user.getCruHrStatusCode()));
+        entry.addAttribute(this.attr(LDAP_ATTR_CRU_JOB_CODE, user.getCruJobCode()));
+        entry.addAttribute(this.attr(LDAP_ATTR_CRU_MANAGER_ID, user.getCruManagerID()));
+        entry.addAttribute(this.attr(LDAP_ATTR_CRU_MINISTRY_CODE, user.getCruMinistryCode()));
+        entry.addAttribute(this.attr(LDAP_ATTR_CRU_PAY_GROUP, user.getCruPayGroup()));
+        entry.addAttribute(this.attr(LDAP_ATTR_CRU_PREFERRED_NAME, user.getCruPreferredName()));
+        entry.addAttribute(this.attr(LDAP_ATTR_CRU_SUB_MINISTRY_CODE, user.getCruSubMinistryCode()));
+        entry.addAttribute(this.attr(LDAP_ATTR_CRU_PROXY_ADDRESSES, user.getCruProxyAddresses()));
+
+        entry.addAttribute(this.attr(LDAP_ATTR_CITY, user.getCity()));
+        entry.addAttribute(this.attr(LDAP_ATTR_STATE, user.getState()));
+        entry.addAttribute(this.attr(LDAP_ATTR_POSTAL_CODE, user.getPostal()));
+        entry.addAttribute(this.attr(LDAP_ATTR_COUNTRY, user.getCountry()));
+    }
+
+    private String[] getObjectClasses(final O user) {
+        List<String> objectClasses = new ArrayList<String>(Arrays.asList(LDAP_OBJECTCLASSES_USER));
+        if(hasCruPersonAttributes(user)) {
+            objectClasses.add(LDAP_OBJECTCLASS_CRU_PERSON_ATTRIBUTES);
+        }
+        return objectClasses.toArray(new String[0]);
+    }
+
+    private boolean hasCruPersonAttributes(final O user)
+    {
+        return  !Strings.isNullOrEmpty(user.getCruDesignation()) ||
+                !Strings.isNullOrEmpty(user.getCruEmployeeStatus()) ||
+                !Strings.isNullOrEmpty(user.getCruGender()) ||
+                !Strings.isNullOrEmpty(user.getCruHrStatusCode()) ||
+                !Strings.isNullOrEmpty(user.getCruJobCode()) ||
+                !Strings.isNullOrEmpty(user.getCruManagerID()) ||
+                !Strings.isNullOrEmpty(user.getCruMinistryCode()) ||
+                !Strings.isNullOrEmpty(user.getCruPayGroup()) ||
+                !Strings.isNullOrEmpty(user.getCruPreferredName()) ||
+                !Strings.isNullOrEmpty(user.getCruSubMinistryCode()) ||
+                !user.getCruProxyAddresses().isEmpty() ||
+                !Strings.isNullOrEmpty(user.getCountry()); // include country since cruPerson has as optional attribute
     }
 
     @Override
