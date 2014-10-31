@@ -1,6 +1,6 @@
 package org.ccci.idm.user.ldaptive.dao.filter;
 
-import java.util.Objects;
+import com.google.common.base.Objects;
 
 public class LikeFilter extends FieldFilter {
     private final String pattern;
@@ -21,12 +21,12 @@ public class LikeFilter extends FieldFilter {
         if (!(o instanceof LikeFilter)) { return false; }
 
         final LikeFilter that = (LikeFilter) o;
-        return super.equals(o) && Objects.equals(this.pattern, that.pattern);
+        return super.equals(o) && Objects.equal(this.pattern, that.pattern);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(super.hashCode(), this.pattern);
+        return Objects.hashCode(super.hashCode(), this.pattern);
     }
 
     private static String encodeLikeValue(final String s) {

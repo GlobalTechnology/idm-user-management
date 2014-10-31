@@ -1,9 +1,9 @@
 package org.ccci.idm.user.ldaptive.dao.filter;
 
+import com.google.common.base.Objects;
 import org.ldaptive.SearchFilter;
 
 import java.util.Arrays;
-import java.util.Objects;
 
 public abstract class BooleanFilter extends BaseFilter {
     protected final String type;
@@ -33,7 +33,7 @@ public abstract class BooleanFilter extends BaseFilter {
         if (!(o instanceof BooleanFilter)) { return false; }
 
         final BooleanFilter that = (BooleanFilter) o;
-        return super.equals(o) && Objects.equals(this.type, that.type) && Arrays.equals(this.filters, that.filters);
+        return super.equals(o) && Objects.equal(this.type, that.type) && Arrays.equals(this.filters, that.filters);
     }
 
     @Override

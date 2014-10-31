@@ -13,6 +13,7 @@ import static org.ccci.idm.user.dao.ldap.Constants.LDAP_ATTR_USERID;
 import static org.ccci.idm.user.dao.ldap.Constants.LDAP_DEACTIVATED_PREFIX;
 import static org.ccci.idm.user.dao.ldap.Constants.LDAP_OBJECTCLASS_PERSON;
 
+import com.google.common.base.Objects;
 import com.google.common.base.Predicate;
 import com.google.common.base.Predicates;
 import com.google.common.base.Throwables;
@@ -53,7 +54,6 @@ import javax.validation.constraints.NotNull;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import java.util.Objects;
 import java.util.Set;
 
 public class LdaptiveUserDao extends AbstractLdapUserDao {
@@ -267,7 +267,7 @@ public class LdaptiveUserDao extends AbstractLdapUserDao {
             // modify the DN if it changed
             final String dn = this.userMapper.mapDn(user);
             final String originalDn = this.userMapper.mapDn(original);
-            if (!Objects.equals(originalDn, dn)) {
+            if (!Objects.equal(originalDn, dn)) {
                 new ModifyDnOperation(conn).execute(new ModifyDnRequest(originalDn, dn));
             }
 

@@ -1,6 +1,6 @@
 package org.ccci.idm.user.ldaptive.dao.filter;
 
-import java.util.Objects;
+import com.google.common.base.Objects;
 
 public class EqualsFilter extends FieldFilter {
     private final String value;
@@ -21,11 +21,11 @@ public class EqualsFilter extends FieldFilter {
         if (!(o instanceof EqualsFilter)) { return false; }
 
         final EqualsFilter that = (EqualsFilter) o;
-        return super.equals(o) && Objects.equals(this.value, that.value);
+        return super.equals(o) && Objects.equal(this.value, that.value);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(super.hashCode(), this.value);
+        return Objects.hashCode(super.hashCode(), this.value);
     }
 }
