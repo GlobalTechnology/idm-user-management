@@ -102,7 +102,7 @@ public abstract class AbstractUserLdapEntryMapper<O extends User> implements Lda
     @Override
     public void map(final O user, final LdapEntry entry) {
         // populate non-modifiable LdapAttributes
-        entry.addAttribute(this.attrObjectClass(user)); // LDAP_ATTR_OBJECTCLASS
+        entry.addAttribute(this.attrObjectClass(user));
 
         // set the email for this user
         entry.addAttribute(this.attr(LDAP_ATTR_CN, user.isDeactivated() ? LDAP_DEACTIVATED_PREFIX + user.getGuid()
@@ -171,7 +171,8 @@ public abstract class AbstractUserLdapEntryMapper<O extends User> implements Lda
 
     private boolean hasRelayAttributes(final O user)
     {
-        return  !Strings.isNullOrEmpty(user.getRelayGuid());
+        return  !Strings.isNullOrEmpty(user.getRelayGuid()) ||
+                !Strings.isNullOrEmpty(user.getCountry());
     }
 
     private boolean hasCruPersonAttributes(final O user)
@@ -186,8 +187,7 @@ public abstract class AbstractUserLdapEntryMapper<O extends User> implements Lda
                 !Strings.isNullOrEmpty(user.getCruPayGroup()) ||
                 !Strings.isNullOrEmpty(user.getCruPreferredName()) ||
                 !Strings.isNullOrEmpty(user.getCruSubMinistryCode()) ||
-                (user.getCruProxyAddresses() != null && !user.getCruProxyAddresses().isEmpty()) ||
-                !Strings.isNullOrEmpty(user.getCountry()); // include country since cruPerson has as optional attribute
+                (user.getCruProxyAddresses() != null && !user.getCruProxyAddresses().isEmpty());
     }
 
     @Override

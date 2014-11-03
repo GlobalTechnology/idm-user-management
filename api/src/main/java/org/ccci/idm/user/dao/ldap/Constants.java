@@ -10,7 +10,6 @@ public class Constants {
     public static final String LDAP_ATTR_EMAIL = "cn";
     public static final String LDAP_ATTR_USERID = "uid";
     public static final String LDAP_ATTR_GUID = "extensionAttribute1";
-    public static final String LDAP_ATTR_RELAY_GUID = "relayGuid";
     public static final String LDAP_ATTR_THEKEY_GUID = "extensionAttribute1";
     public static final String LDAP_ATTR_PASSWORD = "userPassword";
     public static final String LDAP_ATTR_FIRSTNAME = "givenName";
@@ -57,9 +56,12 @@ public class Constants {
     public static final String LDAP_ATTR_CRU_PREFERRED_NAME = "cruPreferredName";
     public static final String LDAP_ATTR_CRU_SUB_MINISTRY_CODE = "cruSubMinistryCode";
     public static final String LDAP_ATTR_CRU_PROXY_ADDRESSES = "proxyAddresses";
+
+    // relayAttributes
+    public static final String LDAP_ATTR_RELAY_GUID = "relayGuid";
     public static final String LDAP_ATTR_COUNTRY = "countryName";
 
-    // other attributes used by Cru
+    // other cru related attributes (available in other object classes)
     public static final String LDAP_ATTR_EMPLOYEE_NUMBER = "employeeNumber";
     public static final String LDAP_ATTR_DEPARTMENT_NUMBER = "departmentNumber";
     public static final String LDAP_ATTR_CITY = "city";
