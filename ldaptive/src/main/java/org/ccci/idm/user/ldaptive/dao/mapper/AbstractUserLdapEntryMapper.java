@@ -191,7 +191,7 @@ public abstract class AbstractUserLdapEntryMapper<O extends User> implements Lda
                 !Strings.isNullOrEmpty(user.getCruPayGroup()) ||
                 !Strings.isNullOrEmpty(user.getCruPreferredName()) ||
                 !Strings.isNullOrEmpty(user.getCruSubMinistryCode()) ||
-                !user.getCruProxyAddresses().isEmpty() ||
+                (user.getCruProxyAddresses() != null && !user.getCruProxyAddresses().isEmpty()) ||
                 !Strings.isNullOrEmpty(user.getCountry()); // include country since cruPerson has as optional attribute
     }
 
