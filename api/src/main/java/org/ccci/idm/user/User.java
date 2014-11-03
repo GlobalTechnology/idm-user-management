@@ -496,4 +496,15 @@ public class User implements Cloneable, Serializable {
     protected User clone() {
         return new User(this);
     }
+
+    @Override public String toString() {
+        return "User{" +
+                "email='" + email + '\'' +
+                ", guid='" + guid + '\'' +
+                ", theKeyGuid='" + theKeyGuid + '\'' +
+                ", relayGuid='" + relayGuid + '\'' +
+                ", firstName='" + firstName + '\'' +
+                ", lastName='" + lastName + '\'' +
+                '}';
+    }
 }
