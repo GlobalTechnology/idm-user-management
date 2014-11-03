@@ -191,42 +191,50 @@ public class DefaultUserManager implements UserManager {
     }
 
     @Override
+    @Transactional(readOnly = true)
     public User findUserByEmail(final String email, final boolean includeDeactivated) {
         //TODO: implement includeDeactivated functionality
         return this.userDao.findByEmail(email);
     }
 
     @Override
+    @Transactional(readOnly = true)
     public User findUserByGuid(final String guid) {
         return this.userDao.findByGuid(guid);
     }
 
     @Override
+    @Transactional(readOnly = true)
     public User findUserByRelayGuid(final String guid) {
         return this.userDao.findByRelayGuid(guid);
     }
 
     @Override
+    @Transactional(readOnly = true)
     public User findUserByTheKeyGuid(final String guid) {
         return this.userDao.findByTheKeyGuid(guid);
     }
 
     @Override
+    @Transactional(readOnly = true)
     public User findUserByFacebookId(final String id) {
         return this.userDao.findByFacebookId(id);
     }
 
     @Override
+    @Transactional(readOnly = true)
     public List<User> findAllByFirstName(final String pattern) throws ExceededMaximumAllowedResultsException {
         return this.userDao.findAllByFirstName(pattern);
     }
 
     @Override
+    @Transactional(readOnly = true)
     public List<User> findAllByLastName(final String pattern) throws ExceededMaximumAllowedResultsException {
         return this.userDao.findAllByLastName(pattern);
     }
 
     @Override
+    @Transactional(readOnly = true)
     public List<User> findAllByEmail(final String pattern, final boolean includeDeactivated) throws
             ExceededMaximumAllowedResultsException {
         return this.userDao.findAllByEmail(pattern, includeDeactivated);
