@@ -40,15 +40,46 @@ public class LdaptiveUserDaoIT {
     }
 
     @Test
-    public void testCreate() throws Exception {
+    public void testCreateUser() throws Exception {
         assumeConfigured();
 
+        final User user = getUser();
+
+        this.dao.save(user);
+    }
+
+    @Test
+    public void testCreateStaffUser() throws Exception {
+        assumeConfigured();
+
+        final User user = getStaffUser();
+
+        this.dao.save(user);
+    }
+
+    private User getUser()
+    {
         final User user = new User();
         user.setEmail("test.user." + RAND.nextInt(Integer.MAX_VALUE) + "@example.com");
         user.setGuid(UUID.randomUUID().toString().toUpperCase());
         user.setFirstName("Test");
         user.setLastName("User");
 
-        this.dao.save(user);
+        return user;
+    }
+
+    private User getStaffUser()
+    {
+        final User user = getUser();
+
+        user.setEmployeeId("000123457");
+        user.setDepartmentNumber("USDSABC");
+        user.setCruDesignation("123457");
+        user.setCruGender("M");
+        user.setCity("Orlando");
+        user.setState("FL");
+        user.setPostal("32832");
+
+        return user;
     }
 }
