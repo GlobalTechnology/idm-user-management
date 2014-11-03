@@ -60,12 +60,9 @@ import org.slf4j.LoggerFactory;
 import org.springframework.util.StringUtils;
 
 import javax.validation.constraints.NotNull;
-import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 public abstract class AbstractUserLdapEntryMapper<O extends User> implements LdapEntryMapper<O> {
@@ -104,7 +101,7 @@ public abstract class AbstractUserLdapEntryMapper<O extends User> implements Lda
     @Override
     public void map(final O user, final LdapEntry entry) {
         // populate non-modifiable LdapAttributes
-        entry.addAttribute(new LdapAttribute(LDAP_ATTR_OBJECTCLASS, getObjectClasses(user)));
+        entry.addAttribute(this.attrObjectClass(user)); // LDAP_ATTR_OBJECTCLASS
 
         // set the email for this user
         entry.addAttribute(this.attr(LDAP_ATTR_CN, user.isDeactivated() ? LDAP_DEACTIVATED_PREFIX + user.getGuid()
@@ -169,14 +166,6 @@ public abstract class AbstractUserLdapEntryMapper<O extends User> implements Lda
         entry.addAttribute(this.attr(LDAP_ATTR_STATE, user.getState()));
         entry.addAttribute(this.attr(LDAP_ATTR_POSTAL_CODE, user.getPostal()));
         entry.addAttribute(this.attr(LDAP_ATTR_COUNTRY, user.getCountry()));
-    }
-
-    private String[] getObjectClasses(final O user) {
-        List<String> objectClasses = new ArrayList<String>(Arrays.asList(LDAP_OBJECTCLASSES_USER));
-        if(hasCruPersonAttributes(user)) {
-            objectClasses.add(LDAP_OBJECTCLASS_CRU_PERSON_ATTRIBUTES);
-        }
-        return objectClasses.toArray(new String[0]);
     }
 
     private boolean hasCruPersonAttributes(final O user)
@@ -265,6 +254,14 @@ public abstract class AbstractUserLdapEntryMapper<O extends User> implements Lda
         final LdapAttribute attr = new LdapAttribute(name);
         for (final boolean value : values) {
             attr.addStringValue(Boolean.toString(value).toUpperCase());
+        }
+        return attr;
+    }
+
+    protected LdapAttribute attrObjectClass(final O user) {
+        final LdapAttribute attr = new LdapAttribute(LDAP_ATTR_OBJECTCLASS, LDAP_OBJECTCLASSES_USER);
+        if(hasCruPersonAttributes(user)) {
+            attr.addStringValue(LDAP_OBJECTCLASS_CRU_PERSON_ATTRIBUTES);
         }
         return attr;
     }
