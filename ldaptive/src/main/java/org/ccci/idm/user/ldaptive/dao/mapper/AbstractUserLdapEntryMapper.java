@@ -43,6 +43,7 @@ import static org.ccci.idm.user.dao.ldap.Constants.LDAP_FLAG_LOGINDISABLED;
 import static org.ccci.idm.user.dao.ldap.Constants.LDAP_FLAG_STALEPASSWORD;
 import static org.ccci.idm.user.dao.ldap.Constants.LDAP_OBJECTCLASSES_USER;
 import static org.ccci.idm.user.dao.ldap.Constants.LDAP_OBJECTCLASS_CRU_PERSON_ATTRIBUTES;
+import static org.ccci.idm.user.dao.ldap.Constants.LDAP_OBJECTCLASS_RELAY_ATTRIBUTES;
 
 import com.google.common.base.Joiner;
 import com.google.common.base.Strings;
@@ -168,6 +169,11 @@ public abstract class AbstractUserLdapEntryMapper<O extends User> implements Lda
         entry.addAttribute(this.attr(LDAP_ATTR_COUNTRY, user.getCountry()));
     }
 
+    private boolean hasRelayAttributes(final O user)
+    {
+        return  !Strings.isNullOrEmpty(user.getRelayGuid());
+    }
+
     private boolean hasCruPersonAttributes(final O user)
     {
         return  !Strings.isNullOrEmpty(user.getCruDesignation()) ||
@@ -262,6 +268,9 @@ public abstract class AbstractUserLdapEntryMapper<O extends User> implements Lda
         final LdapAttribute attr = new LdapAttribute(LDAP_ATTR_OBJECTCLASS, LDAP_OBJECTCLASSES_USER);
         if(hasCruPersonAttributes(user)) {
             attr.addStringValue(LDAP_OBJECTCLASS_CRU_PERSON_ATTRIBUTES);
+        }
+        if(hasRelayAttributes(user)) {
+            attr.addStringValue(LDAP_OBJECTCLASS_RELAY_ATTRIBUTES);
         }
         return attr;
     }
