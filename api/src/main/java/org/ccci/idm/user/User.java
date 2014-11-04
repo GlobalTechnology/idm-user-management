@@ -14,6 +14,7 @@ import java.io.Serializable;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
+import java.util.Set;
 
 public class User implements Cloneable, Serializable {
     private static final long serialVersionUID = -1174980195690210236L;
@@ -40,8 +41,8 @@ public class User implements Cloneable, Serializable {
     private boolean locked = false;
 
     // Multi-value attributes
-    private final Collection<String> domainsVisited = new HashSet<String>();
-    private final Collection<String> groups = new HashSet<String>();
+    private final Set<String> domainsVisited = new HashSet<String>();
+    private final Set<String> groups = new HashSet<String>();
 
     // self-service verification keys
     private String signupKey = null;
@@ -389,8 +390,8 @@ public class User implements Cloneable, Serializable {
     /**
      * @return the domainsVisited
      */
-    public Collection<String> getDomainsVisited() {
-        return Collections.unmodifiableCollection(this.domainsVisited);
+    public Set<String> getDomainsVisited() {
+        return Collections.unmodifiableSet(this.domainsVisited);
     }
 
     /**
@@ -422,8 +423,8 @@ public class User implements Cloneable, Serializable {
     /**
      * @return the groupMembership
      */
-    public Collection<String> getGroups() {
-        return Collections.unmodifiableCollection(this.groups);
+    public Set<String> getGroups() {
+        return Collections.unmodifiableSet(this.groups);
     }
 
     public String getSignupKey() {
