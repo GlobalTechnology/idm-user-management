@@ -245,7 +245,7 @@ public class LdaptiveUserDao extends AbstractLdapUserDao {
         try {
             conn = this.connectionFactory.getConnection();
             conn.open();
-            this.updateInternal(conn, this.userMapper.mapDn(user), user);
+            this.updateInternal(conn, this.userMapper.mapDn(user), user, attrs);
         } catch (final LdapException e) {
             // XXX: for now just propagate any exceptions as RuntimeExceptions
             throw Throwables.propagate(e);
