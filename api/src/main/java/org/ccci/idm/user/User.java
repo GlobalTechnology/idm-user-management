@@ -3,6 +3,7 @@ package org.ccci.idm.user;
 import static org.ccci.idm.user.Constants.STRENGTH_FULL;
 import static org.ccci.idm.user.Constants.STRENGTH_NONE;
 
+import com.google.common.base.MoreObjects;
 import com.google.common.base.Predicates;
 import com.google.common.collect.Collections2;
 import com.google.common.collect.Sets;
@@ -498,48 +499,49 @@ public class User implements Cloneable, Serializable {
         return new User(this);
     }
 
-    @Override public String toString() {
-        return "User{" +
-                "email='" + email + '\'' +
-                ", guid='" + guid + '\'' +
-                ", theKeyGuid='" + theKeyGuid + '\'' +
-                ", relayGuid='" + relayGuid + '\'' +
-                ", firstName='" + firstName + '\'' +
-                ", lastName='" + lastName + '\'' +
-                ", emailVerified=" + emailVerified +
-                ", allowPasswordChange=" + allowPasswordChange +
-                ", forcePasswordChange=" + forcePasswordChange +
-                ", deactivated=" + deactivated +
-                ", loginDisabled=" + loginDisabled +
-                ", locked=" + locked +
-                ", domainsVisited=" + domainsVisited +
-                ", groups=" + groups +
-                ", signupKey='" + signupKey + '\'' +
-                ", changeEmailKey='" + changeEmailKey + '\'' +
-                ", resetPasswordKey='" + resetPasswordKey + '\'' +
-                ", proposedEmail='" + proposedEmail + '\'' +
-                ", facebookId='" + facebookId + '\'' +
-                ", facebookIdStrength=" + facebookIdStrength +
-                ", deactivatedUid='" + deactivatedUid + '\'' +
-                ", employeeId='" + employeeId + '\'' +
-                ", departmentNumber='" + departmentNumber + '\'' +
-                ", cruDesignation='" + cruDesignation + '\'' +
-                ", cruEmployeeStatus='" + cruEmployeeStatus + '\'' +
-                ", cruGender='" + cruGender + '\'' +
-                ", cruHrStatusCode='" + cruHrStatusCode + '\'' +
-                ", cruJobCode='" + cruJobCode + '\'' +
-                ", cruManagerID='" + cruManagerID + '\'' +
-                ", cruMinistryCode='" + cruMinistryCode + '\'' +
-                ", cruPayGroup='" + cruPayGroup + '\'' +
-                ", cruPreferredName='" + cruPreferredName + '\'' +
-                ", cruSubMinistryCode='" + cruSubMinistryCode + '\'' +
-                ", cruProxyAddresses=" + cruProxyAddresses +
-                ", city='" + city + '\'' +
-                ", state='" + state + '\'' +
-                ", postal='" + postal + '\'' +
-                ", country='" + country + '\'' +
-                ", telephoneNumber='" + telephoneNumber + '\'' +
-                '}';
+    @Override
+    public String toString() {
+        return MoreObjects.toStringHelper(this).omitNullValues()
+                .add("email", email)
+                .add("guid", guid)
+                .add("theKeyGuid", theKeyGuid)
+                .add("relayGuid", relayGuid)
+                .add("firstName", firstName)
+                .add("lastName", lastName)
+                .add("emailVerified", emailVerified)
+                .add("allowPasswordChange", allowPasswordChange)
+                .add("forcePasswordChange", forcePasswordChange)
+                .add("deactivated", deactivated)
+                .add("loginDisabled", loginDisabled)
+                .add("locked", locked)
+                .add("domainsVisited", domainsVisited)
+                .add("groups", groups)
+                .add("signupKey", signupKey)
+                .add("changeEmailKey", changeEmailKey)
+                .add("resetPasswordKey", resetPasswordKey)
+                .add("proposedEmail", proposedEmail)
+                .add("facebookId", facebookId)
+                .add("facebookIdStrength", facebookIdStrength)
+                .add("deactivatedUid", deactivatedUid)
+                .add("employeeId", employeeId)
+                .add("departmentNumber", departmentNumber)
+                .add("cruDesignation", cruDesignation)
+                .add("cruEmployeeStatus", cruEmployeeStatus)
+                .add("cruGender", cruGender)
+                .add("cruHrStatusCode", cruHrStatusCode)
+                .add("cruJobCode", cruJobCode)
+                .add("cruManagerID", cruManagerID)
+                .add("cruMinistryCode", cruMinistryCode)
+                .add("cruPayGroup", cruPayGroup)
+                .add("cruPreferredName", cruPreferredName)
+                .add("cruSubMinistryCode", cruSubMinistryCode)
+                .add("cruProxyAddresses", cruProxyAddresses)
+                .add("city", city)
+                .add("state", state)
+                .add("postal", postal)
+                .add("country", country)
+                .add("telephoneNumber", telephoneNumber)
+                .toString();
     }
 
     @Override
