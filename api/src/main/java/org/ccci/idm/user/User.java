@@ -541,4 +541,81 @@ public class User implements Cloneable, Serializable {
                 ", telephoneNumber='" + telephoneNumber + '\'' +
                 '}';
     }
+
+    @Override
+    public boolean equals(Object o) {
+        if(this == o) return true;
+        if(o == null || getClass() != o.getClass()) return false;
+
+        User user = (User) o;
+
+        if(email != null ? !email.equals(user.email) : user.email != null) return false;
+        if(employeeId != null ? !employeeId.equals(user.employeeId) : user.employeeId != null) return false;
+        if(facebookId != null ? !facebookId.equals(user.facebookId) : user.facebookId != null) return false;
+        if(firstName != null ? !firstName.equals(user.firstName) : user.firstName != null) return false;
+        if(groups != null ? !groups.equals(user.groups) : user.groups != null) return false;
+        if(guid != null ? !guid.equals(user.guid) : user.guid != null) return false;
+        if(lastName != null ? !lastName.equals(user.lastName) : user.lastName != null) return false;
+        if(password != null ? !password.equals(user.password) : user.password != null) return false;
+        if(postal != null ? !postal.equals(user.postal) : user.postal != null) return false;
+        if(proposedEmail != null ? !proposedEmail.equals(user.proposedEmail) : user.proposedEmail != null) return false;
+        if(relayGuid != null ? !relayGuid.equals(user.relayGuid) : user.relayGuid != null) return false;
+        if(resetPasswordKey != null ? !resetPasswordKey.equals(user.resetPasswordKey) : user.resetPasswordKey != null)
+            return false;
+        if(signupKey != null ? !signupKey.equals(user.signupKey) : user.signupKey != null) return false;
+        if(state != null ? !state.equals(user.state) : user.state != null) return false;
+        if(telephoneNumber != null ? !telephoneNumber.equals(user.telephoneNumber) : user.telephoneNumber != null)
+            return false;
+        if(theKeyGuid != null ? !theKeyGuid.equals(user.theKeyGuid) : user.theKeyGuid != null) return false;
+
+        return true;
+    }
+
+    @Override
+    public int hashCode() {
+        int result;
+        long temp;
+        result = email != null ? email.hashCode() : 0;
+        result = 31 * result + (password != null ? password.hashCode() : 0);
+        result = 31 * result + (guid != null ? guid.hashCode() : 0);
+        result = 31 * result + (theKeyGuid != null ? theKeyGuid.hashCode() : 0);
+        result = 31 * result + (relayGuid != null ? relayGuid.hashCode() : 0);
+        result = 31 * result + (firstName != null ? firstName.hashCode() : 0);
+        result = 31 * result + (lastName != null ? lastName.hashCode() : 0);
+        result = 31 * result + (emailVerified ? 1 : 0);
+        result = 31 * result + (allowPasswordChange ? 1 : 0);
+        result = 31 * result + (forcePasswordChange ? 1 : 0);
+        result = 31 * result + (deactivated ? 1 : 0);
+        result = 31 * result + (loginDisabled ? 1 : 0);
+        result = 31 * result + (locked ? 1 : 0);
+        result = 31 * result + (domainsVisited != null ? domainsVisited.hashCode() : 0);
+        result = 31 * result + (groups != null ? groups.hashCode() : 0);
+        result = 31 * result + (signupKey != null ? signupKey.hashCode() : 0);
+        result = 31 * result + (changeEmailKey != null ? changeEmailKey.hashCode() : 0);
+        result = 31 * result + (resetPasswordKey != null ? resetPasswordKey.hashCode() : 0);
+        result = 31 * result + (proposedEmail != null ? proposedEmail.hashCode() : 0);
+        result = 31 * result + (facebookId != null ? facebookId.hashCode() : 0);
+        temp = Double.doubleToLongBits(facebookIdStrength);
+        result = 31 * result + (int) (temp ^ (temp >>> 32));
+        result = 31 * result + (deactivatedUid != null ? deactivatedUid.hashCode() : 0);
+        result = 31 * result + (employeeId != null ? employeeId.hashCode() : 0);
+        result = 31 * result + (departmentNumber != null ? departmentNumber.hashCode() : 0);
+        result = 31 * result + (cruDesignation != null ? cruDesignation.hashCode() : 0);
+        result = 31 * result + (cruEmployeeStatus != null ? cruEmployeeStatus.hashCode() : 0);
+        result = 31 * result + (cruGender != null ? cruGender.hashCode() : 0);
+        result = 31 * result + (cruHrStatusCode != null ? cruHrStatusCode.hashCode() : 0);
+        result = 31 * result + (cruJobCode != null ? cruJobCode.hashCode() : 0);
+        result = 31 * result + (cruManagerID != null ? cruManagerID.hashCode() : 0);
+        result = 31 * result + (cruMinistryCode != null ? cruMinistryCode.hashCode() : 0);
+        result = 31 * result + (cruPayGroup != null ? cruPayGroup.hashCode() : 0);
+        result = 31 * result + (cruPreferredName != null ? cruPreferredName.hashCode() : 0);
+        result = 31 * result + (cruSubMinistryCode != null ? cruSubMinistryCode.hashCode() : 0);
+        result = 31 * result + (cruProxyAddresses != null ? cruProxyAddresses.hashCode() : 0);
+        result = 31 * result + (city != null ? city.hashCode() : 0);
+        result = 31 * result + (state != null ? state.hashCode() : 0);
+        result = 31 * result + (postal != null ? postal.hashCode() : 0);
+        result = 31 * result + (country != null ? country.hashCode() : 0);
+        result = 31 * result + (telephoneNumber != null ? telephoneNumber.hashCode() : 0);
+        return result;
+    }
 }
