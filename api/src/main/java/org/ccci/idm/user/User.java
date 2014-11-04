@@ -574,8 +574,8 @@ public class User implements Cloneable, Serializable {
                 Objects.equal(this.deactivated, other.deactivated) &&
                 Objects.equal(this.loginDisabled, other.loginDisabled) &&
                 Objects.equal(this.locked, other.locked) &&
-                Objects.equal(this.domainsVisited, other.domainsVisited) &&
-                Objects.equal(this.groups, other.groups) &&
+                this.domainsVisited.size() == other.domainsVisited.size() && this.domainsVisited.containsAll(other.domainsVisited) &&
+                this.groups.size() == other.groups.size() && this.groups.containsAll(other.groups) &&
                 Objects.equal(this.signupKey, other.signupKey) &&
                 Objects.equal(this.changeEmailKey, other.changeEmailKey) &&
                 Objects.equal(this.resetPasswordKey, other.resetPasswordKey) &&
@@ -595,7 +595,7 @@ public class User implements Cloneable, Serializable {
                 Objects.equal(this.cruPayGroup, other.cruPayGroup) &&
                 Objects.equal(this.cruPreferredName, other.cruPreferredName) &&
                 Objects.equal(this.cruSubMinistryCode, other.cruSubMinistryCode) &&
-                Objects.equal(this.cruProxyAddresses, other.cruProxyAddresses) &&
+                this.cruProxyAddresses.size() == other.cruProxyAddresses.size() && this.cruProxyAddresses.containsAll(other.cruProxyAddresses) &&
                 Objects.equal(this.city, other.city) &&
                 Objects.equal(this.state, other.state) &&
                 Objects.equal(this.postal, other.postal) &&
