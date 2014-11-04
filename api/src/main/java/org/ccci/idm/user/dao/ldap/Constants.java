@@ -10,7 +10,7 @@ public class Constants {
     public static final String LDAP_ATTR_EMAIL = "cn";
     public static final String LDAP_ATTR_USERID = "uid";
     public static final String LDAP_ATTR_GUID = "extensionAttribute1";
-    public static final String LDAP_ATTR_THEKEY_GUID = "extensionAttribute1";
+    public static final String LDAP_ATTR_THEKEY_GUID = "theKeyGuid";
     public static final String LDAP_ATTR_PASSWORD = "userPassword";
     public static final String LDAP_ATTR_FIRSTNAME = "givenName";
     public static final String LDAP_ATTR_LASTNAME = "sn";
