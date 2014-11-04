@@ -58,24 +58,13 @@ public abstract class AbstractLdapUserDao extends AbstractUserDao {
                     LDAP_ATTR_RESETPASSWORDKEY, LDAP_ATTR_SIGNUPKEY))
             .put(Attr.FACEBOOK, ImmutableSet.of(LDAP_ATTR_FACEBOOKID, LDAP_ATTR_FACEBOOKIDSTRENGTH))
             .put(Attr.RELAY_GUID, ImmutableSet.of(LDAP_ATTR_RELAY_GUID))
-            .put(Attr.EMPLOYEE_NUMBER, ImmutableSet.of(LDAP_ATTR_EMPLOYEE_NUMBER))
-            .put(Attr.DEPARTMENT_NUMBER, ImmutableSet.of(LDAP_ATTR_DEPARTMENT_NUMBER))
-            .put(Attr.CITY, ImmutableSet.of(LDAP_ATTR_CITY))
-            .put(Attr.STATE, ImmutableSet.of(LDAP_ATTR_STATE))
-            .put(Attr.POSTAL_CODE, ImmutableSet.of(LDAP_ATTR_POSTAL_CODE))
-            .put(Attr.COUNTRY, ImmutableSet.of(LDAP_ATTR_COUNTRY))
-            .put(Attr.TELEPHONE_NUMBER, ImmutableSet.of(LDAP_ATTR_TELEPHONE))
-            .put(Attr.CRU_DESIGNATION, ImmutableSet.of(LDAP_ATTR_CRU_DESIGNATION))
-            .put(Attr.CRU_EMPLOYEE_STATUS, ImmutableSet.of(LDAP_ATTR_CRU_EMPLOYEE_STATUS))
-            .put(Attr.CRU_GENDER, ImmutableSet.of(LDAP_ATTR_CRU_GENDER))
-            .put(Attr.CRU_HR_STATUS_CODE, ImmutableSet.of(LDAP_ATTR_CRU_HR_STATUS_CODE))
-            .put(Attr.CRU_JOB_CODE, ImmutableSet.of(LDAP_ATTR_CRU_JOB_CODE))
-            .put(Attr.CRU_MANAGER_ID, ImmutableSet.of(LDAP_ATTR_CRU_MANAGER_ID))
-            .put(Attr.CRU_MINISTRY_CODE, ImmutableSet.of(LDAP_ATTR_CRU_MINISTRY_CODE))
-            .put(Attr.CRU_PAY_GROUP, ImmutableSet.of(LDAP_ATTR_CRU_PAY_GROUP))
-            .put(Attr.CRU_PREFERRED_NAME, ImmutableSet.of(LDAP_ATTR_CRU_PREFERRED_NAME))
-            .put(Attr.CRU_SUB_MINISTRY_CODE, ImmutableSet.of(LDAP_ATTR_CRU_SUB_MINISTRY_CODE))
-            .put(Attr.CRU_PROXY_ADDRESSES, ImmutableSet.of(LDAP_ATTR_CRU_PROXY_ADDRESSES))
+            .put(Attr.LOCATION, ImmutableSet.of(LDAP_ATTR_CITY, LDAP_ATTR_STATE, LDAP_ATTR_POSTAL_CODE,
+                    LDAP_ATTR_COUNTRY))
+            .put(Attr.CRU_PERSON, ImmutableSet.of(LDAP_ATTR_EMPLOYEE_NUMBER, LDAP_ATTR_DEPARTMENT_NUMBER,
+                    LDAP_ATTR_TELEPHONE, LDAP_ATTR_CRU_DESIGNATION, LDAP_ATTR_CRU_EMPLOYEE_STATUS,
+                    LDAP_ATTR_CRU_GENDER, LDAP_ATTR_CRU_HR_STATUS_CODE, LDAP_ATTR_CRU_JOB_CODE,
+                    LDAP_ATTR_CRU_MANAGER_ID, LDAP_ATTR_CRU_MINISTRY_CODE, LDAP_ATTR_CRU_PAY_GROUP,
+                    LDAP_ATTR_CRU_PREFERRED_NAME, LDAP_ATTR_CRU_SUB_MINISTRY_CODE, LDAP_ATTR_CRU_PROXY_ADDRESSES))
             .build();
 
     private Set<String> MASK_DEFAULT = ImmutableSet.<String>builder().addAll(MASK.get(Attr.EMAIL)).addAll(MASK.get

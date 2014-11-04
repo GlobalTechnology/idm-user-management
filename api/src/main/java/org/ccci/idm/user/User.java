@@ -17,9 +17,7 @@ public class User implements Cloneable, Serializable {
     private static final long serialVersionUID = -1174980195690210236L;
 
     public enum Attr {EMAIL, PASSWORD, NAME, LOGINTIME, FLAGS, SELFSERVICEKEYS, DOMAINSVISITED, FACEBOOK, RELAY_GUID,
-       EMPLOYEE_NUMBER, DEPARTMENT_NUMBER, CITY, STATE, POSTAL_CODE, COUNTRY, TELEPHONE_NUMBER, CRU_DESIGNATION,
-        CRU_EMPLOYEE_STATUS, CRU_GENDER, CRU_HR_STATUS_CODE, CRU_JOB_CODE, CRU_MANAGER_ID, CRU_MINISTRY_CODE,
-        CRU_PAY_GROUP, CRU_PREFERRED_NAME, CRU_SUB_MINISTRY_CODE, CRU_PROXY_ADDRESSES }
+       LOCATION, CRU_PERSON }
 
     private String email;
     private String password;
@@ -508,6 +506,39 @@ public class User implements Cloneable, Serializable {
                 ", relayGuid='" + relayGuid + '\'' +
                 ", firstName='" + firstName + '\'' +
                 ", lastName='" + lastName + '\'' +
+                ", emailVerified=" + emailVerified +
+                ", allowPasswordChange=" + allowPasswordChange +
+                ", forcePasswordChange=" + forcePasswordChange +
+                ", deactivated=" + deactivated +
+                ", loginDisabled=" + loginDisabled +
+                ", locked=" + locked +
+                ", domainsVisited=" + domainsVisited +
+                ", groups=" + groups +
+                ", signupKey='" + signupKey + '\'' +
+                ", changeEmailKey='" + changeEmailKey + '\'' +
+                ", resetPasswordKey='" + resetPasswordKey + '\'' +
+                ", proposedEmail='" + proposedEmail + '\'' +
+                ", facebookId='" + facebookId + '\'' +
+                ", facebookIdStrength=" + facebookIdStrength +
+                ", deactivatedUid='" + deactivatedUid + '\'' +
+                ", employeeId='" + employeeId + '\'' +
+                ", departmentNumber='" + departmentNumber + '\'' +
+                ", cruDesignation='" + cruDesignation + '\'' +
+                ", cruEmployeeStatus='" + cruEmployeeStatus + '\'' +
+                ", cruGender='" + cruGender + '\'' +
+                ", cruHrStatusCode='" + cruHrStatusCode + '\'' +
+                ", cruJobCode='" + cruJobCode + '\'' +
+                ", cruManagerID='" + cruManagerID + '\'' +
+                ", cruMinistryCode='" + cruMinistryCode + '\'' +
+                ", cruPayGroup='" + cruPayGroup + '\'' +
+                ", cruPreferredName='" + cruPreferredName + '\'' +
+                ", cruSubMinistryCode='" + cruSubMinistryCode + '\'' +
+                ", cruProxyAddresses=" + cruProxyAddresses +
+                ", city='" + city + '\'' +
+                ", state='" + state + '\'' +
+                ", postal='" + postal + '\'' +
+                ", country='" + country + '\'' +
+                ", telephoneNumber='" + telephoneNumber + '\'' +
                 '}';
     }
 }
