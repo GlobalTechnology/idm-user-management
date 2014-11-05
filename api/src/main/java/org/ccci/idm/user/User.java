@@ -3,19 +3,24 @@ package org.ccci.idm.user;
 import static org.ccci.idm.user.Constants.STRENGTH_FULL;
 import static org.ccci.idm.user.Constants.STRENGTH_NONE;
 
+import com.google.common.base.MoreObjects;
+import com.google.common.base.Objects;
 import com.google.common.base.Predicates;
 import com.google.common.collect.Collections2;
+import com.google.common.collect.Sets;
 import org.springframework.util.StringUtils;
 
 import java.io.Serializable;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
+import java.util.Set;
 
 public class User implements Cloneable, Serializable {
     private static final long serialVersionUID = -1174980195690210236L;
 
-    public enum Attr {EMAIL, PASSWORD, NAME, LOGINTIME, FLAGS, SELFSERVICEKEYS, DOMAINSVISITED, FACEBOOK}
+    public enum Attr {EMAIL, PASSWORD, NAME, LOGINTIME, FLAGS, SELFSERVICEKEYS, DOMAINSVISITED, FACEBOOK, RELAY_GUID,
+       LOCATION, CRU_PERSON }
 
     private String email;
     private String password;
@@ -36,8 +41,8 @@ public class User implements Cloneable, Serializable {
     private boolean locked = false;
 
     // Multi-value attributes
-    private final Collection<String> domainsVisited = new HashSet<String>();
-    private final Collection<String> groups = new HashSet<String>();
+    private final Set<String> domainsVisited = new HashSet<String>();
+    private final Set<String> groups = new HashSet<String>();
 
     // self-service verification keys
     private String signupKey = null;
@@ -51,6 +56,29 @@ public class User implements Cloneable, Serializable {
 
     // miscellaneous meta-data
     private String deactivatedUid;
+
+    // Cru person attributes
+    private String employeeId;
+    private String departmentNumber;
+    private String cruDesignation;
+    private String cruEmployeeStatus;
+    private String cruGender;
+    private String cruHrStatusCode;
+    private String cruJobCode;
+    private String cruManagerID;
+    private String cruMinistryCode;
+    private String cruPayGroup;
+    private String cruPreferredName;
+    private String cruSubMinistryCode;
+    private Collection<String> cruProxyAddresses = Sets.newHashSet();
+
+    // other attributes (used by relay)
+    private String city;
+    private String state;
+    private String postal;
+    private String country;
+
+    private String telephoneNumber;
 
     public User() {
     }
@@ -80,6 +108,26 @@ public class User implements Cloneable, Serializable {
 
         this.facebookId = source.facebookId;
         this.facebookIdStrength = source.facebookIdStrength;
+
+        this.employeeId = source.employeeId;
+        this.departmentNumber = source.departmentNumber;
+        this.cruDesignation = source.cruDesignation;
+        this.cruEmployeeStatus = source.cruEmployeeStatus;
+        this.cruGender = source.cruGender;
+        this.cruHrStatusCode = source.cruHrStatusCode;
+        this.cruJobCode = source.cruJobCode;
+        this.cruManagerID = source.cruManagerID;
+        this.cruMinistryCode = source.cruMinistryCode;
+        this.cruPayGroup = source.cruPayGroup;
+        this.cruPreferredName = source.cruPreferredName;
+        this.cruSubMinistryCode = source.cruSubMinistryCode;
+        this.cruProxyAddresses.addAll(source.cruProxyAddresses);
+        this.country = source.country;
+
+        this.city = source.city;
+        this.state = source.state;
+        this.postal = source.postal;
+        this.telephoneNumber = source.telephoneNumber;
     }
 
     public String getEmail() {
@@ -194,11 +242,156 @@ public class User implements Cloneable, Serializable {
         this.locked = locked;
     }
 
+
+    public String getEmployeeId() {
+        return employeeId;
+    }
+
+    public void setEmployeeId(String employeeId) {
+        this.employeeId = employeeId;
+    }
+
+    public String getDepartmentNumber() {
+        return departmentNumber;
+    }
+
+    public void setDepartmentNumber(String departmentNumber) {
+        this.departmentNumber = departmentNumber;
+    }
+
+    public String getCruDesignation() {
+        return cruDesignation;
+    }
+
+    public void setCruDesignation(String cruDesignation) {
+        this.cruDesignation = cruDesignation;
+    }
+
+    public String getCruEmployeeStatus() {
+        return cruEmployeeStatus;
+    }
+
+    public void setCruEmployeeStatus(String cruEmployeeStatus) {
+        this.cruEmployeeStatus = cruEmployeeStatus;
+    }
+
+    public String getCruGender() {
+        return cruGender;
+    }
+
+    public void setCruGender(String cruGender) {
+        this.cruGender = cruGender;
+    }
+
+    public String getCruHrStatusCode() {
+        return cruHrStatusCode;
+    }
+
+    public void setCruHrStatusCode(String cruHrStatusCode) {
+        this.cruHrStatusCode = cruHrStatusCode;
+    }
+
+    public String getCruJobCode() {
+        return cruJobCode;
+    }
+
+    public void setCruJobCode(String cruJobCode) {
+        this.cruJobCode = cruJobCode;
+    }
+
+    public String getCruManagerID() {
+        return cruManagerID;
+    }
+
+    public void setCruManagerID(String cruManagerID) {
+        this.cruManagerID = cruManagerID;
+    }
+
+    public String getCruMinistryCode() {
+        return cruMinistryCode;
+    }
+
+    public void setCruMinistryCode(String cruMinistryCode) {
+        this.cruMinistryCode = cruMinistryCode;
+    }
+
+    public String getCruPayGroup() {
+        return cruPayGroup;
+    }
+
+    public void setCruPayGroup(String cruPayGroup) {
+        this.cruPayGroup = cruPayGroup;
+    }
+
+    public String getCruPreferredName() {
+        return cruPreferredName;
+    }
+
+    public void setCruPreferredName(String cruPreferredName) {
+        this.cruPreferredName = cruPreferredName;
+    }
+
+    public String getCruSubMinistryCode() {
+        return cruSubMinistryCode;
+    }
+
+    public void setCruSubMinistryCode(String cruSubMinistryCode) {
+        this.cruSubMinistryCode = cruSubMinistryCode;
+    }
+
+    public Collection<String> getCruProxyAddresses() {
+        return cruProxyAddresses;
+    }
+
+    public void setCruProxyAddresses(Collection<String> cruProxyAddresses) {
+        this.cruProxyAddresses = cruProxyAddresses;
+    }
+
+    public String getCity() {
+        return city;
+    }
+
+    public void setCity(String city) {
+        this.city = city;
+    }
+
+    public String getState() {
+        return state;
+    }
+
+    public void setState(String state) {
+        this.state = state;
+    }
+
+    public String getPostal() {
+        return postal;
+    }
+
+    public void setPostal(String postal) {
+        this.postal = postal;
+    }
+
+    public String getCountry() {
+        return country;
+    }
+
+    public void setCountry(String country) {
+        this.country = country;
+    }
+
+    public String getTelephoneNumber() {
+        return telephoneNumber;
+    }
+
+    public void setTelephoneNumber(String telephoneNumber) {
+        this.telephoneNumber = telephoneNumber;
+    }
+
     /**
      * @return the domainsVisited
      */
-    public Collection<String> getDomainsVisited() {
-        return Collections.unmodifiableCollection(this.domainsVisited);
+    public Set<String> getDomainsVisited() {
+        return Collections.unmodifiableSet(this.domainsVisited);
     }
 
     /**
@@ -230,8 +423,8 @@ public class User implements Cloneable, Serializable {
     /**
      * @return the groupMembership
      */
-    public Collection<String> getGroups() {
-        return Collections.unmodifiableCollection(this.groups);
+    public Set<String> getGroups() {
+        return Collections.unmodifiableSet(this.groups);
     }
 
     public String getSignupKey() {
@@ -306,5 +499,107 @@ public class User implements Cloneable, Serializable {
     @SuppressWarnings({"CloneDoesntCallSuperClone", "CloneDoesntDeclareCloneNotSupportedException"})
     protected User clone() {
         return new User(this);
+    }
+
+    @Override
+    public String toString() {
+        return MoreObjects.toStringHelper(this).omitNullValues()
+                .add("email", email)
+                .add("guid", guid)
+                .add("theKeyGuid", theKeyGuid)
+                .add("relayGuid", relayGuid)
+                .add("firstName", firstName)
+                .add("lastName", lastName)
+                .add("emailVerified", emailVerified)
+                .add("allowPasswordChange", allowPasswordChange)
+                .add("forcePasswordChange", forcePasswordChange)
+                .add("deactivated", deactivated)
+                .add("loginDisabled", loginDisabled)
+                .add("locked", locked)
+                .add("domainsVisited", domainsVisited)
+                .add("groups", groups)
+                .add("signupKey", signupKey)
+                .add("changeEmailKey", changeEmailKey)
+                .add("resetPasswordKey", resetPasswordKey)
+                .add("proposedEmail", proposedEmail)
+                .add("facebookId", facebookId)
+                .add("facebookIdStrength", facebookIdStrength)
+                .add("deactivatedUid", deactivatedUid)
+                .add("employeeId", employeeId)
+                .add("departmentNumber", departmentNumber)
+                .add("cruDesignation", cruDesignation)
+                .add("cruEmployeeStatus", cruEmployeeStatus)
+                .add("cruGender", cruGender)
+                .add("cruHrStatusCode", cruHrStatusCode)
+                .add("cruJobCode", cruJobCode)
+                .add("cruManagerID", cruManagerID)
+                .add("cruMinistryCode", cruMinistryCode)
+                .add("cruPayGroup", cruPayGroup)
+                .add("cruPreferredName", cruPreferredName)
+                .add("cruSubMinistryCode", cruSubMinistryCode)
+                .add("cruProxyAddresses", cruProxyAddresses)
+                .add("city", city)
+                .add("state", state)
+                .add("postal", postal)
+                .add("country", country)
+                .add("telephoneNumber", telephoneNumber)
+                .toString();
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hashCode(email, password, guid, theKeyGuid, relayGuid, firstName, lastName, emailVerified,
+                allowPasswordChange, forcePasswordChange, deactivated, loginDisabled, locked, domainsVisited, groups,
+                signupKey, changeEmailKey, resetPasswordKey, proposedEmail, facebookId, facebookIdStrength,
+                deactivatedUid, employeeId, departmentNumber, cruDesignation, cruEmployeeStatus, cruGender,
+                cruHrStatusCode, cruJobCode, cruManagerID, cruMinistryCode, cruPayGroup, cruPreferredName,
+                cruSubMinistryCode, cruProxyAddresses, city, state, postal, country, telephoneNumber);
+    }
+
+    @Override
+    public boolean equals(final Object obj) {
+        if (this == obj) {return true;}
+        if (obj == null || getClass() != obj.getClass()) {return false;}
+        final User other = (User) obj;
+        return Objects.equal(this.email, other.email) &&
+                Objects.equal(this.password, other.password) &&
+                Objects.equal(this.guid, other.guid) &&
+                Objects.equal(this.theKeyGuid, other.theKeyGuid) &&
+                Objects.equal(this.relayGuid, other.relayGuid) &&
+                Objects.equal(this.firstName, other.firstName) &&
+                Objects.equal(this.lastName, other.lastName) &&
+                Objects.equal(this.emailVerified, other.emailVerified) &&
+                Objects.equal(this.allowPasswordChange, other.allowPasswordChange) &&
+                Objects.equal(this.forcePasswordChange, other.forcePasswordChange) &&
+                Objects.equal(this.deactivated, other.deactivated) &&
+                Objects.equal(this.loginDisabled, other.loginDisabled) &&
+                Objects.equal(this.locked, other.locked) &&
+                this.domainsVisited.size() == other.domainsVisited.size() && this.domainsVisited.containsAll(other.domainsVisited) &&
+                this.groups.size() == other.groups.size() && this.groups.containsAll(other.groups) &&
+                Objects.equal(this.signupKey, other.signupKey) &&
+                Objects.equal(this.changeEmailKey, other.changeEmailKey) &&
+                Objects.equal(this.resetPasswordKey, other.resetPasswordKey) &&
+                Objects.equal(this.proposedEmail, other.proposedEmail) &&
+                Objects.equal(this.facebookId, other.facebookId) &&
+                Objects.equal(this.facebookIdStrength, other.facebookIdStrength) &&
+                Objects.equal(this.deactivatedUid, other.deactivatedUid) &&
+                Objects.equal(this.employeeId, other.employeeId) &&
+                Objects.equal(this.departmentNumber, other.departmentNumber) &&
+                Objects.equal(this.cruDesignation, other.cruDesignation) &&
+                Objects.equal(this.cruEmployeeStatus, other.cruEmployeeStatus) &&
+                Objects.equal(this.cruGender, other.cruGender) &&
+                Objects.equal(this.cruHrStatusCode, other.cruHrStatusCode) &&
+                Objects.equal(this.cruJobCode, other.cruJobCode) &&
+                Objects.equal(this.cruManagerID, other.cruManagerID) &&
+                Objects.equal(this.cruMinistryCode, other.cruMinistryCode) &&
+                Objects.equal(this.cruPayGroup, other.cruPayGroup) &&
+                Objects.equal(this.cruPreferredName, other.cruPreferredName) &&
+                Objects.equal(this.cruSubMinistryCode, other.cruSubMinistryCode) &&
+                this.cruProxyAddresses.size() == other.cruProxyAddresses.size() && this.cruProxyAddresses.containsAll(other.cruProxyAddresses) &&
+                Objects.equal(this.city, other.city) &&
+                Objects.equal(this.state, other.state) &&
+                Objects.equal(this.postal, other.postal) &&
+                Objects.equal(this.country, other.country) &&
+                Objects.equal(this.telephoneNumber, other.telephoneNumber);
     }
 }

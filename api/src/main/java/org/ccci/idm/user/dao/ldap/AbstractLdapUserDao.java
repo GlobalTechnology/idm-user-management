@@ -1,16 +1,35 @@
 package org.ccci.idm.user.dao.ldap;
 
 import static org.ccci.idm.user.dao.ldap.Constants.LDAP_ATTR_CHANGEEMAILKEY;
+import static org.ccci.idm.user.dao.ldap.Constants.LDAP_ATTR_CITY;
+import static org.ccci.idm.user.dao.ldap.Constants.LDAP_ATTR_COUNTRY;
+import static org.ccci.idm.user.dao.ldap.Constants.LDAP_ATTR_CRU_DESIGNATION;
+import static org.ccci.idm.user.dao.ldap.Constants.LDAP_ATTR_CRU_EMPLOYEE_STATUS;
+import static org.ccci.idm.user.dao.ldap.Constants.LDAP_ATTR_CRU_GENDER;
+import static org.ccci.idm.user.dao.ldap.Constants.LDAP_ATTR_CRU_HR_STATUS_CODE;
+import static org.ccci.idm.user.dao.ldap.Constants.LDAP_ATTR_CRU_JOB_CODE;
+import static org.ccci.idm.user.dao.ldap.Constants.LDAP_ATTR_CRU_MANAGER_ID;
+import static org.ccci.idm.user.dao.ldap.Constants.LDAP_ATTR_CRU_MINISTRY_CODE;
+import static org.ccci.idm.user.dao.ldap.Constants.LDAP_ATTR_CRU_PAY_GROUP;
+import static org.ccci.idm.user.dao.ldap.Constants.LDAP_ATTR_CRU_PREFERRED_NAME;
+import static org.ccci.idm.user.dao.ldap.Constants.LDAP_ATTR_CRU_PROXY_ADDRESSES;
+import static org.ccci.idm.user.dao.ldap.Constants.LDAP_ATTR_CRU_SUB_MINISTRY_CODE;
+import static org.ccci.idm.user.dao.ldap.Constants.LDAP_ATTR_DEPARTMENT_NUMBER;
 import static org.ccci.idm.user.dao.ldap.Constants.LDAP_ATTR_DOMAINSVISITED;
+import static org.ccci.idm.user.dao.ldap.Constants.LDAP_ATTR_EMPLOYEE_NUMBER;
 import static org.ccci.idm.user.dao.ldap.Constants.LDAP_ATTR_FACEBOOKID;
 import static org.ccci.idm.user.dao.ldap.Constants.LDAP_ATTR_FACEBOOKIDSTRENGTH;
 import static org.ccci.idm.user.dao.ldap.Constants.LDAP_ATTR_FIRSTNAME;
 import static org.ccci.idm.user.dao.ldap.Constants.LDAP_ATTR_LASTNAME;
 import static org.ccci.idm.user.dao.ldap.Constants.LDAP_ATTR_LOGINTIME;
 import static org.ccci.idm.user.dao.ldap.Constants.LDAP_ATTR_PASSWORD;
+import static org.ccci.idm.user.dao.ldap.Constants.LDAP_ATTR_POSTAL_CODE;
 import static org.ccci.idm.user.dao.ldap.Constants.LDAP_ATTR_PROPOSEDEMAIL;
+import static org.ccci.idm.user.dao.ldap.Constants.LDAP_ATTR_RELAY_GUID;
 import static org.ccci.idm.user.dao.ldap.Constants.LDAP_ATTR_RESETPASSWORDKEY;
 import static org.ccci.idm.user.dao.ldap.Constants.LDAP_ATTR_SIGNUPKEY;
+import static org.ccci.idm.user.dao.ldap.Constants.LDAP_ATTR_STATE;
+import static org.ccci.idm.user.dao.ldap.Constants.LDAP_ATTR_TELEPHONE;
 import static org.ccci.idm.user.dao.ldap.Constants.LDAP_ATTR_USERID;
 import static org.ccci.idm.user.dao.ldap.Constants.LDAP_FLAG_ALLOWPASSWORDCHANGE;
 import static org.ccci.idm.user.dao.ldap.Constants.LDAP_FLAG_EMAILVERIFIED;
@@ -26,6 +45,7 @@ import java.util.Map;
 import java.util.Set;
 
 public abstract class AbstractLdapUserDao extends AbstractUserDao {
+
     private static final Map<Attr, Set<String>> MASK = ImmutableMap.<Attr, Set<String>>builder()
             .put(Attr.EMAIL, ImmutableSet.of(LDAP_ATTR_USERID, LDAP_FLAG_EMAILVERIFIED))
             .put(Attr.NAME, ImmutableSet.of(LDAP_ATTR_FIRSTNAME, LDAP_ATTR_LASTNAME))
@@ -37,6 +57,14 @@ public abstract class AbstractLdapUserDao extends AbstractUserDao {
             .put(Attr.SELFSERVICEKEYS, ImmutableSet.of(LDAP_ATTR_CHANGEEMAILKEY, LDAP_ATTR_PROPOSEDEMAIL,
                     LDAP_ATTR_RESETPASSWORDKEY, LDAP_ATTR_SIGNUPKEY))
             .put(Attr.FACEBOOK, ImmutableSet.of(LDAP_ATTR_FACEBOOKID, LDAP_ATTR_FACEBOOKIDSTRENGTH))
+            .put(Attr.RELAY_GUID, ImmutableSet.of(LDAP_ATTR_RELAY_GUID))
+            .put(Attr.LOCATION, ImmutableSet.of(LDAP_ATTR_CITY, LDAP_ATTR_STATE, LDAP_ATTR_POSTAL_CODE,
+                    LDAP_ATTR_COUNTRY))
+            .put(Attr.CRU_PERSON, ImmutableSet.of(LDAP_ATTR_EMPLOYEE_NUMBER, LDAP_ATTR_DEPARTMENT_NUMBER,
+                    LDAP_ATTR_TELEPHONE, LDAP_ATTR_CRU_DESIGNATION, LDAP_ATTR_CRU_EMPLOYEE_STATUS,
+                    LDAP_ATTR_CRU_GENDER, LDAP_ATTR_CRU_HR_STATUS_CODE, LDAP_ATTR_CRU_JOB_CODE,
+                    LDAP_ATTR_CRU_MANAGER_ID, LDAP_ATTR_CRU_MINISTRY_CODE, LDAP_ATTR_CRU_PAY_GROUP,
+                    LDAP_ATTR_CRU_PREFERRED_NAME, LDAP_ATTR_CRU_SUB_MINISTRY_CODE, LDAP_ATTR_CRU_PROXY_ADDRESSES))
             .build();
 
     private Set<String> MASK_DEFAULT = ImmutableSet.<String>builder().addAll(MASK.get(Attr.EMAIL)).addAll(MASK.get

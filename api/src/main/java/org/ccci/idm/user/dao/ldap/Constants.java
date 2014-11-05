@@ -10,8 +10,7 @@ public class Constants {
     public static final String LDAP_ATTR_EMAIL = "cn";
     public static final String LDAP_ATTR_USERID = "uid";
     public static final String LDAP_ATTR_GUID = "extensionAttribute1";
-    public static final String LDAP_ATTR_RELAY_GUID = "relayGuid";
-    public static final String LDAP_ATTR_THEKEY_GUID = "extensionAttribute1";
+    public static final String LDAP_ATTR_THEKEY_GUID = "theKeyGuid";
     public static final String LDAP_ATTR_PASSWORD = "userPassword";
     public static final String LDAP_ATTR_FIRSTNAME = "givenName";
     public static final String LDAP_ATTR_LASTNAME = "sn";
@@ -39,7 +38,34 @@ public class Constants {
     public static final String LDAP_OBJECTCLASS_ORGANIZATIONALPERSON = "organizationalPerson";
     public static final String LDAP_OBJECTCLASS_INETORGPERSON = "inetOrgPerson";
     public static final String LDAP_OBJECTCLASS_THEKEYATTRIBUTES = "thekeyAttributes";
+    public static final String LDAP_OBJECTCLASS_RELAY_ATTRIBUTES = "relayAttributes";
+    public static final String LDAP_OBJECTCLASS_CRU_PERSON_ATTRIBUTES = "cruPerson";
     public static final String[] LDAP_OBJECTCLASSES_USER = new String[]{LDAP_OBJECTCLASS_TOP,
             LDAP_OBJECTCLASS_PERSON, LDAP_OBJECTCLASS_NDSLOGIN, LDAP_OBJECTCLASS_ORGANIZATIONALPERSON,
             LDAP_OBJECTCLASS_INETORGPERSON, LDAP_OBJECTCLASS_THEKEYATTRIBUTES};
+
+    // CruPerson attributes
+    public static final String LDAP_ATTR_CRU_DESIGNATION = "cruDesignation";
+    public static final String LDAP_ATTR_CRU_EMPLOYEE_STATUS = "cruEmployeeStatus";
+    public static final String LDAP_ATTR_CRU_GENDER = "cruGender";
+    public static final String LDAP_ATTR_CRU_HR_STATUS_CODE = "cruHrStatusCode";
+    public static final String LDAP_ATTR_CRU_JOB_CODE = "cruJobCode";
+    public static final String LDAP_ATTR_CRU_MANAGER_ID = "cruManagerID";
+    public static final String LDAP_ATTR_CRU_MINISTRY_CODE = "cruMinistryCode";
+    public static final String LDAP_ATTR_CRU_PAY_GROUP = "cruPayGroup";
+    public static final String LDAP_ATTR_CRU_PREFERRED_NAME = "cruPreferredName";
+    public static final String LDAP_ATTR_CRU_SUB_MINISTRY_CODE = "cruSubMinistryCode";
+    public static final String LDAP_ATTR_CRU_PROXY_ADDRESSES = "proxyAddresses";
+
+    // relayAttributes
+    public static final String LDAP_ATTR_RELAY_GUID = "relayGuid";
+    public static final String LDAP_ATTR_COUNTRY = "countryName";
+
+    // other cru related attributes (available in other object classes)
+    public static final String LDAP_ATTR_EMPLOYEE_NUMBER = "employeeNumber";
+    public static final String LDAP_ATTR_DEPARTMENT_NUMBER = "departmentNumber";
+    public static final String LDAP_ATTR_CITY = "city";
+    public static final String LDAP_ATTR_STATE = "st";
+    public static final String LDAP_ATTR_POSTAL_CODE = "postalCode";
+    public static final String LDAP_ATTR_TELEPHONE = "telephoneNumber";
 }

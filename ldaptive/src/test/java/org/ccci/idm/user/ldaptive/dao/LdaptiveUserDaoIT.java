@@ -2,7 +2,9 @@ package org.ccci.idm.user.ldaptive.dao;
 
 import static org.junit.Assume.assumeNotNull;
 
+import com.google.common.collect.Sets;
 import org.ccci.idm.user.User;
+import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Value;
@@ -11,6 +13,7 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 import javax.inject.Inject;
 import java.security.SecureRandom;
+import java.util.Collection;
 import java.util.Random;
 import java.util.UUID;
 
@@ -40,15 +43,100 @@ public class LdaptiveUserDaoIT {
     }
 
     @Test
-    public void testCreate() throws Exception {
+    public void testCreateUser() throws Exception {
         assumeConfigured();
 
+        final User user = getUser();
+
+        this.dao.save(user);
+    }
+
+    @Test
+    public void testFindUser() throws Exception {
+        assumeConfigured();
+
+        final User user = getUser();
+
+        this.dao.save(user);
+
+        final User foundUser = this.dao.findByEmail(user.getEmail());
+
+        Assert.assertTrue(user.equals(foundUser));
+    }
+
+    @Test
+    public void testUpdateUser() throws Exception {
+        assumeConfigured();
+
+        User user = getUser();
+
+        this.dao.save(user);
+
+        user.setFirstName(user.getFirstName() + "modified");
+
+        this.dao.update(user, User.Attr.NAME);
+
+        final User foundUser = this.dao.findByEmail(user.getEmail());
+
+        Assert.assertTrue(user.equals(foundUser));
+    }
+
+    @Test
+    public void testCreateStaffUser() throws Exception {
+        assumeConfigured();
+
+        final User user = getStaffUser();
+
+        this.dao.save(user);
+    }
+
+    @Test
+    public void testUpdateStaffUser() throws Exception {
+        assumeConfigured();
+
+        final User user = getStaffUser();
+
+        this.dao.save(user);
+
+        User foundUser = this.dao.findByEmail(user.getEmail());
+
+        Assert.assertTrue(user.equals(foundUser));
+
+        user.setCity(user.getCity() + "modified");
+        user.setEmployeeId(user.getEmployeeId() + "modified");
+
+        this.dao.update(user, User.Attr.LOCATION, User.Attr.CRU_PERSON);
+
+        foundUser = this.dao.findByEmail(user.getEmail());
+
+        Assert.assertTrue(user.equals(foundUser));
+    }
+
+    private User getUser()
+    {
         final User user = new User();
         user.setEmail("test.user." + RAND.nextInt(Integer.MAX_VALUE) + "@example.com");
         user.setGuid(UUID.randomUUID().toString().toUpperCase());
         user.setFirstName("Test");
         user.setLastName("User");
 
-        this.dao.save(user);
+        return user;
+    }
+
+    private User getStaffUser()
+    {
+        final User user = getUser();
+
+        user.setEmployeeId("000123457");
+        user.setDepartmentNumber("USDSABC");
+        user.setCruDesignation("123457");
+        user.setCruGender("M");
+        user.setCity("Orlando");
+        user.setState("FL");
+        user.setPostal("32832");
+        Collection<String> collection = Sets.newHashSet("smtp:test.user@cru.org", "smtp:test.user@ccci.org");
+        user.setCruProxyAddresses(collection);
+
+        return user;
     }
 }
