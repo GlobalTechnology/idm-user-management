@@ -1,6 +1,7 @@
 package org.ccci.idm.user;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
@@ -131,6 +132,28 @@ public class UserTest {
 
             assertTrue(CollectionUtils.isEqualCollection(user.getDomainsVisited(), duplicate.getDomainsVisited()));
             assertTrue(CollectionUtils.isEqualCollection(user.getGroups(), duplicate.getGroups()));
+        }
+    }
+
+    @Test
+    public void testSetEmail() throws Exception {
+        final User user = new User();
+
+        // test setting email resets email verified flag
+        {
+            // test behavior when no verified flag is specified
+            user.setEmailVerified(true);
+            assertTrue(user.isEmailVerified());
+            user.setEmail("user1@example.com");
+            assertFalse(user.isEmailVerified());
+
+            // test behavior when verified flag is specified
+            user.setEmailVerified(true);
+            assertTrue(user.isEmailVerified());
+            user.setEmail("user2@example.com", false);
+            assertFalse(user.isEmailVerified());
+            user.setEmail("user3@example.com", true);
+            assertTrue(user.isEmailVerified());
         }
     }
 }

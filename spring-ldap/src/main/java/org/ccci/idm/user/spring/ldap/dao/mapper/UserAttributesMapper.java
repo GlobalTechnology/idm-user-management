@@ -96,6 +96,7 @@ public class UserAttributesMapper implements AttributesMapper {
         user.setDomainsVisited(this.getStringValues(attrs, LDAP_ATTR_DOMAINSVISITED));
 
         // Flags
+        // XXX: email should always be set before emailVerified flag
         user.setAllowPasswordChange(this.getBooleanValue(attrs, LDAP_FLAG_ALLOWPASSWORDCHANGE, true));
         user.setLoginDisabled(this.getBooleanValue(attrs, LDAP_FLAG_LOGINDISABLED, false));
         user.setLocked(this.getBooleanValue(attrs, LDAP_FLAG_LOCKED, false));
