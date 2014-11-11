@@ -135,7 +135,12 @@ public class User implements Cloneable, Serializable {
     }
 
     public void setEmail(final String email) {
+        this.setEmail(email, false);
+    }
+
+    public void setEmail(final String email, final boolean verified) {
         this.email = email;
+        this.emailVerified = verified;
     }
 
     public String getPassword() {
