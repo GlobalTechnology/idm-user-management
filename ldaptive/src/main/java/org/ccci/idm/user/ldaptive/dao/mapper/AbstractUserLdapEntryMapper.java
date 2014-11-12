@@ -51,7 +51,6 @@ import com.google.common.base.Strings;
 import com.google.common.base.Throwables;
 import org.ccci.idm.user.User;
 import org.joda.time.DateTime;
-import org.joda.time.DateTimeZone;
 import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
 import org.ldaptive.LdapAttribute;
@@ -339,12 +338,12 @@ public abstract class AbstractUserLdapEntryMapper<O extends User> implements Lda
     }
 
     // loginTime format
-    public static final DateTimeFormatter dateTimeFormatter = DateTimeFormat.forPattern("yyyyMMddHHmmssZ");
+    public static final DateTimeFormatter formatter = DateTimeFormat.forPattern("yyyyMMddHHmmssZ").withZoneUTC();
 
     protected final DateTime getTimeValue(final LdapEntry entry, final String attribute) {
         try {
             String dateTimeString = getStringValue(entry, attribute);
-            return dateTimeFormatter.withZone(DateTimeZone.forID("UTC")).parseDateTime(dateTimeString);
+            return formatter.parseDateTime(dateTimeString);
         }
         catch(Exception e) {
             return null;
