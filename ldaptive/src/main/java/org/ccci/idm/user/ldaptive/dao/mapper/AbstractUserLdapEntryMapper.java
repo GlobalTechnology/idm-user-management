@@ -344,10 +344,10 @@ public abstract class AbstractUserLdapEntryMapper<O extends User> implements Lda
     protected final DateTime getTimeValue(final LdapEntry entry, final String attribute) {
         try {
             String dateTimeString = getStringValue(entry, attribute);
-            return dateTimeFormatter.withZone(DateTimeZone.forID("EST")).parseDateTime(dateTimeString);
+            return dateTimeFormatter.withZone(DateTimeZone.forID("UTC")).parseDateTime(dateTimeString);
         }
         catch(Exception e) {
-            return new DateTime().minusYears(20); // long ago
+            return null;
         }
     }
 
