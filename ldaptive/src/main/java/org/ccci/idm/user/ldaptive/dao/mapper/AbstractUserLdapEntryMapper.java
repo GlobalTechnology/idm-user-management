@@ -24,6 +24,7 @@ import static org.ccci.idm.user.dao.ldap.Constants.LDAP_ATTR_FIRSTNAME;
 import static org.ccci.idm.user.dao.ldap.Constants.LDAP_ATTR_GROUPS;
 import static org.ccci.idm.user.dao.ldap.Constants.LDAP_ATTR_GUID;
 import static org.ccci.idm.user.dao.ldap.Constants.LDAP_ATTR_LASTNAME;
+import static org.ccci.idm.user.dao.ldap.Constants.LDAP_ATTR_LOGINTIME;
 import static org.ccci.idm.user.dao.ldap.Constants.LDAP_ATTR_OBJECTCLASS;
 import static org.ccci.idm.user.dao.ldap.Constants.LDAP_ATTR_PASSWORD;
 import static org.ccci.idm.user.dao.ldap.Constants.LDAP_ATTR_POSTAL_CODE;
@@ -49,6 +50,10 @@ import com.google.common.base.Joiner;
 import com.google.common.base.Strings;
 import com.google.common.base.Throwables;
 import org.ccci.idm.user.User;
+import org.joda.time.DateTime;
+import org.joda.time.DateTimeZone;
+import org.joda.time.format.DateTimeFormat;
+import org.joda.time.format.DateTimeFormatter;
 import org.ldaptive.LdapAttribute;
 import org.ldaptive.LdapEntry;
 import org.ldaptive.LdapException;
@@ -213,7 +218,7 @@ public abstract class AbstractUserLdapEntryMapper<O extends User> implements Lda
         user.setLastName(this.getStringValue(entry, LDAP_ATTR_LASTNAME));
 
         // Meta-data
-//        user.setLoginTime(this.getTimeValue(entry, LDAP_ATTR_LOGINTIME));
+        user.setLoginTime(this.getTimeValue(entry, LDAP_ATTR_LOGINTIME));
 
         // federated identities
         final Map<String, Double> facebookIdStrengths = this.getStrengthValues(entry, LDAP_ATTR_FACEBOOKIDSTRENGTH);
@@ -331,6 +336,19 @@ public abstract class AbstractUserLdapEntryMapper<O extends User> implements Lda
         }
 
         return defaultValue;
+    }
+
+    // loginTime format
+    public static final DateTimeFormatter dateTimeFormatter = DateTimeFormat.forPattern("yyyyMMddHHmmssZ");
+
+    protected final DateTime getTimeValue(final LdapEntry entry, final String attribute) {
+        try {
+            String dateTimeString = getStringValue(entry, attribute);
+            return dateTimeFormatter.withZone(DateTimeZone.forID("EST")).parseDateTime(dateTimeString);
+        }
+        catch(Exception e) {
+            return new DateTime().minusYears(20); // long ago
+        }
     }
 
     protected final Map<String, Double> getStrengthValues(final LdapEntry entry, final String name) {

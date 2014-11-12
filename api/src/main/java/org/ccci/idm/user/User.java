@@ -8,6 +8,7 @@ import com.google.common.base.Objects;
 import com.google.common.base.Predicates;
 import com.google.common.collect.Collections2;
 import com.google.common.collect.Sets;
+import org.joda.time.DateTime;
 import org.springframework.util.StringUtils;
 
 import java.io.Serializable;
@@ -31,6 +32,8 @@ public class User implements Cloneable, Serializable {
 
     private String firstName;
     private String lastName;
+
+    private DateTime loginTime;
 
     // account flags
     private boolean emailVerified = false;
@@ -197,6 +200,16 @@ public class User implements Cloneable, Serializable {
 
     public void setLastName(final String lastName) {
         this.lastName = lastName;
+    }
+
+    public DateTime getLoginTime()
+    {
+        return loginTime;
+    }
+
+    public void setLoginTime(DateTime loginTime)
+    {
+        this.loginTime = loginTime;
     }
 
     public boolean isEmailVerified() {
