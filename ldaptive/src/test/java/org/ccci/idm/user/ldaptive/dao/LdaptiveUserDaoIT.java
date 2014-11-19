@@ -7,6 +7,7 @@ import org.ccci.idm.user.User;
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
@@ -23,6 +24,7 @@ public class LdaptiveUserDaoIT {
     private static final Random RAND = new SecureRandom();
 
     @Inject
+    @Qualifier("ldaptiveUserDao")
     private LdaptiveUserDao dao;
 
     // required config values for tests to pass successfully
