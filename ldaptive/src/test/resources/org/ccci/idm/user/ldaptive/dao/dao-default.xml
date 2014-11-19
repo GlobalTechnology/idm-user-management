@@ -2,7 +2,7 @@
 <beans xmlns="http://www.springframework.org/schema/beans" xmlns:p="http://www.springframework.org/schema/p"
     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
     xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.2.xsd">
-  <bean class="org.ccci.idm.user.ldaptive.dao.LdaptiveUserDao"
+  <bean id="ldaptiveUserDao" class="org.ccci.idm.user.ldaptive.dao.LdaptiveUserDao"
       p:connectionFactory-ref="ldap.connection.factory.pooled.management"
       p:baseSearchDn="${ldap.base}"
       p:maxSearchResults="${ldap.maxresults:0}">
@@ -15,4 +15,19 @@
       </bean>
     </property>
   </bean>
+
+  <bean id="cruLdaptiveUserDao" class="org.ccci.idm.user.ldaptive.dao.CruLdaptiveUserDao"
+        p:connectionFactory-ref="ldap.connection.factory.pooled.management"
+        p:baseSearchDn="${ldap.base}"
+        p:maxSearchResults="${ldap.maxresults:0}">
+      <property name="userMapper">
+          <bean class="org.ccci.idm.user.ldaptive.dao.mapper.UserLdapEntryMapper">
+              <property name="dnResolver">
+                  <bean class="org.ldaptive.auth.FormatDnResolver"
+                        p:format="${ldap.dn.user}"/>
+              </property>
+          </bean>
+      </property>
+  </bean>
+
 </beans>

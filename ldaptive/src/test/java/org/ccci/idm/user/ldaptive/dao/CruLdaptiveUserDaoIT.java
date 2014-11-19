@@ -1,13 +1,10 @@
 package org.ccci.idm.user.ldaptive.dao;
 
-import static org.junit.Assume.assumeNotNull;
-
 import com.google.common.collect.Sets;
 import org.ccci.idm.user.User;
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
@@ -18,14 +15,16 @@ import java.util.Collection;
 import java.util.Random;
 import java.util.UUID;
 
+import static org.junit.Assume.assumeNotNull;
+
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(locations = {"ldap.xml", "config.xml", "dao-default.xml"})
-public class LdaptiveUserDaoIT {
+public class CruLdaptiveUserDaoIT
+{
     private static final Random RAND = new SecureRandom();
 
     @Inject
-    @Qualifier("ldaptiveUserDao")
-    private LdaptiveUserDao dao;
+    private CruLdaptiveUserDao dao;
 
     // required config values for tests to pass successfully
     @Value("${ldap.url:#{null}}")
@@ -42,76 +41,6 @@ public class LdaptiveUserDaoIT {
     private void assumeConfigured() throws Exception {
         assumeNotNull(url, base, username, password, dn);
         assumeNotNull(dao);
-    }
-
-    @Test
-    public void testCreateUser() throws Exception {
-        assumeConfigured();
-
-        final User user = getUser();
-
-        this.dao.save(user);
-    }
-
-    @Test
-    public void testFindUser() throws Exception {
-        assumeConfigured();
-
-        final User user = getUser();
-
-        this.dao.save(user);
-
-        final User foundUser = this.dao.findByEmail(user.getEmail());
-
-        Assert.assertTrue(user.equals(foundUser));
-    }
-
-    @Test
-    public void testUpdateUser() throws Exception {
-        assumeConfigured();
-
-        User user = getUser();
-
-        this.dao.save(user);
-
-        user.setFirstName(user.getFirstName() + "modified");
-
-        this.dao.update(user, User.Attr.NAME);
-
-        final User foundUser = this.dao.findByEmail(user.getEmail());
-
-        Assert.assertTrue(user.equals(foundUser));
-    }
-
-    @Test
-    public void testCreateStaffUser() throws Exception {
-        assumeConfigured();
-
-        final User user = getStaffUser();
-
-        this.dao.save(user);
-    }
-
-    @Test
-    public void testUpdateStaffUser() throws Exception {
-        assumeConfigured();
-
-        final User user = getStaffUser();
-
-        this.dao.save(user);
-
-        User foundUser = this.dao.findByEmail(user.getEmail());
-
-        Assert.assertTrue(user.equals(foundUser));
-
-        user.setCity(user.getCity() + "modified");
-        user.setEmployeeId(user.getEmployeeId() + "modified");
-
-        this.dao.update(user, User.Attr.LOCATION, User.Attr.CRU_PERSON);
-
-        foundUser = this.dao.findByEmail(user.getEmail());
-
-        Assert.assertTrue(user.equals(foundUser));
     }
 
     @Test
