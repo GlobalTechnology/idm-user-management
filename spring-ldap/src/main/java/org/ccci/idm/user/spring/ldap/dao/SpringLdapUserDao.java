@@ -2,6 +2,7 @@ package org.ccci.idm.user.spring.ldap.dao;
 
 import static org.ccci.idm.user.dao.ldap.Constants.LDAP_ATTR_CN;
 import static org.ccci.idm.user.dao.ldap.Constants.LDAP_ATTR_EMAIL;
+import static org.ccci.idm.user.dao.ldap.Constants.LDAP_ATTR_EMPLOYEE_NUMBER;
 import static org.ccci.idm.user.dao.ldap.Constants.LDAP_ATTR_FACEBOOKID;
 import static org.ccci.idm.user.dao.ldap.Constants.LDAP_ATTR_FIRSTNAME;
 import static org.ccci.idm.user.dao.ldap.Constants.LDAP_ATTR_GUID;
@@ -172,6 +173,12 @@ public class SpringLdapUserDao extends AbstractLdapUserDao {
     @Override
     public User findByFacebookId(final String id) {
         return this.findByFilter(new AndFilter().and(new EqualsFilter(LDAP_ATTR_FACEBOOKID, id)).and(FILTER_PERSON));
+    }
+
+    @Override
+    public User findByEmployeeId(final String employeeId) {
+        return this.findByFilter(new AndFilter().and(new EqualsFilter(LDAP_ATTR_EMPLOYEE_NUMBER,
+                employeeId)).and(new NotFilter(FILTER_DEACTIVATED)).and(FILTER_PERSON));
     }
 
     /**

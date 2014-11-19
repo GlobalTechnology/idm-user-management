@@ -2,6 +2,7 @@ package org.ccci.idm.user.ldaptive.dao;
 
 import static org.ccci.idm.user.dao.ldap.Constants.LDAP_ATTR_CN;
 import static org.ccci.idm.user.dao.ldap.Constants.LDAP_ATTR_EMAIL;
+import static org.ccci.idm.user.dao.ldap.Constants.LDAP_ATTR_EMPLOYEE_NUMBER;
 import static org.ccci.idm.user.dao.ldap.Constants.LDAP_ATTR_FACEBOOKID;
 import static org.ccci.idm.user.dao.ldap.Constants.LDAP_ATTR_FIRSTNAME;
 import static org.ccci.idm.user.dao.ldap.Constants.LDAP_ATTR_GUID;
@@ -212,6 +213,12 @@ public class LdaptiveUserDao extends AbstractLdapUserDao {
     @Override
     public User findByEmail(final String email) {
         return this.findByFilter(new EqualsFilter(LDAP_ATTR_EMAIL, email).and(FILTER_DEACTIVATED.not()).and
+                (FILTER_PERSON));
+    }
+
+    @Override
+    public User findByEmployeeId(final String employeeId) {
+        return this.findByFilter(new EqualsFilter(LDAP_ATTR_EMPLOYEE_NUMBER, employeeId).and(FILTER_DEACTIVATED.not()).and
                 (FILTER_PERSON));
     }
 
