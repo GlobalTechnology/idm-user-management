@@ -15,4 +15,19 @@
       </bean>
     </property>
   </bean>
+
+  <bean id="cruLdaptiveUserDao" class="org.ccci.idm.user.ldaptive.dao.CruLdaptiveUserDao"
+        p:connectionFactory-ref="ldap.connection.factory.pooled.management"
+        p:baseSearchDn="${ldap.base}"
+        p:maxSearchResults="${ldap.maxresults:0}">
+      <property name="userMapper">
+          <bean class="org.ccci.idm.user.ldaptive.dao.mapper.UserLdapEntryMapper">
+              <property name="dnResolver">
+                  <bean class="org.ldaptive.auth.FormatDnResolver"
+                        p:format="${ldap.dn.user}"/>
+              </property>
+          </bean>
+      </property>
+  </bean>
+
 </beans>
