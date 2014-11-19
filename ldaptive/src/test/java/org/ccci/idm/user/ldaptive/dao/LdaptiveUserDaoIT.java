@@ -112,6 +112,21 @@ public class LdaptiveUserDaoIT {
         Assert.assertTrue(user.equals(foundUser));
     }
 
+    @Test
+    public void testFindUserByEmployeeId() throws Exception {
+        assumeConfigured();
+
+        final User user = getStaffUser();
+
+        this.dao.save(user);
+
+        final User foundUser = this.dao.findByEmployeeId(user.getEmployeeId());
+
+        Assert.assertNotNull(foundUser);
+
+        Assert.assertTrue(user.equals(foundUser));
+    }
+
     private User getUser()
     {
         final User user = new User();
