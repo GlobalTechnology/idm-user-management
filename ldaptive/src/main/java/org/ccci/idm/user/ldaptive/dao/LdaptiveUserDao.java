@@ -60,8 +60,9 @@ public class LdaptiveUserDao extends AbstractLdapUserDao {
     private static final Logger LOG = LoggerFactory.getLogger(LdaptiveUserDao.class);
 
     // common LDAP search filters
-    private static final EqualsFilter FILTER_PERSON = new EqualsFilter(LDAP_ATTR_OBJECTCLASS, LDAP_OBJECTCLASS_PERSON);
-    private static final LikeFilter FILTER_DEACTIVATED = new LikeFilter(LDAP_ATTR_CN, LDAP_DEACTIVATED_PREFIX + "*");
+	protected static final EqualsFilter FILTER_PERSON = new EqualsFilter(LDAP_ATTR_OBJECTCLASS,
+			LDAP_OBJECTCLASS_PERSON);
+	protected static final LikeFilter FILTER_DEACTIVATED = new LikeFilter(LDAP_ATTR_CN, LDAP_DEACTIVATED_PREFIX + "*");
 
     // Predicates used for filtering objects
     private static final Predicate<LdapAttribute> PREDICATE_EMPTY_ATTRIBUTE = new Predicate<LdapAttribute>() {
@@ -149,7 +150,7 @@ public class LdaptiveUserDao extends AbstractLdapUserDao {
         }
     }
 
-    private User findByFilter(final SearchFilter filter) {
+    protected User findByFilter(final SearchFilter filter) {
         try {
             final List<User> results = this.findAllByFilter(filter, 1);
             return results.size() > 0 ? results.get(0) : null;
