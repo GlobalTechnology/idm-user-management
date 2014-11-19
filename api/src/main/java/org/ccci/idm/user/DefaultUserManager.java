@@ -223,6 +223,12 @@ public class DefaultUserManager implements UserManager {
 
     @Override
     @Transactional(readOnly = true)
+    public User findUserByEmployeeId(final String employeeId) {
+        return this.userDao.findByEmployeeId(employeeId);
+    }
+
+    @Override
+    @Transactional(readOnly = true)
     public List<User> findAllByFirstName(final String pattern) throws ExceededMaximumAllowedResultsException {
         return this.userDao.findAllByFirstName(pattern);
     }

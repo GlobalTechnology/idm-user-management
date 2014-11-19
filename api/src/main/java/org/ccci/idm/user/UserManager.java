@@ -91,6 +91,14 @@ public interface UserManager {
     User findUserByFacebookId(String id);
 
     /**
+     * Locate the user with the specified employee id.
+     *
+     * @param employeeId employee id of user to find.
+     * @return {@link User} with the specified e-mail address, or <tt>null</tt> if not found.
+     */
+    User findUserByEmployeeId(String employeeId);
+
+    /**
      * Find all users matching the first name pattern.
      *
      * @param pattern Pattern used for matching first name.
