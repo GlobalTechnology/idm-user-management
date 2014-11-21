@@ -166,12 +166,14 @@ public class User implements Cloneable, Serializable {
         this.forcePasswordChange = forceChange;
     }
 
+    @Deprecated
     public String getGuid() {
-        return this.guid;
+        throw new UnsupportedOperationException("User.getGuid() is not currently supported");
     }
 
+    @Deprecated
     public void setGuid(final String guid) {
-        this.guid = guid;
+        throw new UnsupportedOperationException("User.setGuid() is not currently supported");
     }
 
     public String getTheKeyGuid() {

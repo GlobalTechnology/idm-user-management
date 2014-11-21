@@ -22,7 +22,6 @@ import static org.ccci.idm.user.dao.ldap.Constants.LDAP_ATTR_FACEBOOKID;
 import static org.ccci.idm.user.dao.ldap.Constants.LDAP_ATTR_FACEBOOKIDSTRENGTH;
 import static org.ccci.idm.user.dao.ldap.Constants.LDAP_ATTR_FIRSTNAME;
 import static org.ccci.idm.user.dao.ldap.Constants.LDAP_ATTR_GROUPS;
-import static org.ccci.idm.user.dao.ldap.Constants.LDAP_ATTR_GUID;
 import static org.ccci.idm.user.dao.ldap.Constants.LDAP_ATTR_LASTNAME;
 import static org.ccci.idm.user.dao.ldap.Constants.LDAP_ATTR_LOGINTIME;
 import static org.ccci.idm.user.dao.ldap.Constants.LDAP_ATTR_OBJECTCLASS;
@@ -107,7 +106,7 @@ public abstract class AbstractUserLdapEntryMapper<O extends User> implements Lda
             } else if (user.getImplMeta(META_DEACTIVATED_UID, String.class) != null) {
                 uid = user.getImplMeta(META_DEACTIVATED_UID, String.class);
             } else {
-                uid = LDAP_DEACTIVATED_PREFIX + user.getGuid();
+                uid = LDAP_DEACTIVATED_PREFIX + user.getTheKeyGuid();
                 user.setImplMeta(META_DEACTIVATED_UID, uid);
             }
             return this.dnResolver.resolve(uid);
@@ -126,7 +125,7 @@ public abstract class AbstractUserLdapEntryMapper<O extends User> implements Lda
         entry.addAttribute(this.attr(LDAP_ATTR_USERID, user.getEmail()));
 
         // set the simple attributes for this user
-        entry.addAttribute(this.attr(LDAP_ATTR_GUID, user.getGuid()));
+//        entry.addAttribute(this.attr(LDAP_ATTR_GUID, user.getGuid()));
         entry.addAttribute(this.attr(LDAP_ATTR_RELAY_GUID, user.getRawRelayGuid()));
         entry.addAttribute(this.attr(LDAP_ATTR_THEKEY_GUID, user.getRawTheKeyGuid()));
         entry.addAttribute(this.attr(LDAP_ATTR_FIRSTNAME, user.getFirstName()));
@@ -221,7 +220,7 @@ public abstract class AbstractUserLdapEntryMapper<O extends User> implements Lda
         user.setImplMeta(META_OBJECT_CLASSES, Sets.newHashSet(getStringValues(entry, LDAP_ATTR_OBJECTCLASS)));
 
         // Base attributes
-        user.setGuid(this.getStringValue(entry, LDAP_ATTR_GUID));
+//        user.setGuid(this.getStringValue(entry, LDAP_ATTR_GUID));
         user.setRelayGuid(this.getStringValue(entry, LDAP_ATTR_RELAY_GUID));
         user.setTheKeyGuid(this.getStringValue(entry, LDAP_ATTR_THEKEY_GUID));
         user.setFirstName(this.getStringValue(entry, LDAP_ATTR_FIRSTNAME));
@@ -276,7 +275,7 @@ public abstract class AbstractUserLdapEntryMapper<O extends User> implements Lda
         user.setCountry(this.getStringValue(entry, LDAP_ATTR_COUNTRY));
 
         // return the loaded User object
-        LOG.debug("User loaded from LdapEntry: {}", user.getGuid());
+        LOG.debug("User loaded from LdapEntry: {}", user.getTheKeyGuid());
     }
 
     protected final LdapAttribute attr(@Nonnull final String name) {

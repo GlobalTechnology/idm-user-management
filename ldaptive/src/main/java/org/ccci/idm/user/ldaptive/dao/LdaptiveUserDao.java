@@ -220,9 +220,8 @@ public class LdaptiveUserDao extends AbstractLdapUserDao {
 
     @Override
     public User findByTheKeyGuid(final String guid, final boolean includeDeactivated) {
-        // theKeyGuid == {guid} || (guid == {guid} && theKeyGuid == null)
-        return this.findByFilter(new EqualsFilter(LDAP_ATTR_THEKEY_GUID, guid).or(new EqualsFilter(LDAP_ATTR_GUID,
-                guid).and(new PresentFilter(LDAP_ATTR_THEKEY_GUID).not())), includeDeactivated);
+        // theKeyGuid == {guid}
+        return this.findByFilter(new EqualsFilter(LDAP_ATTR_THEKEY_GUID, guid), includeDeactivated);
     }
 
     @Override

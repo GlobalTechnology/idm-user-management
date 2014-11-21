@@ -322,7 +322,7 @@ public class LdaptiveUserDaoIT {
     private User getUser() {
         final User user = new User();
         user.setEmail("test.user." + RAND.nextInt(Integer.MAX_VALUE) + "@example.com");
-        user.setGuid(UUID.randomUUID().toString().toUpperCase());
+        user.setTheKeyGuid(UUID.randomUUID().toString().toUpperCase());
         user.setFirstName("Test");
         user.setLastName("User");
 

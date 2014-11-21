@@ -9,6 +9,7 @@ import org.ccci.idm.user.exception.EmailAlreadyExistsException;
 import org.ccci.idm.user.exception.InvalidEmailUserException;
 import org.ccci.idm.user.exception.RelayGuidAlreadyExistsException;
 import org.ccci.idm.user.exception.TheKeyGuidAlreadyExistsException;
+import org.ccci.idm.user.exception.UserAlreadyExistsException;
 import org.ccci.idm.user.exception.UserException;
 import org.ccci.idm.user.exception.UserNotFoundException;
 import org.ccci.idm.user.util.DefaultRandomPasswordGenerator;
@@ -45,12 +46,14 @@ public class DefaultUserManager implements UserManager {
         this.userDao = dao;
     }
 
+    @Deprecated
     protected boolean doesGuidExist(final String guid) {
-        return guid != null && this.userDao.findByGuid(guid, true) != null;
+        throw new UnsupportedOperationException("doesGuidExist() is not currently supported");
     }
 
+    @Deprecated
     protected boolean doesRelayGuidExist(final String guid) {
-        return guid != null && this.userDao.findByRelayGuid(guid, true) != null;
+        throw new UnsupportedOperationException("doesRelayGuidExist() is not currently supported");
     }
 
     protected boolean doesTheKeyGuidExist(final String guid) {
@@ -85,24 +88,15 @@ public class DefaultUserManager implements UserManager {
             LOG.debug("The specified email '{}' already exists.", user.getEmail());
             throw new EmailAlreadyExistsException();
         }
-
-        // throw an error if the raw Relay or The Key guid exists already
-        if (user.getRawRelayGuid() != null && this.doesRelayGuidExist(user.getRawRelayGuid())) {
-            throw new RelayGuidAlreadyExistsException("Relay guid '" + user.getRawRelayGuid() + "' already exists");
-        }
-        if (user.getRawTheKeyGuid() != null && this.doesTheKeyGuidExist(user.getRawTheKeyGuid())) {
-            throw new TheKeyGuidAlreadyExistsException("The Key guid '" + user.getRawTheKeyGuid() + "' already exists");
-        }
     }
 
     protected void setNewUserDefaults(final User user) throws UserException {
         // generate a guid for the user if there isn't a valid one already set
         int count = 0;
-        String guid = user.getGuid();
-        while (!StringUtils.hasText(guid) || this.doesGuidExist(guid) || this.doesRelayGuidExist(guid) || this
-                .doesTheKeyGuidExist(guid)) {
+        String guid = user.getTheKeyGuid();
+        while (!StringUtils.hasText(guid) || this.doesTheKeyGuidExist(guid)) {
             guid = UUID.randomUUID().toString().toUpperCase(Locale.US);
-            user.setGuid(guid);
+            user.setTheKeyGuid(guid);
 
             // prevent an infinite loop, I doubt this exception will ever be thrown
             if (count++ > 200) {
@@ -178,7 +172,7 @@ public class DefaultUserManager implements UserManager {
     @Override
     public User getFreshUser(final User user) throws UserNotFoundException {
         // attempt retrieving the fresh user object using the original users guid
-        final User fresh = userDao.findByGuid(user.getGuid(), true);
+        final User fresh = userDao.findByTheKeyGuid(user.getTheKeyGuid(), true);
 
         // throw an error if the guid wasn't found
         if (fresh == null) {

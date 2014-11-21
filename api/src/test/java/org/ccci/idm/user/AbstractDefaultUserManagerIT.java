@@ -104,7 +104,7 @@ public abstract class AbstractDefaultUserManagerIT {
     private User getNewUser() {
         final User user = new User();
         user.setEmail(randomEmail());
-        user.setGuid(UUID.randomUUID().toString().toUpperCase());
+//        user.setGuid(UUID.randomUUID().toString().toUpperCase());
         user.setRelayGuid(UUID.randomUUID().toString().toUpperCase());
         user.setPassword("testPassword");
         user.setFirstName("Test");

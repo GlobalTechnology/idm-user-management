@@ -44,6 +44,7 @@ public interface UserDao {
      * @param includeDeactivated If <tt>true</tt> then deactivated accounts are included.
      * @return Request {@link User} or <tt>null</tt> if not found.
      */
+    @Deprecated
     User findByGuid(String guid, boolean includeDeactivated);
 
     /**
@@ -53,6 +54,7 @@ public interface UserDao {
      * @param includeDeactivated If <tt>true</tt> then deactivated accounts are included.
      * @return Request {@link User} or <tt>null</tt> if not found.
      */
+    @Deprecated
     User findByRelayGuid(String guid, boolean includeDeactivated);
 
     /**
@@ -112,6 +114,7 @@ public interface UserDao {
      * @param includeDeactivated If <tt>true</tt> then deactivated accounts are included.
      * @return Requested {@link org.ccci.idm.user.User} or <tt>null</tt> if not found.
      */
+    @Deprecated
     User findByEmployeeId(String employeeId, boolean includeDeactivated);
 
     /**
