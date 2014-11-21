@@ -10,14 +10,14 @@ public class Constants {
     public static final String LDAP_ATTR_EMAIL = "cn";
     public static final String LDAP_ATTR_USERID = "uid";
     public static final String LDAP_ATTR_GUID = "extensionAttribute1";
-    public static final String LDAP_ATTR_THEKEY_GUID = "theKeyGuid";
+    public static final String LDAP_ATTR_THEKEY_GUID = "thekeyGuid";
     public static final String LDAP_ATTR_PASSWORD = "userPassword";
     public static final String LDAP_ATTR_FIRSTNAME = "givenName";
     public static final String LDAP_ATTR_LASTNAME = "sn";
     public static final String LDAP_ATTR_LOGINTIME = "loginTime";
     public static final String LDAP_ATTR_FACEBOOKID = "thekeyFacebookId";
     public static final String LDAP_ATTR_FACEBOOKIDSTRENGTH = "thekeyFacebookIdStrength";
-    public static final String LDAP_ATTR_DOMAINSVISITED = "extensionAttribute2";
+    public static final String LDAP_ATTR_DOMAINSVISITED = "thekeyDomainVisited";
     public static final String LDAP_ATTR_GROUPS = "groupMembership";
 
     public static final String LDAP_ATTR_RESETPASSWORDKEY = "thekeyResetPasswordKey";
@@ -28,7 +28,7 @@ public class Constants {
     public static final String LDAP_FLAG_ALLOWPASSWORDCHANGE = "passwordAllowChange";
     public static final String LDAP_FLAG_LOGINDISABLED = "loginDisabled";
     public static final String LDAP_FLAG_LOCKED = "lockedByIntruder";
-    public static final String LDAP_FLAG_STALEPASSWORD = "extensionAttribute5";
+    public static final String LDAP_FLAG_STALEPASSWORD = "thekeyPasswordForceChange";
     public static final String LDAP_FLAG_EMAILVERIFIED = "thekeyAccountVerified";
 
     // LDAP objectClass values
