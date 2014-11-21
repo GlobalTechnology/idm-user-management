@@ -1,9 +1,12 @@
 package org.ccci.idm.user.ldaptive.dao;
 
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
 import static org.junit.Assume.assumeNotNull;
 
 import com.google.common.collect.Sets;
 import org.ccci.idm.user.User;
+import org.joda.time.DateTime;
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -79,6 +82,29 @@ public class LdaptiveUserDaoIT {
         final User foundUser = this.dao.findByEmail(user.getEmail());
 
         Assert.assertTrue(user.equals(foundUser));
+    }
+
+    @Test
+    public void testLoginDate() throws Exception {
+        assumeConfigured();
+
+        final User user = getUser();
+        final String guid = user.getGuid();
+        user.setLoginTime(new DateTime().minusDays(30).secondOfMinute().roundFloorCopy());
+        this.dao.save(user);
+
+        // see if we load the same value from ldap
+        final User saved1 = this.dao.findByGuid(guid);
+        assertTrue(saved1.getLoginTime().isEqual(user.getLoginTime()));
+
+        // update the login time to now
+        saved1.setLoginTime(new DateTime().secondOfMinute().roundFloorCopy());
+        this.dao.update(saved1, User.Attr.LOGINTIME);
+
+        // check to see if the update succeeded
+        final User saved2 = this.dao.findByGuid(guid);
+        assertTrue(saved2.getLoginTime().isEqual(saved1.getLoginTime()));
+        assertFalse(saved2.getLoginTime().isEqual(user.getLoginTime()));
     }
 
     @Test
