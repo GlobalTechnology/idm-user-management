@@ -151,7 +151,12 @@ public class User implements Cloneable, Serializable {
     }
 
     public void setPassword(final String password) {
+        this.setPassword(password, false);
+    }
+
+    public void setPassword(final String password, final boolean forceChange) {
         this.password = password;
+        this.forcePasswordChange = forceChange;
     }
 
     public String getGuid() {

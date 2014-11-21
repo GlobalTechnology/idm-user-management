@@ -26,9 +26,9 @@ public class Constants {
     public static final String LDAP_ATTR_PROPOSEDEMAIL = "thekeyProposedEmail";
 
     public static final String LDAP_FLAG_ALLOWPASSWORDCHANGE = "passwordAllowChange";
+    public static final String LDAP_FLAG_FORCEPASSWORDCHANGE = "thekeyPasswordForceChange";
     public static final String LDAP_FLAG_LOGINDISABLED = "loginDisabled";
     public static final String LDAP_FLAG_LOCKED = "lockedByIntruder";
-    public static final String LDAP_FLAG_STALEPASSWORD = "thekeyPasswordForceChange";
     public static final String LDAP_FLAG_EMAILVERIFIED = "thekeyAccountVerified";
 
     // LDAP objectClass values

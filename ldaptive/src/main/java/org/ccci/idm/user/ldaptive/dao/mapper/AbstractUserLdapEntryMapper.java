@@ -39,9 +39,9 @@ import static org.ccci.idm.user.dao.ldap.Constants.LDAP_ATTR_USERID;
 import static org.ccci.idm.user.dao.ldap.Constants.LDAP_DEACTIVATED_PREFIX;
 import static org.ccci.idm.user.dao.ldap.Constants.LDAP_FLAG_ALLOWPASSWORDCHANGE;
 import static org.ccci.idm.user.dao.ldap.Constants.LDAP_FLAG_EMAILVERIFIED;
+import static org.ccci.idm.user.dao.ldap.Constants.LDAP_FLAG_FORCEPASSWORDCHANGE;
 import static org.ccci.idm.user.dao.ldap.Constants.LDAP_FLAG_LOCKED;
 import static org.ccci.idm.user.dao.ldap.Constants.LDAP_FLAG_LOGINDISABLED;
-import static org.ccci.idm.user.dao.ldap.Constants.LDAP_FLAG_STALEPASSWORD;
 import static org.ccci.idm.user.dao.ldap.Constants.LDAP_OBJECTCLASSES_USER;
 import static org.ccci.idm.user.dao.ldap.Constants.LDAP_OBJECTCLASS_CRU_PERSON_ATTRIBUTES;
 import static org.ccci.idm.user.dao.ldap.Constants.LDAP_OBJECTCLASS_RELAY_ATTRIBUTES;
@@ -123,7 +123,7 @@ public abstract class AbstractUserLdapEntryMapper<O extends User> implements Lda
         // set several flags for this user
         entry.addAttribute(this.attr(LDAP_FLAG_ALLOWPASSWORDCHANGE, user.isAllowPasswordChange()));
         entry.addAttribute(this.attr(LDAP_FLAG_LOGINDISABLED, user.isLoginDisabled()));
-        entry.addAttribute(this.attr(LDAP_FLAG_STALEPASSWORD, user.isForcePasswordChange()));
+        entry.addAttribute(this.attr(LDAP_FLAG_FORCEPASSWORDCHANGE, user.isForcePasswordChange()));
         entry.addAttribute(this.attr(LDAP_FLAG_EMAILVERIFIED, user.isEmailVerified()));
 
         // set the multi-valued attributes
@@ -233,7 +233,7 @@ public abstract class AbstractUserLdapEntryMapper<O extends User> implements Lda
         user.setAllowPasswordChange(this.getBooleanValue(entry, LDAP_FLAG_ALLOWPASSWORDCHANGE, true));
         user.setLoginDisabled(this.getBooleanValue(entry, LDAP_FLAG_LOGINDISABLED, false));
         user.setLocked(this.getBooleanValue(entry, LDAP_FLAG_LOCKED, false));
-        user.setForcePasswordChange(this.getBooleanValue(entry, LDAP_FLAG_STALEPASSWORD, false));
+        user.setForcePasswordChange(this.getBooleanValue(entry, LDAP_FLAG_FORCEPASSWORDCHANGE, false));
         user.setEmailVerified(this.getBooleanValue(entry, LDAP_FLAG_EMAILVERIFIED, false));
 
         // various self-service keys
