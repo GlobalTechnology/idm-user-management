@@ -144,6 +144,7 @@ public class LdaptiveUserDao extends AbstractLdapUserDao {
             // return found users
             return users;
         } catch (final LdapException e) {
+            LOG.debug("error searching for users, returning an empty list", e);
             return Collections.emptyList();
         } finally {
             LdapUtils.closeConnection(conn);
