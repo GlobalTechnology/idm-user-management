@@ -282,11 +282,9 @@ public abstract class AbstractUserLdapEntryMapper<O extends User> implements Lda
         return attr(name, values.toArray(new String[values.size()]));
     }
 
-    protected final LdapAttribute attr(final String name, final boolean... values) {
+    protected final LdapAttribute attr(final String name, final boolean value) {
         final LdapAttribute attr = new LdapAttribute(name);
-        for (final boolean value : values) {
-            attr.addStringValue(Boolean.toString(value).toUpperCase());
-        }
+        attr.addValue(TRANSCODER_BOOLEAN, value);
         return attr;
     }
 
