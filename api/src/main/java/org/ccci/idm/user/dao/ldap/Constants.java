@@ -59,7 +59,7 @@ public class Constants {
 
     // relayAttributes
     public static final String LDAP_ATTR_RELAY_GUID = "relayGuid";
-    public static final String LDAP_ATTR_COUNTRY = "countryName";
+    public static final String LDAP_ATTR_COUNTRY = "c";
 
     // other cru related attributes (available in other object classes)
     public static final String LDAP_ATTR_EMPLOYEE_NUMBER = "employeeNumber";
