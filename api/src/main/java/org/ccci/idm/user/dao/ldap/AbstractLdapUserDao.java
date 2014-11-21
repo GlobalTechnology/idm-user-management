@@ -33,8 +33,8 @@ import static org.ccci.idm.user.dao.ldap.Constants.LDAP_ATTR_TELEPHONE;
 import static org.ccci.idm.user.dao.ldap.Constants.LDAP_ATTR_USERID;
 import static org.ccci.idm.user.dao.ldap.Constants.LDAP_FLAG_ALLOWPASSWORDCHANGE;
 import static org.ccci.idm.user.dao.ldap.Constants.LDAP_FLAG_EMAILVERIFIED;
+import static org.ccci.idm.user.dao.ldap.Constants.LDAP_FLAG_FORCEPASSWORDCHANGE;
 import static org.ccci.idm.user.dao.ldap.Constants.LDAP_FLAG_LOGINDISABLED;
-import static org.ccci.idm.user.dao.ldap.Constants.LDAP_FLAG_STALEPASSWORD;
 
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
@@ -49,10 +49,10 @@ public abstract class AbstractLdapUserDao extends AbstractUserDao {
     private static final Map<Attr, Set<String>> MASK = ImmutableMap.<Attr, Set<String>>builder()
             .put(Attr.EMAIL, ImmutableSet.of(LDAP_ATTR_USERID, LDAP_FLAG_EMAILVERIFIED))
             .put(Attr.NAME, ImmutableSet.of(LDAP_ATTR_FIRSTNAME, LDAP_ATTR_LASTNAME))
-            .put(Attr.PASSWORD, ImmutableSet.of(LDAP_ATTR_PASSWORD))
+            .put(Attr.PASSWORD, ImmutableSet.of(LDAP_ATTR_PASSWORD, LDAP_FLAG_FORCEPASSWORDCHANGE))
             .put(Attr.LOGINTIME, ImmutableSet.of(LDAP_ATTR_LOGINTIME))
             .put(Attr.FLAGS, ImmutableSet.of(LDAP_FLAG_ALLOWPASSWORDCHANGE, LDAP_FLAG_EMAILVERIFIED,
-                    LDAP_FLAG_LOGINDISABLED, LDAP_FLAG_STALEPASSWORD))
+                    LDAP_FLAG_LOGINDISABLED, LDAP_FLAG_FORCEPASSWORDCHANGE))
             .put(Attr.DOMAINSVISITED, ImmutableSet.of(LDAP_ATTR_DOMAINSVISITED))
             .put(Attr.SELFSERVICEKEYS, ImmutableSet.of(LDAP_ATTR_CHANGEEMAILKEY, LDAP_ATTR_PROPOSEDEMAIL,
                     LDAP_ATTR_RESETPASSWORDKEY, LDAP_ATTR_SIGNUPKEY))
