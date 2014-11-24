@@ -50,9 +50,8 @@ import com.google.common.base.Joiner;
 import com.google.common.base.Strings;
 import com.google.common.base.Throwables;
 import org.ccci.idm.user.User;
-import org.joda.time.DateTime;
-import org.joda.time.format.DateTimeFormat;
-import org.joda.time.format.DateTimeFormatter;
+import org.ccci.idm.user.ldaptive.dao.io.ReadableInstantValueTranscoder;
+import org.joda.time.ReadableInstant;
 import org.ldaptive.LdapAttribute;
 import org.ldaptive.LdapEntry;
 import org.ldaptive.LdapException;
@@ -76,6 +75,7 @@ public abstract class AbstractUserLdapEntryMapper<O extends User> implements Lda
     private static final Joiner JOINER_STRENGTH = Joiner.on("$").useForNull("");
 
     private static final ValueTranscoder<Boolean> TRANSCODER_BOOLEAN = new BooleanValueTranscoder(true);
+    private static final ValueTranscoder<ReadableInstant> TRANSCODER_INSTANT = new ReadableInstantValueTranscoder();
 
     @NotNull
     protected DnResolver dnResolver;
@@ -139,10 +139,10 @@ public abstract class AbstractUserLdapEntryMapper<O extends User> implements Lda
         if (StringUtils.hasText(password)) {
             entry.addAttribute(this.attr(LDAP_ATTR_PASSWORD, password));
         }
-//        final Date loginTime = user.getLoginTime();
-//        if (loginTime != null) {
-//            entry.addAttribute(this.attr(LDAP_ATTR_LOGINTIME, loginTime));
-//        }
+        final ReadableInstant loginTime = user.getLoginTime();
+        if (loginTime != null) {
+            entry.addAttribute(this.attr(LDAP_ATTR_LOGINTIME, loginTime));
+        }
 
         // set any federated identities
         final String facebookId = user.getFacebookId();
@@ -288,6 +288,12 @@ public abstract class AbstractUserLdapEntryMapper<O extends User> implements Lda
         return attr;
     }
 
+    protected final LdapAttribute attr(final String name, final ReadableInstant... values) {
+        final LdapAttribute attr = new LdapAttribute(name);
+        attr.addValue(TRANSCODER_INSTANT, values);
+        return attr;
+    }
+
     protected LdapAttribute attrObjectClass(final O user) {
         final LdapAttribute attr = new LdapAttribute(LDAP_ATTR_OBJECTCLASS, LDAP_OBJECTCLASSES_USER);
         if(hasCruPersonAttributes(user)) {
@@ -335,17 +341,21 @@ public abstract class AbstractUserLdapEntryMapper<O extends User> implements Lda
         return defaultValue;
     }
 
-    // loginTime format
-    public static final DateTimeFormatter formatter = DateTimeFormat.forPattern("yyyyMMddHHmmssZ").withZoneUTC();
+    protected final ReadableInstant getTimeValue(final LdapEntry entry, final String attribute) {
+        return this.getTimeValue(entry, attribute, null);
+    }
 
-    protected final DateTime getTimeValue(final LdapEntry entry, final String attribute) {
-        try {
-            String dateTimeString = getStringValue(entry, attribute);
-            return formatter.parseDateTime(dateTimeString);
+    protected final ReadableInstant getTimeValue(final LdapEntry entry, final String attribute,
+                                                 final ReadableInstant defaultValue) {
+        final LdapAttribute attr = entry.getAttribute(attribute);
+        if (attr != null) {
+            final ReadableInstant value = attr.getValue(TRANSCODER_INSTANT);
+            if (value != null) {
+                return value;
+            }
         }
-        catch(Exception e) {
-            return null;
-        }
+
+        return defaultValue;
     }
 
     protected final Map<String, Double> getStrengthValues(final LdapEntry entry, final String name) {
