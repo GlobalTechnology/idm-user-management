@@ -520,7 +520,7 @@ public class User implements Cloneable, Serializable {
 
     @Override
     @SuppressWarnings({"CloneDoesntCallSuperClone", "CloneDoesntDeclareCloneNotSupportedException"})
-    protected User clone() {
+    public User clone() {
         return new User(this);
     }
 
