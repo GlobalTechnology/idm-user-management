@@ -1,5 +1,6 @@
 package org.ccci.idm.user.ldaptive.dao;
 
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assume.assumeNotNull;
@@ -17,6 +18,7 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import javax.inject.Inject;
 import java.security.SecureRandom;
 import java.util.Collection;
+import java.util.List;
 import java.util.Random;
 import java.util.UUID;
 
@@ -105,6 +107,69 @@ public class LdaptiveUserDaoIT {
         final User saved2 = this.dao.findByGuid(guid, true);
         assertTrue(saved2.getLoginTime().isEqual(saved1.getLoginTime()));
         assertFalse(saved2.getLoginTime().isEqual(user.getLoginTime()));
+    }
+
+    @Test
+    public void testDeactivatedFiltering() throws Exception {
+        assumeConfigured();
+
+        // create a base user
+        final User user1 = getStaffUser();
+        user1.setFirstName("first_" +RAND.nextInt(Integer.MAX_VALUE));
+        user1.setLastName("last_" +RAND.nextInt(Integer.MAX_VALUE));
+
+        // create a duplicate deactivated user
+        final User user2 = getStaffUser();
+        user2.setEmail(user1.getEmail());
+        user2.setFirstName(user1.getFirstName());
+        user2.setLastName(user1.getLastName());
+        user2.setDeactivated(true);
+
+        // save both users
+        this.dao.save(user1);
+        this.dao.save(user2);
+
+        // test findAllByFirstName
+        {
+            final List<User> active = this.dao.findAllByFirstName(user1.getFirstName(), false);
+            final List<User> all = this.dao.findAllByFirstName(user1.getFirstName(), true);
+
+            assertEquals(1, active.size());
+            assertEquals(2, all.size());
+
+            assertTrue(active.contains(user1));
+            assertFalse(active.contains(user2));
+            assertTrue(all.contains(user1));
+            assertTrue(all.contains(user2));
+        }
+
+        // test findAllByLastName
+        {
+            final List<User> active = this.dao.findAllByLastName(user1.getLastName(), false);
+            final List<User> all = this.dao.findAllByLastName(user1.getLastName(), true);
+
+            assertEquals(1, active.size());
+            assertEquals(2, all.size());
+
+            assertTrue(active.contains(user1));
+            assertFalse(active.contains(user2));
+            assertTrue(all.contains(user1));
+            assertTrue(all.contains(user2));
+        }
+
+        // test findAllByEmail
+        {
+            final List<User> active = this.dao.findAllByEmail(user1.getEmail(), false);
+            final List<User> all = this.dao.findAllByEmail(user1.getEmail(), true);
+
+            assertEquals(1, active.size());
+            assertEquals(2, all.size());
+
+            assertTrue(active.contains(user1));
+            assertFalse(active.contains(user2));
+            assertTrue(all.contains(user1));
+            assertTrue(all.contains(user2));
+        }
     }
 
     @Test
