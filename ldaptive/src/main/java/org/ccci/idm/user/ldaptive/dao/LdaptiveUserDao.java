@@ -41,7 +41,6 @@ import org.ldaptive.ModifyDnRequest;
 import org.ldaptive.ModifyOperation;
 import org.ldaptive.ModifyRequest;
 import org.ldaptive.Response;
-import org.ldaptive.SearchFilter;
 import org.ldaptive.SearchOperation;
 import org.ldaptive.SearchRequest;
 import org.ldaptive.SearchResult;
@@ -61,8 +60,9 @@ public class LdaptiveUserDao extends AbstractLdapUserDao {
     private static final Logger LOG = LoggerFactory.getLogger(LdaptiveUserDao.class);
 
     // common LDAP search filters
-    private static final EqualsFilter FILTER_PERSON = new EqualsFilter(LDAP_ATTR_OBJECTCLASS, LDAP_OBJECTCLASS_PERSON);
-    private static final LikeFilter FILTER_DEACTIVATED = new LikeFilter(LDAP_ATTR_CN, LDAP_DEACTIVATED_PREFIX + "*");
+    private static final BaseFilter FILTER_PERSON = new EqualsFilter(LDAP_ATTR_OBJECTCLASS, LDAP_OBJECTCLASS_PERSON);
+    private static final BaseFilter FILTER_DEACTIVATED = new LikeFilter(LDAP_ATTR_CN, LDAP_DEACTIVATED_PREFIX + "*");
+    private static final BaseFilter FILTER_NOT_DEACTIVATED = FILTER_DEACTIVATED.not();
 
     // Predicates used for filtering objects
     private static final Predicate<LdapAttribute> PREDICATE_EMPTY_ATTRIBUTE = new Predicate<LdapAttribute>() {
@@ -99,8 +99,14 @@ public class LdaptiveUserDao extends AbstractLdapUserDao {
      * @param limit  the maximum number of results to return
      * @return
      */
-    private List<User> findAllByFilter(final SearchFilter filter,
+    private List<User> findAllByFilter(BaseFilter filter, final boolean includeDeactivated,
                                        final int limit) throws ExceededMaximumAllowedResultsException {
+        // restrict filter as necessary
+        filter = filter.and(FILTER_PERSON);
+        if (!includeDeactivated) {
+            filter = filter.and(FILTER_NOT_DEACTIVATED);
+        }
+
         // perform search
         Connection conn = null;
         try {
@@ -151,9 +157,9 @@ public class LdaptiveUserDao extends AbstractLdapUserDao {
         }
     }
 
-    private User findByFilter(final SearchFilter filter) {
+    private User findByFilter(final BaseFilter filter, final boolean includeDeactivated) {
         try {
-            final List<User> results = this.findAllByFilter(filter, 1);
+            final List<User> results = this.findAllByFilter(filter, includeDeactivated, 1);
             return results.size() > 0 ? results.get(0) : null;
         } catch (final ExceededMaximumAllowedResultsException e) {
             // this should be unreachable, but if we do reach it, log the exception and propagate the exception
@@ -163,20 +169,22 @@ public class LdaptiveUserDao extends AbstractLdapUserDao {
     }
 
     @Override
-    public List<User> findAllByFirstName(final String pattern) throws ExceededMaximumAllowedResultsException {
-        return this.findAllByFilter(new LikeFilter(LDAP_ATTR_FIRSTNAME, pattern).and(FILTER_PERSON), SEARCH_NO_LIMIT);
+    public List<User> findAllByFirstName(final String pattern, final boolean includeDeactivated) throws
+            ExceededMaximumAllowedResultsException {
+        return this.findAllByFilter(new LikeFilter(LDAP_ATTR_FIRSTNAME, pattern), includeDeactivated, SEARCH_NO_LIMIT);
     }
 
     @Override
-    public List<User> findAllByLastName(final String pattern) throws ExceededMaximumAllowedResultsException {
-        return this.findAllByFilter(new LikeFilter(LDAP_ATTR_LASTNAME, pattern).and(FILTER_PERSON), SEARCH_NO_LIMIT);
+    public List<User> findAllByLastName(final String pattern, final boolean includeDeactivated) throws
+            ExceededMaximumAllowedResultsException {
+        return this.findAllByFilter(new LikeFilter(LDAP_ATTR_LASTNAME, pattern), includeDeactivated, SEARCH_NO_LIMIT);
     }
 
     @Override
     public List<User> findAllByEmail(final String pattern, final boolean includeDeactivated) throws
             ExceededMaximumAllowedResultsException {
         // filter = (!deactivated && cn LIKE pattern)
-        BaseFilter filter = FILTER_DEACTIVATED.not().and(new LikeFilter(LDAP_ATTR_CN, pattern));
+        BaseFilter filter = FILTER_NOT_DEACTIVATED.and(new LikeFilter(LDAP_ATTR_CN, pattern));
 
         // filter = (filter || (deactivated && uid LIKE pattern))
         if (includeDeactivated) {
@@ -184,43 +192,42 @@ public class LdaptiveUserDao extends AbstractLdapUserDao {
         }
 
         // Execute search & return results
-        return this.findAllByFilter(filter.and(FILTER_PERSON), SEARCH_NO_LIMIT);
+        // includeDeactivated is always true since we already filtered based on the includeDeactivated flag
+        return this.findAllByFilter(filter, true, SEARCH_NO_LIMIT);
     }
 
     @Override
-    public User findByGuid(final String guid) {
-        return this.findByFilter(new EqualsFilter(LDAP_ATTR_GUID, guid).and(FILTER_PERSON));
+    public User findByGuid(final String guid, final boolean includeDeactivated) {
+        return this.findByFilter(new EqualsFilter(LDAP_ATTR_GUID, guid), includeDeactivated);
     }
 
     @Override
-    public User findByRelayGuid(final String guid) {
+    public User findByRelayGuid(final String guid, final boolean includeDeactivated) {
         // relayGuid == {guid} || (guid == {guid} && relayGuid == null)
         return this.findByFilter(new EqualsFilter(LDAP_ATTR_RELAY_GUID, guid).or(new EqualsFilter(LDAP_ATTR_GUID,
-                guid).and(new PresentFilter(LDAP_ATTR_RELAY_GUID).not())).and(FILTER_PERSON));
+                guid).and(new PresentFilter(LDAP_ATTR_RELAY_GUID).not())), includeDeactivated);
     }
 
     @Override
-    public User findByTheKeyGuid(final String guid) {
+    public User findByTheKeyGuid(final String guid, final boolean includeDeactivated) {
         // theKeyGuid == {guid} || (guid == {guid} && theKeyGuid == null)
         return this.findByFilter(new EqualsFilter(LDAP_ATTR_THEKEY_GUID, guid).or(new EqualsFilter(LDAP_ATTR_GUID,
-                guid).and(new PresentFilter(LDAP_ATTR_THEKEY_GUID).not())).and(FILTER_PERSON));
+                guid).and(new PresentFilter(LDAP_ATTR_THEKEY_GUID).not())), includeDeactivated);
     }
 
     @Override
-    public User findByFacebookId(final String id) {
-        return this.findByFilter(new EqualsFilter(LDAP_ATTR_FACEBOOKID, id).and(FILTER_PERSON));
+    public User findByFacebookId(final String id, final boolean includeDeactivated) {
+        return this.findByFilter(new EqualsFilter(LDAP_ATTR_FACEBOOKID, id), includeDeactivated);
     }
 
     @Override
-    public User findByEmail(final String email) {
-        return this.findByFilter(new EqualsFilter(LDAP_ATTR_EMAIL, email).and(FILTER_DEACTIVATED.not()).and
-                (FILTER_PERSON));
+    public User findByEmail(final String email, final boolean includeDeactivated) {
+        return this.findByFilter(new EqualsFilter(LDAP_ATTR_EMAIL, email), includeDeactivated);
     }
 
     @Override
-    public User findByEmployeeId(final String employeeId) {
-        return this.findByFilter(new EqualsFilter(LDAP_ATTR_EMPLOYEE_NUMBER, employeeId).and(FILTER_DEACTIVATED.not()).and
-                (FILTER_PERSON));
+    public User findByEmployeeId(final String employeeId, final boolean includeDeactivated) {
+        return this.findByFilter(new EqualsFilter(LDAP_ATTR_EMPLOYEE_NUMBER, employeeId), includeDeactivated);
     }
 
     @Override

@@ -43,21 +43,21 @@ public class DefaultUserManager implements UserManager {
     }
 
     protected boolean doesGuidExist(final String guid) {
-        return guid != null && this.userDao.findByGuid(guid) != null;
+        return guid != null && this.userDao.findByGuid(guid, true) != null;
     }
 
     protected boolean doesRelayGuidExist(final String guid) {
-        return guid != null && this.userDao.findByRelayGuid(guid) != null;
+        return guid != null && this.userDao.findByRelayGuid(guid, true) != null;
     }
 
     protected boolean doesTheKeyGuidExist(final String guid) {
-        return guid != null && this.userDao.findByTheKeyGuid(guid) != null;
+        return guid != null && this.userDao.findByTheKeyGuid(guid, true) != null;
     }
 
     @Override
     @Transactional(readOnly = true)
     public boolean doesEmailExist(final String email) {
-        return email != null && this.userDao.findByEmail(email) != null;
+        return email != null && this.userDao.findByEmail(email, false) != null;
     }
 
     @Override
@@ -179,7 +179,7 @@ public class DefaultUserManager implements UserManager {
     @Transactional(readOnly = true)
     public User getFreshUser(final User user) throws UserNotFoundException {
         // attempt retrieving the fresh user object using the original users guid
-        final User fresh = userDao.findByGuid(user.getGuid());
+        final User fresh = userDao.findByGuid(user.getGuid(), true);
 
         // throw an error if the guid wasn't found
         if (fresh == null) {
@@ -192,51 +192,83 @@ public class DefaultUserManager implements UserManager {
 
     @Override
     @Transactional(readOnly = true)
+    public User findUserByEmail(final String email) {
+        return this.findUserByEmail(email, false);
+    }
+
+    @Override
+    @Transactional(readOnly = true)
     public User findUserByEmail(final String email, final boolean includeDeactivated) {
-        //TODO: implement includeDeactivated functionality
-        return this.userDao.findByEmail(email);
+        return this.userDao.findByEmail(email, includeDeactivated);
     }
 
     @Override
     @Transactional(readOnly = true)
     public User findUserByGuid(final String guid) {
-        return this.userDao.findByGuid(guid);
+        return this.findUserByGuid(guid, true);
+    }
+
+    @Override
+    public User findUserByGuid(final String guid, final boolean includeDeactivated) {
+        return this.userDao.findByGuid(guid, includeDeactivated);
     }
 
     @Override
     @Transactional(readOnly = true)
     public User findUserByRelayGuid(final String guid) {
-        return this.userDao.findByRelayGuid(guid);
+        return this.findUserByRelayGuid(guid, true);
+    }
+
+    @Override
+    public User findUserByRelayGuid(final String guid, final boolean includeDeactivated) {
+        return this.userDao.findByRelayGuid(guid, includeDeactivated);
     }
 
     @Override
     @Transactional(readOnly = true)
     public User findUserByTheKeyGuid(final String guid) {
-        return this.userDao.findByTheKeyGuid(guid);
+        return this.findUserByTheKeyGuid(guid, true);
+    }
+
+    @Override
+    public User findUserByTheKeyGuid(final String guid, final boolean includeDeactivated) {
+        return this.userDao.findByTheKeyGuid(guid, includeDeactivated);
     }
 
     @Override
     @Transactional(readOnly = true)
     public User findUserByFacebookId(final String id) {
-        return this.userDao.findByFacebookId(id);
+        return this.findUserByFacebookId(id, false);
+    }
+
+    @Override
+    public User findUserByFacebookId(final String id, final boolean includeDeactivated) {
+        return this.userDao.findByFacebookId(id, includeDeactivated);
     }
 
     @Override
     @Transactional(readOnly = true)
     public User findUserByEmployeeId(final String employeeId) {
-        return this.userDao.findByEmployeeId(employeeId);
+        return this.findUserByEmployeeId(employeeId, false);
+    }
+
+    @Override
+    public User findUserByEmployeeId(final String employeeId, final boolean includeDeactivated) {
+        return this.userDao.findByEmployeeId(employeeId, includeDeactivated);
     }
 
     @Override
     @Transactional(readOnly = true)
-    public List<User> findAllByFirstName(final String pattern) throws ExceededMaximumAllowedResultsException {
-        return this.userDao.findAllByFirstName(pattern);
+    public List<User> findAllByFirstName(final String pattern, final boolean includeDeactivated) throws
+            ExceededMaximumAllowedResultsException {
+        return this.userDao.findAllByFirstName(pattern, includeDeactivated);
     }
 
     @Override
     @Transactional(readOnly = true)
-    public List<User> findAllByLastName(final String pattern) throws ExceededMaximumAllowedResultsException {
-        return this.userDao.findAllByLastName(pattern);
+    public List<User> findAllByLastName(final String pattern, final boolean includeDeactivated) throws
+            ExceededMaximumAllowedResultsException {
+        return this.userDao.findAllByLastName(pattern, includeDeactivated);
     }
 
     @Override

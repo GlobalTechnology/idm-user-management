@@ -50,6 +50,14 @@ public interface UserManager {
     User getFreshUser(User user) throws UserException;
 
     /**
+     * Locate the user with the specified e-mail address. Does not return deactivated accounts.
+     *
+     * @param email              E-mail address of user to find.
+     * @return {@link User} with the specified e-mail address, or <tt>null</tt> if not found.
+     */
+    User findUserByEmail(String email);
+
+    /**
      * Locate the user with the specified e-mail address.
      *
      * @param email              E-mail address of user to find.
@@ -59,7 +67,7 @@ public interface UserManager {
     User findUserByEmail(String email, boolean includeDeactivated);
 
     /**
-     * Locate the user (not transitional) with the specified guid.
+     * Locate the user with the specified guid. Deactivated accounts are included in the search.
      *
      * @param guid GUID of user to find.
      * @return {@link User} with the specified guid, or <tt>null</tt> if not found.
@@ -67,7 +75,16 @@ public interface UserManager {
     User findUserByGuid(String guid);
 
     /**
-     * Locate the user (not transitional) with the specified Relay guid.
+     * Locate the user with the specified guid.
+     *
+     * @param guid               GUID of user to find.
+     * @param includeDeactivated If <tt>true</tt> then deactivated accounts are included.
+     * @return {@link User} with the specified guid, or <tt>null</tt> if not found.
+     */
+    User findUserByGuid(String guid, boolean includeDeactivated);
+
+    /**
+     * Locate the user with the specified Relay guid. Deactivated accounts are included in the search.
      *
      * @param guid GUID of user to find.
      * @return {@link User} with the specified guid, or <tt>null</tt> if not found.
@@ -75,7 +92,16 @@ public interface UserManager {
     User findUserByRelayGuid(String guid);
 
     /**
-     * Locate the user (not transitional) with the specified The Key guid.
+     * Locate the user with the specified Relay guid.
+     *
+     * @param guid               GUID of user to find.
+     * @param includeDeactivated If <tt>true</tt> then deactivated accounts are included.
+     * @return {@link User} with the specified guid, or <tt>null</tt> if not found.
+     */
+    User findUserByRelayGuid(String guid, boolean includeDeactivated);
+
+    /**
+     * Locate the user with the specified The Key guid. Deactivated accounts are included in the search.
      *
      * @param guid GUID of user to find.
      * @return {@link User} with the specified guid, or <tt>null</tt> if not found.
@@ -83,7 +109,16 @@ public interface UserManager {
     User findUserByTheKeyGuid(String guid);
 
     /**
-     * Locate the user with the specified facebook id.
+     * Locate the user with the specified The Key guid.
+     *
+     * @param guid               GUID of user to find.
+     * @param includeDeactivated If <tt>true</tt> then deactivated accounts are included.
+     * @return {@link User} with the specified guid, or <tt>null</tt> if not found.
+     */
+    User findUserByTheKeyGuid(String guid, boolean includeDeactivated);
+
+    /**
+     * Locate the user with the specified facebook id. Deactivated accounts are included in the search.
      *
      * @param id the facebook id being search for
      * @return {@link User} with the specified facebook id, or <tt>null</tt> if not found.
@@ -91,7 +126,16 @@ public interface UserManager {
     User findUserByFacebookId(String id);
 
     /**
-     * Locate the user with the specified employee id.
+     * Locate the user with the specified facebook id.
+     *
+     * @param id                 the facebook id being search for
+     * @param includeDeactivated If <tt>true</tt> then deactivated accounts are included.
+     * @return {@link User} with the specified facebook id, or <tt>null</tt> if not found.
+     */
+    User findUserByFacebookId(String id, boolean includeDeactivated);
+
+    /**
+     * Locate the user with the specified employee id. Does not return deactivated accounts.
      *
      * @param employeeId employee id of user to find.
      * @return {@link User} with the specified e-mail address, or <tt>null</tt> if not found.
@@ -99,25 +143,38 @@ public interface UserManager {
     User findUserByEmployeeId(String employeeId);
 
     /**
+     * Locate the user with the specified employee id.
+     *
+     * @param employeeId         employee id of user to find.
+     * @param includeDeactivated If <tt>true</tt> then deactivated accounts are included.
+     * @return {@link User} with the specified e-mail address, or <tt>null</tt> if not found.
+     */
+    User findUserByEmployeeId(String employeeId, boolean includeDeactivated);
+
+    /**
      * Find all users matching the first name pattern.
      *
-     * @param pattern Pattern used for matching first name.
+     * @param pattern            Pattern used for matching first name.
+     * @param includeDeactivated If <tt>true</tt> then deactivated accounts are included.
      * @return {@link java.util.List} of {@link User} objects.
      * @throws ExceededMaximumAllowedResultsException
      */
-    List<User> findAllByFirstName(String pattern) throws ExceededMaximumAllowedResultsException;
+    List<User> findAllByFirstName(String pattern, boolean includeDeactivated) throws
+            ExceededMaximumAllowedResultsException;
 
     /**
      * Find all users matching the last name pattern.
      *
-     * @param pattern Pattern used for matching last name.
+     * @param pattern            Pattern used for matching last name.
+     * @param includeDeactivated If <tt>true</tt> then deactivated accounts are included.
      * @return {@link List} of {@link User} objects.
      * @throws ExceededMaximumAllowedResultsException
      */
-    List<User> findAllByLastName(String pattern) throws ExceededMaximumAllowedResultsException;
+    List<User> findAllByLastName(String pattern, boolean includeDeactivated) throws
+            ExceededMaximumAllowedResultsException;
 
     /**
-     * Find all users matching the userid pattern.
+     * Find all users matching the email pattern.
      *
      * @param pattern            Pattern used for matching email.
      * @param includeDeactivated If <tt>true</tt> then deactivated accounts are included.

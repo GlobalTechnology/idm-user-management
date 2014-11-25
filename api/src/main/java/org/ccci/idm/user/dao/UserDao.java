@@ -30,60 +30,69 @@ public interface UserDao {
     /**
      * Find the user with the specified e-mail.
      *
-     * @param email Email for lookup.
+     * @param email              Email for lookup.
+     * @param includeDeactivated If <tt>true</tt> then deactivated accounts are included.
      * @return Requested {@link User} or <tt>null</tt> if not found.
      */
-    User findByEmail(String email);
+    User findByEmail(String email, boolean includeDeactivated);
 
     /**
      * Find the user with the specified guid.
      *
-     * @param guid guid for lookup.
+     * @param guid               guid for lookup.
+     * @param includeDeactivated If <tt>true</tt> then deactivated accounts are included.
      * @return Request {@link User} or <tt>null</tt> if not found.
      */
-    User findByGuid(String guid);
+    User findByGuid(String guid, boolean includeDeactivated);
 
     /**
      * Find the user with the specified Relay guid.
      *
-     * @param guid guid for lookup.
+     * @param guid               guid for lookup.
+     * @param includeDeactivated If <tt>true</tt> then deactivated accounts are included.
      * @return Request {@link User} or <tt>null</tt> if not found.
      */
-    User findByRelayGuid(String guid);
+    User findByRelayGuid(String guid, boolean includeDeactivated);
 
     /**
      * Find the user with the specified The Key guid.
      *
-     * @param guid guid for lookup.
+     * @param guid               guid for lookup.
+     * @param includeDeactivated If <tt>true</tt> then deactivated accounts are included.
      * @return Request {@link User} or <tt>null</tt> if not found.
      */
-    User findByTheKeyGuid(String guid);
+    User findByTheKeyGuid(String guid, boolean includeDeactivated);
 
     /**
      * Find the user with the specified Facebook Id
      *
-     * @param id the facebook id to search for
+     * @param id                 the facebook id to search for
+     * @param includeDeactivated If <tt>true</tt> then deactivated accounts are included.
      * @return Requested {@link User} or <tt>null</tt> if not found.
      */
-    User findByFacebookId(String id);
+    User findByFacebookId(String id, boolean includeDeactivated);
 
     /**
      * Find all users matching the first name pattern.
      *
-     * @param pattern Pattern used for matching first name.
+     * @param pattern            Pattern used for matching first name.
+     * @param includeDeactivated If <tt>true</tt> then deactivated accounts are included.
      * @return {@link java.util.List} of {@link User} objects, or <tt>null</tt> if none are found.
      * @throws ExceededMaximumAllowedResultsException
      */
-    List<User> findAllByFirstName(String pattern) throws ExceededMaximumAllowedResultsException;
+    List<User> findAllByFirstName(String pattern, boolean includeDeactivated) throws
+            ExceededMaximumAllowedResultsException;
 
     /**
      * Find all users matching the last name pattern.
      *
-     * @param pattern Pattern used for matching last name.
+     * @param pattern            Pattern used for matching last name.
+     * @param includeDeactivated If <tt>true</tt> then deactivated accounts are included.
      * @return {@link List} of {@link User} objects, or <tt>null</tt> if none are found.
      * @throws ExceededMaximumAllowedResultsException
      */
-    List<User> findAllByLastName(String pattern) throws ExceededMaximumAllowedResultsException;
+    List<User> findAllByLastName(String pattern, boolean includeDeactivated) throws
+            ExceededMaximumAllowedResultsException;
 
     /**
      * Find all users matching the email pattern.
@@ -98,8 +107,9 @@ public interface UserDao {
     /**
      * Find the user with the specified employee id.
      *
-     * @param employeeId Employee id for lookup.
+     * @param employeeId         Employee id for lookup.
+     * @param includeDeactivated If <tt>true</tt> then deactivated accounts are included.
      * @return Requested {@link org.ccci.idm.user.User} or <tt>null</tt> if not found.
      */
-    User findByEmployeeId(String employeeId);
+    User findByEmployeeId(String employeeId, boolean includeDeactivated);
 }

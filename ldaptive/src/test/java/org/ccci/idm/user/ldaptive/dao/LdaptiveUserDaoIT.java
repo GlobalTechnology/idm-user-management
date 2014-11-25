@@ -62,7 +62,7 @@ public class LdaptiveUserDaoIT {
 
         this.dao.save(user);
 
-        final User foundUser = this.dao.findByEmail(user.getEmail());
+        final User foundUser = this.dao.findByEmail(user.getEmail(), false);
 
         Assert.assertTrue(user.equals(foundUser));
     }
@@ -79,7 +79,7 @@ public class LdaptiveUserDaoIT {
 
         this.dao.update(user, User.Attr.NAME);
 
-        final User foundUser = this.dao.findByEmail(user.getEmail());
+        final User foundUser = this.dao.findByEmail(user.getEmail(), false);
 
         Assert.assertTrue(user.equals(foundUser));
     }
@@ -94,7 +94,7 @@ public class LdaptiveUserDaoIT {
         this.dao.save(user);
 
         // see if we load the same value from ldap
-        final User saved1 = this.dao.findByGuid(guid);
+        final User saved1 = this.dao.findByGuid(guid, true);
         assertTrue(saved1.getLoginTime().isEqual(user.getLoginTime()));
 
         // update the login time to now
@@ -102,7 +102,7 @@ public class LdaptiveUserDaoIT {
         this.dao.update(saved1, User.Attr.LOGINTIME);
 
         // check to see if the update succeeded
-        final User saved2 = this.dao.findByGuid(guid);
+        final User saved2 = this.dao.findByGuid(guid, true);
         assertTrue(saved2.getLoginTime().isEqual(saved1.getLoginTime()));
         assertFalse(saved2.getLoginTime().isEqual(user.getLoginTime()));
     }
@@ -124,7 +124,7 @@ public class LdaptiveUserDaoIT {
 
         this.dao.save(user);
 
-        User foundUser = this.dao.findByEmail(user.getEmail());
+        User foundUser = this.dao.findByEmail(user.getEmail(), false);
 
         Assert.assertTrue(user.equals(foundUser));
 
@@ -133,7 +133,7 @@ public class LdaptiveUserDaoIT {
 
         this.dao.update(user, User.Attr.LOCATION, User.Attr.CRU_PERSON);
 
-        foundUser = this.dao.findByEmail(user.getEmail());
+        foundUser = this.dao.findByEmail(user.getEmail(), false);
 
         Assert.assertTrue(user.equals(foundUser));
     }
@@ -146,7 +146,7 @@ public class LdaptiveUserDaoIT {
 
         this.dao.save(user);
 
-        final User foundUser = this.dao.findByEmployeeId(user.getEmployeeId());
+        final User foundUser = this.dao.findByEmployeeId(user.getEmployeeId(), false);
 
         Assert.assertNotNull(foundUser);
 
