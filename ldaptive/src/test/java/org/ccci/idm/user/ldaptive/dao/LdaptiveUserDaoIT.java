@@ -97,12 +97,12 @@ public class LdaptiveUserDaoIT {
         assumeConfigured();
 
         final User user = getUser();
-        final String guid = user.getGuid();
+        final String guid = user.getTheKeyGuid();
         user.setLoginTime(new DateTime().minusDays(30).secondOfMinute().roundFloorCopy());
         this.dao.save(user);
 
         // see if we load the same value from ldap
-        final User saved1 = this.dao.findByGuid(guid, true);
+        final User saved1 = this.dao.findByTheKeyGuid(guid, true);
         assertTrue(saved1.getLoginTime().isEqual(user.getLoginTime()));
 
         // update the login time to now
@@ -110,7 +110,7 @@ public class LdaptiveUserDaoIT {
         this.dao.update(saved1, User.Attr.LOGINTIME);
 
         // check to see if the update succeeded
-        final User saved2 = this.dao.findByGuid(guid, true);
+        final User saved2 = this.dao.findByTheKeyGuid(guid, true);
         assertTrue(saved2.getLoginTime().isEqual(saved1.getLoginTime()));
         assertFalse(saved2.getLoginTime().isEqual(user.getLoginTime()));
     }
