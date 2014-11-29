@@ -1,6 +1,7 @@
 package org.ccci.idm.user;
 
 import org.ccci.idm.user.dao.ExceededMaximumAllowedResultsException;
+import org.ccci.idm.user.exception.EmailAlreadyExistsException;
 import org.ccci.idm.user.exception.UserAlreadyExistsException;
 import org.ccci.idm.user.exception.UserException;
 import org.ccci.idm.user.exception.UserNotFoundException;
@@ -38,7 +39,8 @@ public interface UserManager {
      * Reactivate a previously deactivated user.
      *
      * @param user {@link User} to reactivate
-     * @throws UserAlreadyExistsException thrown if the user being reactivated already exists
+     * @throws EmailAlreadyExistsException thrown if the user being reactivated conflicts with another user that
+     * already exists
      */
     void reactivateUser(User user) throws UserException;
 

@@ -1,6 +1,6 @@
 package org.ccci.idm.user.exception;
 
-public class TheKeyGuidAlreadyExistsException extends UserException {
+public class TheKeyGuidAlreadyExistsException extends UserAlreadyExistsException {
     private static final long serialVersionUID = 5470942112218454006L;
 
     public TheKeyGuidAlreadyExistsException() {
