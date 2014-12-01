@@ -45,10 +45,16 @@ public class GroupDnResolver {
 
         // append path components
         for (final String component : group.getPath()) {
+            if(sb.length() > 0) {
+                sb.append(",");
+            }
             sb.append(this.pathRdnAttr).append('=').append(LdapAttribute.escapeValue(component));
         }
 
         // append name component
+        if(sb.length() > 0) {
+            sb.append(",");
+        }
         sb.append(this.nameRdnAttr).append('=').append(LdapAttribute.escapeValue(group.getName()));
 
         // return generated DN
