@@ -8,7 +8,7 @@ public class UserAuditResourceResolver extends AbstractAuditResourceResolver {
     protected String[] createResource(final Object[] args) {
         if (args.length >= 1 && args[0] instanceof User) {
             final User user = (User) args[0];
-            return new String[]{"{guid=" + user.getGuid() + ",email=" + user.getEmail() + "}"};
+            return new String[]{"{guid=" + user.getTheKeyGuid() + ",email=" + user.getEmail() + "}"};
         }
         return null;
     }
