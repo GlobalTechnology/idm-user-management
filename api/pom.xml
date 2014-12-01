@@ -14,6 +14,7 @@
     <dependency>
       <groupId>com.github.inspektr</groupId>
       <artifactId>inspektr-audit</artifactId>
+      <optional>true</optional><!-- Only used for annotations -->
     </dependency>
     <dependency>
       <groupId>org.springframework</groupId>
