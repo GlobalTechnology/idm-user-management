@@ -42,6 +42,7 @@
     <dependency>
       <groupId>com.google.code.findbugs</groupId>
       <artifactId>jsr305</artifactId>
+      <optional>true</optional><!-- needed only for annotations -->
     </dependency>
     <dependency>
       <groupId>org.slf4j</groupId>
