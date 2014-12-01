@@ -2,6 +2,8 @@ package org.ccci.idm.user.ldaptive.dao;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assume.assumeNotNull;
 
@@ -169,6 +171,26 @@ public class LdaptiveUserDaoIT {
             assertFalse(active.contains(user2));
             assertTrue(all.contains(user1));
             assertTrue(all.contains(user2));
+        }
+
+        // create a deactivated user with unique attributes to test individual findUserBy* support
+        final User user3 = getStaffUser();
+        user3.setFirstName("first_" +RAND.nextInt(Integer.MAX_VALUE));
+        user3.setLastName("last_" +RAND.nextInt(Integer.MAX_VALUE));
+        user3.setDeactivated(true);
+
+        // save new user
+        this.dao.save(user3);
+
+        // test findUserByEmail
+        {
+            final User activeUser = this.dao.findByEmail(user3.getEmail(), false);
+            final User anyUser = this.dao.findByEmail(user3.getEmail(), true);
+
+            assertNull(activeUser);
+            assertNotNull(anyUser);
+
+            assertEquals(user3, anyUser);
         }
     }
 
