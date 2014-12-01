@@ -3,9 +3,9 @@ package org.ccci.idm.user;
 import com.github.inspektr.audit.annotation.Audit;
 import org.ccci.idm.user.dao.ExceededMaximumAllowedResultsException;
 import org.ccci.idm.user.dao.UserDao;
+import org.ccci.idm.user.exception.EmailAlreadyExistsException;
 import org.ccci.idm.user.exception.RelayGuidAlreadyExistsException;
 import org.ccci.idm.user.exception.TheKeyGuidAlreadyExistsException;
-import org.ccci.idm.user.exception.UserAlreadyExistsException;
 import org.ccci.idm.user.exception.UserException;
 import org.ccci.idm.user.exception.UserNotFoundException;
 import org.ccci.idm.user.util.DefaultRandomPasswordGenerator;
@@ -83,8 +83,8 @@ public class DefaultUserManager implements UserManager {
 
         // throw an error if a user already exists for this email
         if (this.doesEmailExist(user.getEmail())) {
-            LOG.debug("The specified user '{}' already exists.", user.getEmail());
-            throw new UserAlreadyExistsException();
+            LOG.debug("The specified email '{}' already exists.", user.getEmail());
+            throw new EmailAlreadyExistsException();
         }
 
         // throw an error if the raw Relay or The Key guid exists already
@@ -160,7 +160,7 @@ public class DefaultUserManager implements UserManager {
             final String error = "Unable to reactivate user because an account with the email address '" + user
                     .getEmail() + "' currently exists";
             LOG.error(error);
-            throw new UserAlreadyExistsException(error);
+            throw new EmailAlreadyExistsException(error);
         }
 
         // Create a deep clone copy before proceeding
