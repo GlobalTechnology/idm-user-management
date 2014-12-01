@@ -12,7 +12,6 @@ import org.ccci.idm.user.util.DefaultRandomPasswordGenerator;
 import org.ccci.idm.user.util.RandomPasswordGenerator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
 
 import javax.inject.Inject;
@@ -55,13 +54,11 @@ public class DefaultUserManager implements UserManager {
     }
 
     @Override
-    @Transactional(readOnly = true)
     public boolean doesEmailExist(final String email) {
         return email != null && this.userDao.findByEmail(email, false) != null;
     }
 
     @Override
-    @Transactional(readOnly = false)
     @Audit(applicationCode = AUDIT_APPLICATION_CODE, action = "CREATE_USER", actionResolverName = AUDIT_ACTION_RESOLVER,
             resourceResolverName = "IDM_USER_MANAGER_CREATE_USER_RESOURCE_RESOLVER")
     public void createUser(final User user) throws UserException {
@@ -121,7 +118,6 @@ public class DefaultUserManager implements UserManager {
     }
 
     @Override
-    @Transactional(readOnly = false)
     @Audit(applicationCode = AUDIT_APPLICATION_CODE, action = "UPDATE_USER", actionResolverName = AUDIT_ACTION_RESOLVER,
             resourceResolverName = "IDM_USER_MANAGER_UPDATE_USER_RESOURCE_RESOLVER")
     public void updateUser(final User user, final User.Attr... attrs) throws UserNotFoundException {
@@ -130,7 +126,6 @@ public class DefaultUserManager implements UserManager {
     }
 
     @Override
-    @Transactional(readOnly = false)
     @Audit(applicationCode = AUDIT_APPLICATION_CODE, action = "DEACTIVATE_USER",
             actionResolverName = AUDIT_ACTION_RESOLVER, resourceResolverName =
             "IDM_USER_MANAGER_DEACTIVATE_USER_RESOURCE_RESOLVER")
@@ -150,7 +145,6 @@ public class DefaultUserManager implements UserManager {
     }
 
     @Override
-    @Transactional(readOnly = false)
     @Audit(applicationCode = AUDIT_APPLICATION_CODE, action = "REACTIVATE_USER",
             actionResolverName = AUDIT_ACTION_RESOLVER, resourceResolverName =
             "IDM_USER_MANAGER_REACTIVATE_USER_RESOURCE_RESOLVER")
@@ -176,7 +170,6 @@ public class DefaultUserManager implements UserManager {
     }
 
     @Override
-    @Transactional(readOnly = true)
     public User getFreshUser(final User user) throws UserNotFoundException {
         // attempt retrieving the fresh user object using the original users guid
         final User fresh = userDao.findByGuid(user.getGuid(), true);
@@ -191,19 +184,16 @@ public class DefaultUserManager implements UserManager {
     }
 
     @Override
-    @Transactional(readOnly = true)
     public User findUserByEmail(final String email) {
         return this.findUserByEmail(email, false);
     }
 
     @Override
-    @Transactional(readOnly = true)
     public User findUserByEmail(final String email, final boolean includeDeactivated) {
         return this.userDao.findByEmail(email, includeDeactivated);
     }
 
     @Override
-    @Transactional(readOnly = true)
     public User findUserByGuid(final String guid) {
         return this.findUserByGuid(guid, true);
     }
@@ -214,7 +204,6 @@ public class DefaultUserManager implements UserManager {
     }
 
     @Override
-    @Transactional(readOnly = true)
     public User findUserByRelayGuid(final String guid) {
         return this.findUserByRelayGuid(guid, true);
     }
@@ -225,7 +214,6 @@ public class DefaultUserManager implements UserManager {
     }
 
     @Override
-    @Transactional(readOnly = true)
     public User findUserByTheKeyGuid(final String guid) {
         return this.findUserByTheKeyGuid(guid, true);
     }
@@ -236,7 +224,6 @@ public class DefaultUserManager implements UserManager {
     }
 
     @Override
-    @Transactional(readOnly = true)
     public User findUserByFacebookId(final String id) {
         return this.findUserByFacebookId(id, false);
     }
@@ -247,7 +234,6 @@ public class DefaultUserManager implements UserManager {
     }
 
     @Override
-    @Transactional(readOnly = true)
     public User findUserByEmployeeId(final String employeeId) {
         return this.findUserByEmployeeId(employeeId, false);
     }
@@ -258,21 +244,18 @@ public class DefaultUserManager implements UserManager {
     }
 
     @Override
-    @Transactional(readOnly = true)
     public List<User> findAllByFirstName(final String pattern, final boolean includeDeactivated) throws
             ExceededMaximumAllowedResultsException {
         return this.userDao.findAllByFirstName(pattern, includeDeactivated);
     }
 
     @Override
-    @Transactional(readOnly = true)
     public List<User> findAllByLastName(final String pattern, final boolean includeDeactivated) throws
             ExceededMaximumAllowedResultsException {
         return this.userDao.findAllByLastName(pattern, includeDeactivated);
     }
 
     @Override
-    @Transactional(readOnly = true)
     public List<User> findAllByEmail(final String pattern, final boolean includeDeactivated) throws
             ExceededMaximumAllowedResultsException {
         return this.userDao.findAllByEmail(pattern, includeDeactivated);
