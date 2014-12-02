@@ -45,7 +45,7 @@ public class User implements Cloneable, Serializable {
 
     // Multi-value attributes
     private final Set<String> domainsVisited = new HashSet<String>();
-    private final Set<String> groups = new HashSet<String>();
+    private final Set<Group> groups = new HashSet<Group>();
 
     // self-service verification keys
     private String signupKey = null;
@@ -436,7 +436,7 @@ public class User implements Cloneable, Serializable {
     /**
      * @param groups the groups to set
      */
-    public void setGroups(final Collection<String> groups) {
+    public void setGroups(final Collection<Group> groups) {
         this.groups.clear();
         if (groups != null) {
             this.groups.addAll(groups);
@@ -446,7 +446,7 @@ public class User implements Cloneable, Serializable {
     /**
      * @return the groupMembership
      */
-    public Set<String> getGroups() {
+    public Set<Group> getGroups() {
         return Collections.unmodifiableSet(this.groups);
     }
 
