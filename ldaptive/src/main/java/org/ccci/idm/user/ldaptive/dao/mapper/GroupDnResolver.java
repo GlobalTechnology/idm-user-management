@@ -6,6 +6,9 @@ import org.ldaptive.LdapAttribute;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
 
 public class GroupDnResolver {
     private String baseDn = "";
@@ -40,22 +43,25 @@ public class GroupDnResolver {
         this.nameRdnAttr = rdnAttr;
     }
 
+    private final String delimiter = ",";
+    private final Character valueDelimiter = '=';
+
     public String resolve(@Nonnull final Group group) {
-        final StringBuilder sb = new StringBuilder(this.baseDn);
+        final StringBuilder sb = new StringBuilder();
 
+        sb.append(this.nameRdnAttr).append(valueDelimiter).append(LdapAttribute.escapeValue(group.getName()));
+
+        List<String> path = Arrays.asList(group.getPath());
+        Collections.reverse(path);
         // append path components
-        for (final String component : group.getPath()) {
+        for (final String component : path) {
             if(sb.length() > 0) {
-                sb.append(",");
+                sb.append(delimiter);
             }
-            sb.append(this.pathRdnAttr).append('=').append(LdapAttribute.escapeValue(component));
+            sb.append(this.pathRdnAttr).append(valueDelimiter).append(LdapAttribute.escapeValue(component));
         }
 
-        // append name component
-        if(sb.length() > 0) {
-            sb.append(",");
-        }
-        sb.append(this.nameRdnAttr).append('=').append(LdapAttribute.escapeValue(group.getName()));
+        sb.append(delimiter + this.baseDn);
 
         // return generated DN
         return sb.toString();
