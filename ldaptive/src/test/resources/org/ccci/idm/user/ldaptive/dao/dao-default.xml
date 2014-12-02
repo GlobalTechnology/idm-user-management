@@ -15,4 +15,7 @@
       </bean>
     </property>
   </bean>
+  <bean class="org.ccci.idm.user.ldaptive.dao.mapper.GroupDnResolver"
+          p:baseDn="ou=groups,ou=idm,dc=cru,dc=org">
+  </bean>
 </beans>
