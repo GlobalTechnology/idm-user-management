@@ -7,7 +7,6 @@ public class Constants {
     // LDAP Attributes
     public static final String LDAP_ATTR_OBJECTCLASS = "objectClass";
     public static final String LDAP_ATTR_CN = "cn";
-    public static final String LDAP_ATTR_EMAIL = "cn";
     public static final String LDAP_ATTR_USERID = "uid";
     public static final String LDAP_ATTR_GUID = "ccciGuid";
     public static final String LDAP_ATTR_THEKEY_GUID = "thekeyGuid";
