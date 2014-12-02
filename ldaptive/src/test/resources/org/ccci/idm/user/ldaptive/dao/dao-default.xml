@@ -12,6 +12,10 @@
           <bean class="org.ldaptive.auth.FormatDnResolver"
               p:format="${ldap.dn.user}" />
         </property>
+        <property name="groupDnResolver">
+          <bean class="org.ccci.idm.user.ldaptive.dao.mapper.GroupDnResolver"
+              p:baseDn="${ldap.dn.group}" />
+        </property>
       </bean>
     </property>
   </bean>
