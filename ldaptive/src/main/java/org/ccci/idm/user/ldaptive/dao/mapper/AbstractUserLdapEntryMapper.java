@@ -49,6 +49,8 @@ import static org.ccci.idm.user.dao.ldap.Constants.LDAP_OBJECTCLASS_RELAY_ATTRIB
 import com.google.common.base.Joiner;
 import com.google.common.base.Strings;
 import com.google.common.base.Throwables;
+import com.google.common.collect.Sets;
+import org.ccci.idm.user.Group;
 import org.ccci.idm.user.User;
 import org.ccci.idm.user.ldaptive.dao.io.ReadableInstantValueTranscoder;
 import org.joda.time.ReadableInstant;
@@ -82,6 +84,14 @@ public abstract class AbstractUserLdapEntryMapper<O extends User> implements Lda
 
     public void setDnResolver(final DnResolver dnResolver) {
         this.dnResolver = dnResolver;
+    }
+
+    @NotNull
+    protected GroupDnResolver groupDnResolver;
+
+    public void setGroupDnResolver(GroupDnResolver groupDnResolver)
+    {
+        this.groupDnResolver = groupDnResolver;
     }
 
     @Override
@@ -226,7 +236,7 @@ public abstract class AbstractUserLdapEntryMapper<O extends User> implements Lda
         }
 
         // Multi-value attributes
-        user.setGroups(this.getStringValues(entry, LDAP_ATTR_GROUPS));
+        userSetGroups(this.getStringValues(entry, LDAP_ATTR_GROUPS), user);
         user.setDomainsVisited(this.getStringValues(entry, LDAP_ATTR_DOMAINSVISITED));
 
         // Flags
@@ -266,6 +276,18 @@ public abstract class AbstractUserLdapEntryMapper<O extends User> implements Lda
 
         // return the loaded User object
         LOG.debug("User loaded from LdapEntry: {}", user.getGuid());
+    }
+
+    private void userSetGroups(Collection<String> groupDns, O user)
+    {
+        Collection<Group> groups = Sets.newHashSet();
+
+        for(String groupDn : groupDns)
+        {
+            groups.add(groupDnResolver.resolve(groupDn));
+        }
+
+        user.setGroups(groups);
     }
 
     protected final LdapAttribute attr(final String name, final String... values) {
