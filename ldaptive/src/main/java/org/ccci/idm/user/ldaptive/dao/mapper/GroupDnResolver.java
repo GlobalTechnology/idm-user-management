@@ -1,6 +1,7 @@
 package org.ccci.idm.user.ldaptive.dao.mapper;
 
 import com.google.common.base.Strings;
+import com.google.common.collect.Lists;
 import org.ccci.idm.user.Group;
 import org.ldaptive.LdapAttribute;
 
@@ -65,5 +66,30 @@ public class GroupDnResolver {
 
         // return generated DN
         return sb.toString();
+    }
+
+    public Group resolve(@Nonnull final String dn)
+    {
+        String relative = dn.substring(0, dn.length() - baseDn.length() - 1);
+
+        final String valueDelimiterString = "" + valueDelimiter;
+
+        List<String> path = Lists.newArrayList();
+        String name = "";
+        for(String element : relative.split(delimiter))
+        {
+            if(element.startsWith(pathRdnAttr + valueDelimiterString))
+            {
+                path.add(element.split(valueDelimiterString)[1]);
+            }
+            else if(element.startsWith(nameRdnAttr + valueDelimiterString))
+            {
+                name = element.split(valueDelimiterString)[1];
+            }
+        }
+
+        Collections.reverse(path);
+
+        return new Group(path.toArray(new String[0]), name);
     }
 }
