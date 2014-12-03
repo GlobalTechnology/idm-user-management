@@ -18,6 +18,10 @@
         </property>
       </bean>
     </property>
+    <property name="groupDnResolver">
+      <bean class="org.ccci.idm.user.ldaptive.dao.mapper.GroupDnResolver"
+          p:baseDn="${ldap.dn.group}" />
+    </property>
   </bean>
   <bean class="org.ccci.idm.user.ldaptive.dao.mapper.GroupDnResolver"
           p:baseDn="${ldap.dn.group}">
