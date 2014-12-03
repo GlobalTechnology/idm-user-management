@@ -16,7 +16,7 @@ import static org.junit.Assert.assertEquals;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(locations = {"ldap.xml", "config.xml", "dao-default.xml"})
-public class GrouperDnResolverTest
+public class GroupDnResolverTest
 {
     @Inject
     private GroupDnResolver groupDnResolver;
