@@ -4,8 +4,10 @@ import static org.ccci.idm.user.dao.ldap.Constants.LDAP_ATTR_CN;
 import static org.ccci.idm.user.dao.ldap.Constants.LDAP_ATTR_EMPLOYEE_NUMBER;
 import static org.ccci.idm.user.dao.ldap.Constants.LDAP_ATTR_FACEBOOKID;
 import static org.ccci.idm.user.dao.ldap.Constants.LDAP_ATTR_FIRSTNAME;
+import static org.ccci.idm.user.dao.ldap.Constants.LDAP_ATTR_GROUPS;
 import static org.ccci.idm.user.dao.ldap.Constants.LDAP_ATTR_GUID;
 import static org.ccci.idm.user.dao.ldap.Constants.LDAP_ATTR_LASTNAME;
+import static org.ccci.idm.user.dao.ldap.Constants.LDAP_ATTR_MEMBER;
 import static org.ccci.idm.user.dao.ldap.Constants.LDAP_ATTR_OBJECTCLASS;
 import static org.ccci.idm.user.dao.ldap.Constants.LDAP_ATTR_RELAY_GUID;
 import static org.ccci.idm.user.dao.ldap.Constants.LDAP_ATTR_THEKEY_GUID;
@@ -18,6 +20,7 @@ import com.google.common.base.Predicate;
 import com.google.common.base.Predicates;
 import com.google.common.base.Throwables;
 import com.google.common.collect.Collections2;
+import org.ccci.idm.user.Group;
 import org.ccci.idm.user.User;
 import org.ccci.idm.user.dao.ExceededMaximumAllowedResultsException;
 import org.ccci.idm.user.dao.ldap.AbstractLdapUserDao;
@@ -25,6 +28,7 @@ import org.ccci.idm.user.ldaptive.dao.filter.BaseFilter;
 import org.ccci.idm.user.ldaptive.dao.filter.EqualsFilter;
 import org.ccci.idm.user.ldaptive.dao.filter.LikeFilter;
 import org.ccci.idm.user.ldaptive.dao.filter.PresentFilter;
+import org.ccci.idm.user.ldaptive.dao.mapper.GroupDnResolver;
 import org.ccci.idm.user.ldaptive.dao.util.LdapUtils;
 import org.ldaptive.AddOperation;
 import org.ldaptive.AddRequest;
@@ -77,6 +81,9 @@ public class LdaptiveUserDao extends AbstractLdapUserDao {
     @NotNull
     protected LdapEntryMapper<User> userMapper;
 
+    @NotNull
+    protected GroupDnResolver groupDnResolver;
+
     private String baseSearchDn = "";
 
     public void setConnectionFactory(final ConnectionFactory factory) {
@@ -89,6 +96,11 @@ public class LdaptiveUserDao extends AbstractLdapUserDao {
 
     public void setBaseSearchDn(final String dn) {
         this.baseSearchDn = dn;
+    }
+
+    public void setGroupDnResolver(GroupDnResolver groupDnResolver)
+    {
+        this.groupDnResolver = groupDnResolver;
     }
 
     /**
@@ -303,6 +315,44 @@ public class LdaptiveUserDao extends AbstractLdapUserDao {
         }
     }
 
+    @Override
+    public void addToGroup(User user, Group group) {
+        assertValidUser(user);
+
+        modifyGroupMembership(user, group, AttributeModificationType.ADD);
+    }
+
+    @Override
+    public void removeFromGroup(User user, Group group) {
+        assertValidUser(user);
+
+        modifyGroupMembership(user, group, AttributeModificationType.REMOVE);
+    }
+
+    private void modifyGroupMembership(User user, Group group, AttributeModificationType attributeModificationType) {
+        assertValidUser(user);
+
+        Connection conn = null;
+        try {
+            conn = this.connectionFactory.getConnection();
+            conn.open();
+
+            String userDn = this.userMapper.mapDn(user);
+            String groupDn = this.groupDnResolver.resolve(group);
+
+            // modify user entry
+            modifyEntry(conn, userDn, attributeModificationType, groupDn, LDAP_ATTR_GROUPS);
+
+            // modify group entry
+            modifyEntry(conn, groupDn, attributeModificationType, userDn, LDAP_ATTR_MEMBER);
+
+        } catch (final LdapException e) {
+            throw Throwables.propagate(e);
+        } finally {
+            LdapUtils.closeConnection(conn);
+        }
+    }
+
     private void updateInternal(final Connection conn, final String dn, final User user,
                                 User.Attr... attrs) throws LdapException {
         // generate the list of modifications to make for this account
@@ -322,5 +372,26 @@ public class LdaptiveUserDao extends AbstractLdapUserDao {
         // execute the ModifyOperation
         new ModifyOperation(conn).execute(new ModifyRequest(dn, modifications.toArray(new
                 AttributeModification[modifications.size()])));
+    }
+
+    private void modifyEntry(final Connection conn, final String dn,
+                             AttributeModificationType attributeModificationType,
+                             String attributeValue,
+                             String... attributeNames) throws LdapException {
+
+        final LdapEntry entry = new LdapEntry();
+
+        for(String attributeName : attributeNames) {
+            entry.addAttribute(new LdapAttribute(attributeName, attributeValue));
+        }
+
+        final ArrayList<AttributeModification> modifications = new ArrayList<AttributeModification>();
+
+        for (final LdapAttribute attribute : entry.getAttributes()) {
+            modifications.add(new AttributeModification(attributeModificationType, attribute));
+        }
+
+        new ModifyOperation(conn).execute(new ModifyRequest(dn,
+                modifications.toArray(new AttributeModification[modifications.size()])));
     }
 }

@@ -1,5 +1,6 @@
 package org.ccci.idm.user.dao;
 
+import org.ccci.idm.user.Group;
 import org.ccci.idm.user.User;
 
 import java.util.List;
@@ -112,4 +113,21 @@ public interface UserDao {
      * @return Requested {@link org.ccci.idm.user.User} or <tt>null</tt> if not found.
      */
     User findByEmployeeId(String employeeId, boolean includeDeactivated);
+
+    /**
+     * Add user to group
+     *
+     * @param user to add
+     * @param group to group
+     */
+    void addToGroup(User user, Group group);
+
+    /**
+     * Remove user from group
+     *
+     * @param user to remove
+     * @param group from group
+     */
+    void removeFromGroup(User user, Group group);
+
 }
