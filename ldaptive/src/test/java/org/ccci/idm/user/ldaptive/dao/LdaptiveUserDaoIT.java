@@ -8,6 +8,7 @@ import static org.junit.Assert.assertTrue;
 import static org.junit.Assume.assumeNotNull;
 
 import com.google.common.collect.Sets;
+import org.ccci.idm.user.Group;
 import org.ccci.idm.user.User;
 import org.joda.time.DateTime;
 import org.junit.Assert;
@@ -22,6 +23,7 @@ import java.security.SecureRandom;
 import java.util.Collection;
 import java.util.List;
 import java.util.Random;
+import java.util.Set;
 import java.util.UUID;
 
 @RunWith(SpringJUnit4ClassRunner.class)
@@ -238,6 +240,62 @@ public class LdaptiveUserDaoIT {
         Assert.assertNotNull(foundUser);
 
         Assert.assertTrue(user.equals(foundUser));
+    }
+
+    @Test
+    public void testAddToGroup() throws Exception {
+        assumeConfigured();
+
+        final User user = getUser();
+
+        this.dao.save(user);
+
+        String[] path = new String[] {"GoogleApps", "Cru", "Cru"};
+        String name = "Mail";
+
+        Group group = new Group(path, name);
+
+        this.dao.addToGroup(user, group);
+
+        final User foundUser = this.dao.findByEmail(user.getEmail(), false);
+
+        final Set<Group> foundUserGroups = Sets.newHashSet(foundUser.getGroups());
+
+        Collection<Group> empty = Sets.newHashSet();
+        foundUser.setGroups(empty);
+
+        Assert.assertEquals(user, foundUser);
+
+        Assert.assertTrue(foundUserGroups.size() == 1);
+
+        for(Group foundGroup : foundUserGroups)
+        {
+            Assert.assertEquals(group, foundGroup);
+        }
+    }
+
+    @Test
+    public void testRemoveFromGroup() throws Exception {
+        assumeConfigured();
+
+        final User user = getUser();
+
+        this.dao.save(user);
+
+        String[] path = new String[] {"GoogleApps", "Cru", "Cru"};
+        String name = "Mail";
+
+        Group group = new Group(path, name);
+
+        this.dao.addToGroup(user, group);
+
+        this.dao.removeFromGroup(user, group);
+
+        final User foundUser = this.dao.findByEmail(user.getEmail(), false);
+
+        Assert.assertEquals(user, foundUser);
+
+        Assert.assertTrue(foundUser.getGroups().size() == 0);
     }
 
     private User getUser()
