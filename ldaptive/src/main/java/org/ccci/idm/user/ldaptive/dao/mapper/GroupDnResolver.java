@@ -52,10 +52,8 @@ public class GroupDnResolver {
 
         sb.append(this.nameRdnAttr).append(valueDelimiter).append(LdapAttribute.escapeValue(group.getName()));
 
-        List<String> path = Arrays.asList(group.getPath());
-        Collections.reverse(path);
         // append path components
-        for (final String component : path) {
+        for (final String component : Lists.reverse(Arrays.asList(group.getPath()))) {
             if(sb.length() > 0) {
                 sb.append(delimiter);
             }

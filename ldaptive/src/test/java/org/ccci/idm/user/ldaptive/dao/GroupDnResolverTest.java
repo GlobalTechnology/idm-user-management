@@ -25,18 +25,32 @@ public class GroupDnResolverTest
         assumeNotNull(groupDnResolver);
     }
 
+    private String name = "Mail";
+    private String[] path = new String[] {"GoogleApps", "Cru", "Cru"};
+
     @Test
     public void testGroupDnResolver() throws Exception {
         assumeConfigured();
 
-        String name = "Mail";
-        String[] path = new String[] {"GoogleApps", "Cru", "Cru"};
-        String dn = "cn=" + name + ",ou=Cru,ou=Cru,ou=GoogleApps," + groupDnResolver.getBaseDn();
+        String groupDn = "cn=" + name + ",ou=Cru,ou=Cru,ou=GoogleApps," + groupDnResolver.getBaseDn();
 
-        Group group = groupDnResolver.resolve(dn);
+        Group group = groupDnResolver.resolve(groupDn);
 
         assertEquals(name, group.getName());
         assertEquals(Arrays.toString(path), Arrays.toString(group.getPath()));
-        assertEquals(dn, groupDnResolver.resolve(group));
+
+        assertEquals(groupDn, groupDnResolver.resolve(group));
+    }
+
+    @Test
+    public void testGroupNotMutated() throws Exception {
+        assumeConfigured();
+
+        String groupDn = "cn=" + name + ",ou=Cru,ou=Cru,ou=GoogleApps," + groupDnResolver.getBaseDn();
+
+        Group group = groupDnResolver.resolve(groupDn);
+
+        assertEquals(groupDn, groupDnResolver.resolve(group));
+        assertEquals(groupDn, groupDnResolver.resolve(group));
     }
 }
