@@ -184,4 +184,20 @@ public interface UserManager {
      * @throws ExceededMaximumAllowedResultsException
      */
     List<User> findAllByEmail(String pattern, boolean includeDeactivated) throws ExceededMaximumAllowedResultsException;
+
+    /**
+     * Add user to group
+     *
+     * @param user to add
+     * @param group to group
+     */
+    void addToGroup(User user, Group group);
+
+    /**
+     * Remove user from group
+     *
+     * @param user to remove
+     * @param group from group
+     */
+    void removeFromGroup(User user, Group group);
 }

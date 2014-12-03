@@ -260,4 +260,14 @@ public class DefaultUserManager implements UserManager {
             ExceededMaximumAllowedResultsException {
         return this.userDao.findAllByEmail(pattern, includeDeactivated);
     }
+
+    @Override
+    public void addToGroup(User user, Group group) {
+        this.userDao.addToGroup(user, group);
+    }
+
+    @Override
+    public void removeFromGroup(User user, Group group) {
+        this.userDao.removeFromGroup(user, group);
+    }
 }
