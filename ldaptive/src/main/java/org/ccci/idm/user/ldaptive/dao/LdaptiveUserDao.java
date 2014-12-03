@@ -1,7 +1,6 @@
 package org.ccci.idm.user.ldaptive.dao;
 
 import static org.ccci.idm.user.dao.ldap.Constants.LDAP_ATTR_CN;
-import static org.ccci.idm.user.dao.ldap.Constants.LDAP_ATTR_EMAIL;
 import static org.ccci.idm.user.dao.ldap.Constants.LDAP_ATTR_EMPLOYEE_NUMBER;
 import static org.ccci.idm.user.dao.ldap.Constants.LDAP_ATTR_FACEBOOKID;
 import static org.ccci.idm.user.dao.ldap.Constants.LDAP_ATTR_FIRSTNAME;
@@ -192,8 +191,7 @@ public class LdaptiveUserDao extends AbstractLdapUserDao {
         }
 
         // Execute search & return results
-        // includeDeactivated is always true since we already filtered based on the includeDeactivated flag
-        return this.findAllByFilter(filter, true, SEARCH_NO_LIMIT);
+        return this.findAllByFilter(filter, includeDeactivated, SEARCH_NO_LIMIT);
     }
 
     @Override
@@ -222,7 +220,16 @@ public class LdaptiveUserDao extends AbstractLdapUserDao {
 
     @Override
     public User findByEmail(final String email, final boolean includeDeactivated) {
-        return this.findByFilter(new EqualsFilter(LDAP_ATTR_EMAIL, email), includeDeactivated);
+        // filter = (!deactivated && cn = email)
+        BaseFilter filter = FILTER_NOT_DEACTIVATED.and(new EqualsFilter(LDAP_ATTR_CN, email));
+
+        // filter = (filter || (deactivated && uid = email))
+        if (includeDeactivated) {
+            filter = filter.or(FILTER_DEACTIVATED.and(new EqualsFilter(LDAP_ATTR_USERID, email)));
+        }
+
+        // Execute search & return results
+        return this.findByFilter(filter, includeDeactivated);
     }
 
     @Override
