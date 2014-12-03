@@ -191,8 +191,7 @@ public class LdaptiveUserDao extends AbstractLdapUserDao {
         }
 
         // Execute search & return results
-        // includeDeactivated is always true since we already filtered based on the includeDeactivated flag
-        return this.findAllByFilter(filter, true, SEARCH_NO_LIMIT);
+        return this.findAllByFilter(filter, includeDeactivated, SEARCH_NO_LIMIT);
     }
 
     @Override
@@ -230,8 +229,7 @@ public class LdaptiveUserDao extends AbstractLdapUserDao {
         }
 
         // Execute search & return results
-        // includeDeactivated is always true since we already filtered based on the includeDeactivated flag
-        return this.findByFilter(filter, true);
+        return this.findByFilter(filter, includeDeactivated);
     }
 
     @Override
