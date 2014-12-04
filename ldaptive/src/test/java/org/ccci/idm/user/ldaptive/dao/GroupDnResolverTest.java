@@ -2,24 +2,18 @@ package org.ccci.idm.user.ldaptive.dao;
 
 import org.ccci.idm.user.Group;
 import org.ccci.idm.user.ldaptive.dao.mapper.GroupDnResolver;
+import org.junit.BeforeClass;
 import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
-
-import javax.inject.Inject;
 import java.util.Arrays;
 
 import static org.junit.Assume.assumeNotNull;
 
 import static org.junit.Assert.assertEquals;
 
-@RunWith(SpringJUnit4ClassRunner.class)
-@ContextConfiguration(locations = {"ldap.xml", "config.xml", "dao-default.xml"})
 public class GroupDnResolverTest
 {
-    @Inject
-    private GroupDnResolver groupDnResolver;
+    private static GroupDnResolver groupDnResolver;
+    private static final String baseDn = "ou=groups,ou=idm,dc=cru,dc=org";
 
     private void assumeConfigured() throws Exception {
         assumeNotNull(groupDnResolver);
@@ -27,6 +21,13 @@ public class GroupDnResolverTest
 
     private String name = "Mail";
     private String[] path = new String[] {"GoogleApps", "Cru", "Cru"};
+
+    @BeforeClass
+    public static void beforeClass()
+    {
+        groupDnResolver = new GroupDnResolver();
+        groupDnResolver.setBaseDn(baseDn);
+    }
 
     @Test
     public void testGroupDnResolver() throws Exception {
