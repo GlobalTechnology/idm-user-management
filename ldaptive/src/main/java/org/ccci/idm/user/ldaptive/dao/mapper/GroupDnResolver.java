@@ -60,7 +60,7 @@ public class GroupDnResolver {
             sb.append(this.pathRdnAttr).append(valueDelimiter).append(LdapAttribute.escapeValue(component));
         }
 
-        sb.append(delimiter + this.baseDn);
+        sb.append(delimiter).append(this.baseDn);
 
         // return generated DN
         return sb.toString();
@@ -91,10 +91,12 @@ public class GroupDnResolver {
 
         Collections.reverse(path);
 
-        return new Group(path.toArray(new String[0]), name);
+        return new Group(path.toArray(new String[path.size()]), name);
     }
 
     public class InvalidGroupDnException extends Exception {
+        private static final long serialVersionUID = -5804952464495954102L;
+
         public InvalidGroupDnException(String message) {
             super(message);
         }

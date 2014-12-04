@@ -289,7 +289,7 @@ public abstract class AbstractUserLdapEntryMapper<O extends User> implements Lda
             }
             catch (GroupDnResolver.InvalidGroupDnException e)
             {
-                LOG.info("Caught exception resolving group from group dn " + groupDn, e);
+                LOG.info("Caught exception resolving group from group dn {}", groupDn, e);
             }
         }
 
