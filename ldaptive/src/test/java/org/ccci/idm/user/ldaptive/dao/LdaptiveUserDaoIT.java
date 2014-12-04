@@ -7,6 +7,7 @@ import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assume.assumeNotNull;
 
+import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 import org.ccci.idm.user.Group;
 import org.ccci.idm.user.User;
@@ -20,6 +21,7 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 import javax.inject.Inject;
 import java.security.SecureRandom;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 import java.util.Random;
@@ -250,12 +252,18 @@ public class LdaptiveUserDaoIT {
 
         this.dao.save(user);
 
-        String[] path = new String[] {"GoogleApps", "Cru", "Cru"};
+        List<String[]> paths = Arrays.asList(
+                new String[] {"GoogleApps", "Cru", "Cru"},
+                new String[] {"GoogleApps", "Cru", "AIA"}
+        );
         String name = "Mail";
 
-        Group group = new Group(path, name);
-
-        this.dao.addToGroup(user, group);
+        List<Group> groups = Lists.newArrayList();
+        for(String[] path : paths) {
+            Group group = new Group(path, name);
+            groups.add(group);
+            this.dao.addToGroup(user, group);
+        }
 
         final User foundUser = this.dao.findByEmail(user.getEmail(), false);
 
@@ -263,14 +271,19 @@ public class LdaptiveUserDaoIT {
 
         Collection<Group> empty = Sets.newHashSet();
         foundUser.setGroups(empty);
-
         Assert.assertEquals(user, foundUser);
 
-        Assert.assertTrue(foundUserGroups.size() == 1);
+        Assert.assertTrue(foundUserGroups.size() == groups.size());
 
-        for(Group foundGroup : foundUserGroups)
-        {
-            Assert.assertEquals(group, foundGroup);
+        for(Group foundGroup : foundUserGroups) {
+            Boolean match = false;
+            for(Group group : groups) {
+                if(group.equals(foundGroup)) {
+                    match = true;
+                    break;
+                }
+            }
+            Assert.assertTrue(match);
         }
     }
 
@@ -282,14 +295,22 @@ public class LdaptiveUserDaoIT {
 
         this.dao.save(user);
 
-        String[] path = new String[] {"GoogleApps", "Cru", "Cru"};
+        List<String[]> paths = Arrays.asList(
+                new String[] {"GoogleApps", "Cru", "Cru"},
+                new String[] {"GoogleApps", "Cru", "AIA"}
+        );
         String name = "Mail";
 
-        Group group = new Group(path, name);
+        List<Group> groups = Lists.newArrayList();
+        for(String[] path : paths) {
+            Group group = new Group(path, name);
+            groups.add(group);
+            this.dao.addToGroup(user, group);
+        }
 
-        this.dao.addToGroup(user, group);
-
-        this.dao.removeFromGroup(user, group);
+        for(Group group : groups) {
+            this.dao.removeFromGroup(user, group);
+        }
 
         final User foundUser = this.dao.findByEmail(user.getEmail(), false);
 
@@ -298,8 +319,7 @@ public class LdaptiveUserDaoIT {
         Assert.assertTrue(foundUser.getGroups().size() == 0);
     }
 
-    private User getUser()
-    {
+    private User getUser() {
         final User user = new User();
         user.setEmail("test.user." + RAND.nextInt(Integer.MAX_VALUE) + "@example.com");
         user.setGuid(UUID.randomUUID().toString().toUpperCase());
@@ -309,8 +329,7 @@ public class LdaptiveUserDaoIT {
         return user;
     }
 
-    private User getStaffUser()
-    {
+    private User getStaffUser() {
         final User user = getUser();
 
         user.setEmployeeId("000123457");
