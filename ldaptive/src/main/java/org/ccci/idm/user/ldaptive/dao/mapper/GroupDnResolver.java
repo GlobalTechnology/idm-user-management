@@ -66,10 +66,13 @@ public class GroupDnResolver {
         return sb.toString();
     }
 
-    public Group resolve(@Nonnull final String dn)
+    public Group resolve(@Nonnull final String groupDn) throws InvalidGroupDnException
     {
-        String relative = dn.substring(0, dn.length() - baseDn.length() - 1);
+        String relative = groupDn.substring(0, groupDn.length() - baseDn.length() - 1);
 
+        if(!groupDn.contains(baseDn)) {
+            throw new InvalidGroupDnException(groupDn);
+        }
         final String valueDelimiterString = "" + valueDelimiter;
 
         List<String> path = Lists.newArrayList();
@@ -89,5 +92,11 @@ public class GroupDnResolver {
         Collections.reverse(path);
 
         return new Group(path.toArray(new String[0]), name);
+    }
+
+    public class InvalidGroupDnException extends Exception {
+        public InvalidGroupDnException(String message) {
+            super(message);
+        }
     }
 }

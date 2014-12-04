@@ -284,7 +284,13 @@ public abstract class AbstractUserLdapEntryMapper<O extends User> implements Lda
 
         for(String groupDn : groupDns)
         {
-            groups.add(groupDnResolver.resolve(groupDn));
+            try {
+                groups.add(groupDnResolver.resolve(groupDn));
+            }
+            catch (GroupDnResolver.InvalidGroupDnException e)
+            {
+                LOG.info("Caught exception resolving group from group dn " + groupDn, e);
+            }
         }
 
         user.setGroups(groups);
