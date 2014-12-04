@@ -330,8 +330,6 @@ public class LdaptiveUserDao extends AbstractLdapUserDao {
     }
 
     private void modifyGroupMembership(User user, Group group, AttributeModificationType attributeModificationType) {
-        assertValidUser(user);
-
         Connection conn = null;
         try {
             conn = this.connectionFactory.getConnection();
