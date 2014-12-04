@@ -377,16 +377,11 @@ public class LdaptiveUserDao extends AbstractLdapUserDao {
                              String attributeValue,
                              String... attributeNames) throws LdapException {
 
-        final LdapEntry entry = new LdapEntry();
-
-        for(String attributeName : attributeNames) {
-            entry.addAttribute(new LdapAttribute(attributeName, attributeValue));
-        }
-
         final ArrayList<AttributeModification> modifications = new ArrayList<AttributeModification>();
 
-        for (final LdapAttribute attribute : entry.getAttributes()) {
-            modifications.add(new AttributeModification(attributeModificationType, attribute));
+        for(String attributeName : attributeNames) {
+            LdapAttribute ldapAttribute = new LdapAttribute(attributeName, attributeValue);
+            modifications.add(new AttributeModification(attributeModificationType, ldapAttribute));
         }
 
         new ModifyOperation(conn).execute(new ModifyRequest(dn,
