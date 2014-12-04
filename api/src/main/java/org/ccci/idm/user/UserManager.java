@@ -120,7 +120,7 @@ public interface UserManager {
     User findUserByTheKeyGuid(String guid, boolean includeDeactivated);
 
     /**
-     * Locate the user with the specified facebook id. Deactivated accounts are included in the search.
+     * Locate the user with the specified facebook id. Does not return deactivated accounts.
      *
      * @param id the facebook id being search for
      * @return {@link User} with the specified facebook id, or <tt>null</tt> if not found.
