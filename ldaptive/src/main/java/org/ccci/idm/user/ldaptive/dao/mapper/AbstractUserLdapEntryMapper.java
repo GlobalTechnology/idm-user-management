@@ -65,17 +65,20 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.util.StringUtils;
 
+import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import javax.validation.constraints.NotNull;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
 
 public abstract class AbstractUserLdapEntryMapper<O extends User> implements LdapEntryMapper<O> {
     private static final Logger LOG = LoggerFactory.getLogger(AbstractUserLdapEntryMapper.class);
 
     private static final String META_DEACTIVATED_UID = "LDAPTIVE_DEACTIVATED_UID";
+    private static final String META_OBJECT_CLASSES = "LDAPTIVE_OBJECT_CLASSES";
 
     private static final Joiner JOINER_STRENGTH = Joiner.on("$").useForNull("");
 
@@ -116,7 +119,7 @@ public abstract class AbstractUserLdapEntryMapper<O extends User> implements Lda
     }
 
     @Override
-    public void map(final O user, final LdapEntry entry) {
+    public void map(@Nonnull final O user, final LdapEntry entry) {
         // populate non-modifiable LdapAttributes
         entry.addAttribute(this.attrObjectClass(user));
 
@@ -221,6 +224,9 @@ public abstract class AbstractUserLdapEntryMapper<O extends User> implements Lda
             user.setImplMeta(META_DEACTIVATED_UID, cn);
         }
 
+        // capture meta-data that needs to be tracked
+        user.setImplMeta(META_OBJECT_CLASSES, Sets.newHashSet(getStringValues(entry, LDAP_ATTR_OBJECTCLASS)));
+
         // Base attributes
         user.setGuid(this.getStringValue(entry, LDAP_ATTR_GUID));
         user.setRelayGuid(this.getStringValue(entry, LDAP_ATTR_RELAY_GUID));
@@ -307,14 +313,23 @@ public abstract class AbstractUserLdapEntryMapper<O extends User> implements Lda
     }
 
     protected LdapAttribute attrObjectClass(final O user) {
-        final LdapAttribute attr = new LdapAttribute(LDAP_ATTR_OBJECTCLASS, LDAP_OBJECTCLASSES_USER);
+        // get any existing object classes
+        @SuppressWarnings("unchecked")
+        HashSet<String> objectClasses = (HashSet<String>) user.getImplMeta(META_OBJECT_CLASSES, HashSet.class);
+        if (objectClasses == null) {
+            objectClasses = Sets.newHashSet();
+        }
+
+        // update objectClasses
+        objectClasses.addAll(LDAP_OBJECTCLASSES_USER);
         if(hasCruPersonAttributes(user)) {
-            attr.addStringValue(LDAP_OBJECTCLASS_CRU_PERSON_ATTRIBUTES);
+            objectClasses.add(LDAP_OBJECTCLASS_CRU_PERSON_ATTRIBUTES);
         }
         if(hasRelayAttributes(user)) {
-            attr.addStringValue(LDAP_OBJECTCLASS_RELAY_ATTRIBUTES);
+            objectClasses.add(LDAP_OBJECTCLASS_RELAY_ATTRIBUTES);
         }
-        return attr;
+
+        return this.attr(LDAP_ATTR_OBJECTCLASS, objectClasses);
     }
 
     protected final String encodeStrength(final String id, final Double strength) {

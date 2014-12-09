@@ -1,5 +1,9 @@
 package org.ccci.idm.user.dao.ldap;
 
+import com.google.common.collect.ImmutableSet;
+
+import java.util.Set;
+
 public class Constants {
     // LDAP Deactivated
     public static final String LDAP_DEACTIVATED_PREFIX = "$GUID$-=";
@@ -40,9 +44,9 @@ public class Constants {
     public static final String LDAP_OBJECTCLASS_THEKEYATTRIBUTES = "thekeyAttributes";
     public static final String LDAP_OBJECTCLASS_RELAY_ATTRIBUTES = "relayAttributes";
     public static final String LDAP_OBJECTCLASS_CRU_PERSON_ATTRIBUTES = "cruPerson";
-    public static final String[] LDAP_OBJECTCLASSES_USER = new String[]{LDAP_OBJECTCLASS_TOP,
+    public static final Set<String> LDAP_OBJECTCLASSES_USER = ImmutableSet.of(LDAP_OBJECTCLASS_TOP,
             LDAP_OBJECTCLASS_PERSON, LDAP_OBJECTCLASS_NDSLOGIN, LDAP_OBJECTCLASS_ORGANIZATIONALPERSON,
-            LDAP_OBJECTCLASS_INETORGPERSON, LDAP_OBJECTCLASS_THEKEYATTRIBUTES};
+            LDAP_OBJECTCLASS_INETORGPERSON, LDAP_OBJECTCLASS_THEKEYATTRIBUTES);
 
     // CruPerson attributes
     public static final String LDAP_ATTR_CRU_DESIGNATION = "cruDesignation";
