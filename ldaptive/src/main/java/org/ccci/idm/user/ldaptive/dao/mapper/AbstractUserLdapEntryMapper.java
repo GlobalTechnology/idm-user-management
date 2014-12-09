@@ -75,6 +75,8 @@ import java.util.Map;
 public abstract class AbstractUserLdapEntryMapper<O extends User> implements LdapEntryMapper<O> {
     private static final Logger LOG = LoggerFactory.getLogger(AbstractUserLdapEntryMapper.class);
 
+    private static final String META_DEACTIVATED_UID = "LDAPTIVE_DEACTIVATED_UID";
+
     private static final Joiner JOINER_STRENGTH = Joiner.on("$").useForNull("");
 
     private static final ValueTranscoder<Boolean> TRANSCODER_BOOLEAN = new BooleanValueTranscoder(true);
@@ -100,11 +102,11 @@ public abstract class AbstractUserLdapEntryMapper<O extends User> implements Lda
             final String uid;
             if (!user.isDeactivated()) {
                 uid = user.getEmail();
-            } else if (user.getDeactivatedUid() != null) {
-                uid = user.getDeactivatedUid();
+            } else if (user.getImplMeta(META_DEACTIVATED_UID, String.class) != null) {
+                uid = user.getImplMeta(META_DEACTIVATED_UID, String.class);
             } else {
                 uid = LDAP_DEACTIVATED_PREFIX + user.getGuid();
-                user.setDeactivatedUid(uid);
+                user.setImplMeta(META_DEACTIVATED_UID, uid);
             }
             return this.dnResolver.resolve(uid);
         } catch (final LdapException e) {
@@ -211,12 +213,12 @@ public abstract class AbstractUserLdapEntryMapper<O extends User> implements Lda
         if (!cn.startsWith(LDAP_DEACTIVATED_PREFIX) && cn.contains("@")) {
             user.setEmail(cn);
             user.setDeactivated(false);
-            user.setDeactivatedUid(null);
+            user.removeImplMeta(META_DEACTIVATED_UID);
         } else {
             final String email = this.getStringValue(entry, LDAP_ATTR_USERID);
             user.setEmail(email);
             user.setDeactivated(true);
-            user.setDeactivatedUid(cn);
+            user.setImplMeta(META_DEACTIVATED_UID, cn);
         }
 
         // Base attributes

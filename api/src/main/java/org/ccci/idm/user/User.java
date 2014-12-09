@@ -62,7 +62,6 @@ public class User implements Cloneable, Serializable {
     private double facebookIdStrength = STRENGTH_NONE;
 
     // miscellaneous implementation meta-data
-    private String deactivatedUid;
     @Nonnull
     private Map<String, Serializable> implMeta = Maps.newHashMap();
 
@@ -518,10 +517,6 @@ public class User implements Cloneable, Serializable {
         }
     }
 
-    public String getDeactivatedUid() {
-        return this.deactivatedUid;
-    }
-
     @Nullable
     public <T extends Serializable> T getImplMeta(@Nonnull final String key, @Nonnull final Class<T> clazz) {
         final Serializable obj = this.implMeta.get(key);
@@ -529,10 +524,6 @@ public class User implements Cloneable, Serializable {
             return clazz.cast(obj);
         }
         return null;
-    }
-
-    public void setDeactivatedUid(final String deactivatedUid) {
-        this.deactivatedUid = deactivatedUid;
     }
 
     public Serializable removeImplMeta(@Nonnull final String key) {
@@ -572,7 +563,6 @@ public class User implements Cloneable, Serializable {
                 .add("proposedEmail", proposedEmail)
                 .add("facebookId", facebookId)
                 .add("facebookIdStrength", facebookIdStrength)
-                .add("deactivatedUid", deactivatedUid)
                 .add("employeeId", employeeId)
                 .add("departmentNumber", departmentNumber)
                 .add("cruDesignation", cruDesignation)
@@ -599,7 +589,7 @@ public class User implements Cloneable, Serializable {
         return Objects.hashCode(email, password, guid, theKeyGuid, relayGuid, firstName, lastName, emailVerified,
                 allowPasswordChange, forcePasswordChange, deactivated, loginDisabled, locked, domainsVisited, groups,
                 signupKey, changeEmailKey, resetPasswordKey, proposedEmail, facebookId, facebookIdStrength,
-                deactivatedUid, employeeId, departmentNumber, cruDesignation, cruEmployeeStatus, cruGender,
+                employeeId, departmentNumber, cruDesignation, cruEmployeeStatus, cruGender,
                 cruHrStatusCode, cruJobCode, cruManagerID, cruMinistryCode, cruPayGroup, cruPreferredName,
                 cruSubMinistryCode, cruProxyAddresses, city, state, postal, country, telephoneNumber);
     }
@@ -630,7 +620,6 @@ public class User implements Cloneable, Serializable {
                 Objects.equal(this.proposedEmail, other.proposedEmail) &&
                 Objects.equal(this.facebookId, other.facebookId) &&
                 Objects.equal(this.facebookIdStrength, other.facebookIdStrength) &&
-                Objects.equal(this.deactivatedUid, other.deactivatedUid) &&
                 Objects.equal(this.employeeId, other.employeeId) &&
                 Objects.equal(this.departmentNumber, other.departmentNumber) &&
                 Objects.equal(this.cruDesignation, other.cruDesignation) &&
