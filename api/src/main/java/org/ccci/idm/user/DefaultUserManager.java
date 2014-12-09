@@ -23,7 +23,6 @@ import java.util.UUID;
 public class DefaultUserManager implements UserManager {
     private static final Logger LOG = LoggerFactory.getLogger(DefaultUserManager.class);
 
-    private static final String AUDIT_APPLICATION_CODE = "IDM";
     private static final String AUDIT_ACTION_RESOLVER = "IDM_USER_MANAGER_ACTION_RESOLVER";
 
     @NotNull
@@ -59,8 +58,8 @@ public class DefaultUserManager implements UserManager {
     }
 
     @Override
-    @Audit(applicationCode = AUDIT_APPLICATION_CODE, action = "CREATE_USER", actionResolverName = AUDIT_ACTION_RESOLVER,
-            resourceResolverName = "IDM_USER_MANAGER_CREATE_USER_RESOURCE_RESOLVER")
+    @Audit(action = "IDM_CREATE_USER", actionResolverName = AUDIT_ACTION_RESOLVER, resourceResolverName =
+            "IDM_USER_MANAGER_CREATE_USER_RESOURCE_RESOLVER")
     public void createUser(final User user) throws UserException {
         // validate user being created
         this.validateNewUser(user);
@@ -118,16 +117,15 @@ public class DefaultUserManager implements UserManager {
     }
 
     @Override
-    @Audit(applicationCode = AUDIT_APPLICATION_CODE, action = "UPDATE_USER", actionResolverName = AUDIT_ACTION_RESOLVER,
-            resourceResolverName = "IDM_USER_MANAGER_UPDATE_USER_RESOURCE_RESOLVER")
+    @Audit(action = "IDM_UPDATE_USER", actionResolverName = AUDIT_ACTION_RESOLVER, resourceResolverName =
+            "IDM_USER_MANAGER_UPDATE_USER_RESOURCE_RESOLVER")
     public void updateUser(final User user, final User.Attr... attrs) throws UserNotFoundException {
         final User original = this.getFreshUser(user);
         this.userDao.update(original, user, attrs);
     }
 
     @Override
-    @Audit(applicationCode = AUDIT_APPLICATION_CODE, action = "DEACTIVATE_USER",
-            actionResolverName = AUDIT_ACTION_RESOLVER, resourceResolverName =
+    @Audit(action = "IDM_DEACTIVATE_USER", actionResolverName = AUDIT_ACTION_RESOLVER, resourceResolverName =
             "IDM_USER_MANAGER_DEACTIVATE_USER_RESOURCE_RESOLVER")
     public void deactivateUser(final User user) throws UserException {
         // Create a deep clone copy before proceeding
@@ -145,8 +143,7 @@ public class DefaultUserManager implements UserManager {
     }
 
     @Override
-    @Audit(applicationCode = AUDIT_APPLICATION_CODE, action = "REACTIVATE_USER",
-            actionResolverName = AUDIT_ACTION_RESOLVER, resourceResolverName =
+    @Audit(action = "IDM_REACTIVATE_USER", actionResolverName = AUDIT_ACTION_RESOLVER, resourceResolverName =
             "IDM_USER_MANAGER_REACTIVATE_USER_RESOURCE_RESOLVER")
     public void reactivateUser(final User user) throws UserException {
         // Determine if the user already exists, and can't be reactivated
