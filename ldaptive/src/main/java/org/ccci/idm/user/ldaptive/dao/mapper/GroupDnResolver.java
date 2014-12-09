@@ -68,22 +68,23 @@ public class GroupDnResolver {
 
     public Group resolve(@Nonnull final String groupDn) throws InvalidGroupDnException
     {
-        String relative = groupDn.substring(0, groupDn.length() - baseDn.length() - 1);
-
-        if(!groupDn.contains(baseDn)) {
+        if(!groupDn.toLowerCase().contains(baseDn.toLowerCase())) {
             throw new InvalidGroupDnException(groupDn);
         }
+
+        String relative = groupDn.substring(0, groupDn.length() - baseDn.length() - 1);
+
         final String valueDelimiterString = "" + valueDelimiter;
 
         List<String> path = Lists.newArrayList();
         String name = "";
         for(String element : relative.split(delimiter))
         {
-            if(element.startsWith(pathRdnAttr + valueDelimiterString))
+            if(element.toLowerCase().startsWith(pathRdnAttr + valueDelimiterString))
             {
                 path.add(element.split(valueDelimiterString)[1]);
             }
-            else if(element.startsWith(nameRdnAttr + valueDelimiterString))
+            else if(element.toLowerCase().startsWith(nameRdnAttr + valueDelimiterString))
             {
                 name = element.split(valueDelimiterString)[1];
             }
