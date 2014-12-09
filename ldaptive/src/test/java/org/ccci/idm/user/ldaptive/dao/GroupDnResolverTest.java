@@ -6,6 +6,7 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 import java.util.Arrays;
 
+import static org.junit.Assert.assertTrue;
 import static org.junit.Assume.assumeNotNull;
 
 import static org.junit.Assert.assertEquals;
@@ -41,6 +42,21 @@ public class GroupDnResolverTest
         assertEquals(Arrays.toString(path), Arrays.toString(group.getPath()));
 
         assertEquals(groupDn, groupDnResolver.resolve(group));
+    }
+
+    @Test
+    public void testGroupDnResolverCaseInsensitiveDn() throws Exception {
+        assumeConfigured();
+
+        String groupDn = "CN=" + name + ",OU=Cru,ou=Cru,OU=GoogleApps," +
+                groupDnResolver.getBaseDn().toUpperCase();
+
+        Group group = groupDnResolver.resolve(groupDn);
+
+        assertEquals(name, group.getName());
+        assertEquals(Arrays.toString(path), Arrays.toString(group.getPath()));
+
+        assertTrue(groupDn.equalsIgnoreCase(groupDnResolver.resolve(group)));
     }
 
     @Test
