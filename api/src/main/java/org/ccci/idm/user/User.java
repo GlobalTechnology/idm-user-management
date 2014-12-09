@@ -7,14 +7,18 @@ import com.google.common.base.MoreObjects;
 import com.google.common.base.Objects;
 import com.google.common.base.Predicates;
 import com.google.common.collect.Collections2;
+import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 import org.joda.time.ReadableInstant;
 import org.springframework.util.StringUtils;
 
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import java.io.Serializable;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
+import java.util.Map;
 import java.util.Set;
 
 public class User implements Cloneable, Serializable {
@@ -57,8 +61,10 @@ public class User implements Cloneable, Serializable {
     private String facebookId = null;
     private double facebookIdStrength = STRENGTH_NONE;
 
-    // miscellaneous meta-data
+    // miscellaneous implementation meta-data
     private String deactivatedUid;
+    @Nonnull
+    private Map<String, Serializable> implMeta = Maps.newHashMap();
 
     // Cru person attributes
     private String employeeId;
@@ -131,6 +137,8 @@ public class User implements Cloneable, Serializable {
         this.state = source.state;
         this.postal = source.postal;
         this.telephoneNumber = source.telephoneNumber;
+
+        this.implMeta.putAll(source.implMeta);
     }
 
     public String getEmail() {
@@ -514,8 +522,25 @@ public class User implements Cloneable, Serializable {
         return this.deactivatedUid;
     }
 
+    @Nullable
+    public <T extends Serializable> T getImplMeta(@Nonnull final String key, @Nonnull final Class<T> clazz) {
+        final Serializable obj = this.implMeta.get(key);
+        if(clazz.isInstance(obj)) {
+            return clazz.cast(obj);
+        }
+        return null;
+    }
+
     public void setDeactivatedUid(final String deactivatedUid) {
         this.deactivatedUid = deactivatedUid;
+    }
+
+    public Serializable removeImplMeta(@Nonnull final String key) {
+        return this.implMeta.remove(key);
+    }
+
+    public Serializable setImplMeta(@Nonnull final String key, @Nullable final Serializable obj) {
+        return this.implMeta.put(key, obj);
     }
 
     @Override
