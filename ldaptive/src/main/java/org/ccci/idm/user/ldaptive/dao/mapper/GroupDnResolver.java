@@ -68,7 +68,7 @@ public class GroupDnResolver {
 
     public Group resolve(@Nonnull final String groupDn) throws InvalidGroupDnException
     {
-        if(!groupDn.toLowerCase().contains(baseDn.toLowerCase())) {
+        if(!groupDn.toLowerCase().endsWith(baseDn.toLowerCase())) {
             throw new InvalidGroupDnException(groupDn);
         }
 
