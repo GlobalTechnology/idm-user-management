@@ -107,12 +107,9 @@ public class DefaultUserManager implements UserManager {
     }
 
     protected void setNewUserDefaults(final User user) {
-        user.setEmailVerified(false);
-
         // Generate a random password for the new user if one wasn't already set
         if (!StringUtils.hasText(user.getPassword())) {
-            user.setPassword(this.randomPasswordGenerator.generatePassword());
-            user.setForcePasswordChange(true);
+            user.setPassword(this.randomPasswordGenerator.generatePassword(), true);
         }
     }
 
