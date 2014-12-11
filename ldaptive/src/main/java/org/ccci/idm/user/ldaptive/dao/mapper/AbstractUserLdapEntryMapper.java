@@ -204,17 +204,17 @@ public abstract class AbstractUserLdapEntryMapper<O extends User> implements Lda
 
     @Override
     public void map(final LdapEntry entry, final O user) {
-        // set email & deactivated flag
+        // set email & deactivated flag accordingly
         final String cn = this.getStringValue(entry, LDAP_ATTR_CN);
-        if (!cn.startsWith(LDAP_DEACTIVATED_PREFIX) && cn.contains("@")) {
-            user.setEmail(cn);
-            user.setDeactivated(false);
-            user.removeImplMeta(META_DEACTIVATED_UID);
-        } else {
+        if (Strings.isNullOrEmpty(cn) || cn.startsWith(LDAP_DEACTIVATED_PREFIX)) {
             final String email = this.getStringValue(entry, LDAP_ATTR_USERID);
             user.setEmail(email);
             user.setDeactivated(true);
             user.setImplMeta(META_DEACTIVATED_UID, cn);
+        } else {
+            user.setEmail(cn);
+            user.setDeactivated(false);
+            user.removeImplMeta(META_DEACTIVATED_UID);
         }
 
         // capture meta-data that needs to be tracked
