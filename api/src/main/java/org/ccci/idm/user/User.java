@@ -517,8 +517,11 @@ public class User implements Cloneable, Serializable {
         }
     }
 
+    /**
+     * This method is for use by UserDao &amp; UserManager implementations only and is not meant for public use.
+     */
     @Nullable
-    public <T extends Serializable> T getImplMeta(@Nonnull final String key, @Nonnull final Class<T> clazz) {
+    public <T> T getImplMeta(@Nonnull final String key, @Nonnull final Class<T> clazz) {
         final Serializable obj = this.implMeta.get(key);
         if(clazz.isInstance(obj)) {
             return clazz.cast(obj);
@@ -526,10 +529,16 @@ public class User implements Cloneable, Serializable {
         return null;
     }
 
+    /**
+     * This method is for use by UserDao &amp; UserManager implementations only and is not meant for public use.
+     */
     public Serializable removeImplMeta(@Nonnull final String key) {
         return this.implMeta.remove(key);
     }
 
+    /**
+     * This method is for use by UserDao &amp; UserManager implementations only and is not meant for public use.
+     */
     public Serializable setImplMeta(@Nonnull final String key, @Nullable final Serializable obj) {
         return this.implMeta.put(key, obj);
     }
