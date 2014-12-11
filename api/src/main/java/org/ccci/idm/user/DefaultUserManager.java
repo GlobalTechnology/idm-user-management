@@ -1,9 +1,11 @@
 package org.ccci.idm.user;
 
 import com.github.inspektr.audit.annotation.Audit;
+import org.apache.commons.validator.routines.EmailValidator;
 import org.ccci.idm.user.dao.ExceededMaximumAllowedResultsException;
 import org.ccci.idm.user.dao.UserDao;
 import org.ccci.idm.user.exception.EmailAlreadyExistsException;
+import org.ccci.idm.user.exception.InvalidEmailUserException;
 import org.ccci.idm.user.exception.RelayGuidAlreadyExistsException;
 import org.ccci.idm.user.exception.TheKeyGuidAlreadyExistsException;
 import org.ccci.idm.user.exception.UserException;
@@ -24,6 +26,8 @@ public class DefaultUserManager implements UserManager {
     private static final Logger LOG = LoggerFactory.getLogger(DefaultUserManager.class);
 
     private static final String AUDIT_ACTION_RESOLVER = "IDM_USER_MANAGER_ACTION_RESOLVER";
+
+    private static final EmailValidator VALIDATOR_EMAIL = EmailValidator.getInstance();
 
     @NotNull
     protected RandomPasswordGenerator randomPasswordGenerator = new DefaultRandomPasswordGenerator();
@@ -72,10 +76,8 @@ public class DefaultUserManager implements UserManager {
     }
 
     protected void validateNewUser(final User user) throws UserException {
-        // throw an error if we don't have a valid email
-        if (!StringUtils.hasText(user.getEmail())) {
-            throw new UserException("Invalid email specified for creating a user");
-        }
+        // perform base user validation
+        this.validateUser(user);
 
         // throw an error if a user already exists for this email
         if (this.doesEmailExist(user.getEmail())) {
@@ -116,9 +118,18 @@ public class DefaultUserManager implements UserManager {
     @Override
     @Audit(action = "IDM_UPDATE_USER", actionResolverName = AUDIT_ACTION_RESOLVER, resourceResolverName =
             "IDM_USER_MANAGER_UPDATE_USER_RESOURCE_RESOLVER")
-    public void updateUser(final User user, final User.Attr... attrs) throws UserNotFoundException {
+    public void updateUser(final User user, final User.Attr... attrs) throws UserException {
+        // validate user object before trying to update it
+        this.validateUpdateUser(user);
+
+        // update the user object
         final User original = this.getFreshUser(user);
         this.userDao.update(original, user, attrs);
+    }
+
+    protected void validateUpdateUser(final User user) throws UserException {
+        // perform base user validation
+        this.validateUser(user);
     }
 
     @Override
@@ -263,5 +274,12 @@ public class DefaultUserManager implements UserManager {
     @Override
     public void removeFromGroup(User user, Group group) {
         this.userDao.removeFromGroup(user, group);
+    }
+
+    protected void validateUser(final User user) throws UserException {
+        // throw an error if we don't have a valid email
+        if (!VALIDATOR_EMAIL.isValid(user.getEmail())) {
+            throw new InvalidEmailUserException("Invalid email specified for creating a user");
+        }
     }
 }
