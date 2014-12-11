@@ -90,7 +90,9 @@ public class DefaultUserManager implements UserManager {
         if (user.getRawTheKeyGuid() != null && this.doesTheKeyGuidExist(user.getRawTheKeyGuid())) {
             throw new TheKeyGuidAlreadyExistsException("The Key guid '" + user.getRawTheKeyGuid() + "' already exists");
         }
+    }
 
+    protected void setNewUserDefaults(final User user) throws UserException {
         // generate a guid for the user if there isn't a valid one already set
         int count = 0;
         String guid = user.getGuid();
@@ -104,9 +106,7 @@ public class DefaultUserManager implements UserManager {
                 throw new UserException("Unable to create a guid for the new user");
             }
         }
-    }
 
-    protected void setNewUserDefaults(final User user) {
         // Generate a random password for the new user if one wasn't already set
         if (!StringUtils.hasText(user.getPassword())) {
             user.setPassword(this.randomPasswordGenerator.generatePassword(), true);
