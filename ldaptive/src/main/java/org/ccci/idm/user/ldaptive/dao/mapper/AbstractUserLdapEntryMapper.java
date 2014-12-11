@@ -236,7 +236,7 @@ public abstract class AbstractUserLdapEntryMapper<O extends User> implements Lda
         }
 
         // Multi-value attributes
-        userSetGroups(this.getStringValues(entry, LDAP_ATTR_GROUPS), user);
+        user.setGroups(this.getGroupValues(entry, LDAP_ATTR_GROUPS));
         user.setDomainsVisited(this.getStringValues(entry, LDAP_ATTR_DOMAINSVISITED));
 
         // Flags
@@ -276,22 +276,6 @@ public abstract class AbstractUserLdapEntryMapper<O extends User> implements Lda
 
         // return the loaded User object
         LOG.debug("User loaded from LdapEntry: {}", user.getGuid());
-    }
-
-    private void userSetGroups(final Collection<String> groupDns, final O user) {
-        if (this.groupDnResolver != null) {
-            final Collection<Group> groups = Sets.newHashSet();
-
-            for (final String dn : groupDns) {
-                try {
-                    groups.add(groupDnResolver.resolve(dn));
-                } catch (final GroupDnResolver.InvalidGroupDnException e) {
-                    LOG.info("Caught exception resolving group from group dn {}", dn, e);
-                }
-            }
-
-            user.setGroups(groups);
-        }
     }
 
     protected final LdapAttribute attr(final String name, final String... values) {
@@ -365,6 +349,22 @@ public abstract class AbstractUserLdapEntryMapper<O extends User> implements Lda
         }
 
         return defaultValue;
+    }
+
+    protected final Collection<Group> getGroupValues(final LdapEntry entry, final String attribute) {
+        final Collection<Group> groups = Sets.newHashSet();
+
+        if (this.groupDnResolver != null) {
+            for (final String dn : this.getStringValues(entry, attribute)) {
+                try {
+                    groups.add(groupDnResolver.resolve(dn));
+                } catch (final GroupDnResolver.InvalidGroupDnException e) {
+                    LOG.info("Caught exception resolving group from group dn {}", dn, e);
+                }
+            }
+        }
+
+        return groups;
     }
 
     protected final ReadableInstant getTimeValue(final LdapEntry entry, final String attribute) {
