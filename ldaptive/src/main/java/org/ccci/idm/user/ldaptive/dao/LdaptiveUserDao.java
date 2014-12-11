@@ -28,7 +28,6 @@ import org.ccci.idm.user.ldaptive.dao.filter.BaseFilter;
 import org.ccci.idm.user.ldaptive.dao.filter.EqualsFilter;
 import org.ccci.idm.user.ldaptive.dao.filter.LikeFilter;
 import org.ccci.idm.user.ldaptive.dao.filter.PresentFilter;
-import org.ccci.idm.user.ldaptive.dao.mapper.GroupDnResolver;
 import org.ccci.idm.user.ldaptive.dao.util.LdapUtils;
 import org.ldaptive.AddOperation;
 import org.ldaptive.AddRequest;
@@ -50,6 +49,7 @@ import org.ldaptive.SearchResult;
 import org.ldaptive.beans.LdapEntryMapper;
 import org.ldaptive.control.PagedResultsControl;
 import org.ldaptive.control.ResponseControl;
+import org.ldaptive.io.ValueTranscoder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -83,7 +83,7 @@ public class LdaptiveUserDao extends AbstractLdapUserDao {
     protected LdapEntryMapper<User> userMapper;
 
     @Nullable
-    protected GroupDnResolver groupDnResolver;
+    protected ValueTranscoder<Group> groupValueTranscoder;
 
     private String baseSearchDn = "";
 
@@ -99,8 +99,8 @@ public class LdaptiveUserDao extends AbstractLdapUserDao {
         this.baseSearchDn = dn;
     }
 
-    public void setGroupDnResolver(@Nullable final GroupDnResolver resolver) {
-        this.groupDnResolver = resolver;
+    public void setGroupValueTranscoder(@Nullable ValueTranscoder<Group> transcoder) {
+        this.groupValueTranscoder = transcoder;
     }
 
     /**
@@ -330,8 +330,8 @@ public class LdaptiveUserDao extends AbstractLdapUserDao {
     }
 
     private void modifyGroupMembership(User user, Group group, AttributeModificationType attributeModificationType) {
-        if (this.groupDnResolver == null) {
-            throw new UnsupportedOperationException("Modifying group membership requires a configured GroupDnResolver");
+        if (this.groupValueTranscoder == null) {
+            throw new UnsupportedOperationException("Modifying group membership requires a configured Group ValueTranscoder");
         }
 
         Connection conn = null;
@@ -340,7 +340,7 @@ public class LdaptiveUserDao extends AbstractLdapUserDao {
             conn.open();
 
             String userDn = this.userMapper.mapDn(user);
-            String groupDn = this.groupDnResolver.resolve(group);
+            String groupDn = this.groupValueTranscoder.encodeStringValue(group);
 
             // modify user entry
             modifyEntry(conn, userDn, attributeModificationType, groupDn, LDAP_ATTR_GROUPS);

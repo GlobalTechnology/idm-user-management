@@ -88,10 +88,10 @@ public abstract class AbstractUserLdapEntryMapper<O extends User> implements Lda
     }
 
     @Nullable
-    protected GroupDnResolver groupDnResolver;
+    protected ValueTranscoder<Group> groupValueTranscoder;
 
-    public void setGroupDnResolver(@Nullable final GroupDnResolver resolver) {
-        this.groupDnResolver = resolver;
+    public void setGroupValueTranscoder(@Nullable final ValueTranscoder<Group> transcoder) {
+        this.groupValueTranscoder = transcoder;
     }
 
     @Override
@@ -354,11 +354,11 @@ public abstract class AbstractUserLdapEntryMapper<O extends User> implements Lda
     protected final Collection<Group> getGroupValues(final LdapEntry entry, final String attribute) {
         final Collection<Group> groups = Sets.newHashSet();
 
-        if (this.groupDnResolver != null) {
+        if (this.groupValueTranscoder != null) {
             for (final String dn : this.getStringValues(entry, attribute)) {
                 try {
-                    groups.add(groupDnResolver.resolve(dn));
-                } catch (final GroupDnResolver.InvalidGroupDnException e) {
+                    groups.add(groupValueTranscoder.decodeStringValue(dn));
+                } catch (final Exception e) {
                     LOG.info("Caught exception resolving group from group dn {}", dn, e);
                 }
             }

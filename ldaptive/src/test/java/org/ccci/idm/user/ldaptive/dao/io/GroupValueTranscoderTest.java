@@ -1,19 +1,18 @@
-package org.ccci.idm.user.ldaptive.dao;
+package org.ccci.idm.user.ldaptive.dao.io;
 
-import org.ccci.idm.user.Group;
-import org.ccci.idm.user.ldaptive.dao.mapper.GroupDnResolver;
-import org.junit.BeforeClass;
-import org.junit.Test;
-import java.util.Arrays;
-
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assume.assumeNotNull;
 
-import static org.junit.Assert.assertEquals;
+import org.ccci.idm.user.Group;
+import org.junit.BeforeClass;
+import org.junit.Test;
 
-public class GroupDnResolverTest
+import java.util.Arrays;
+
+public class GroupValueTranscoderTest
 {
-    private static GroupDnResolver groupDnResolver;
+    private static GroupValueTranscoder groupDnResolver;
     private static final String baseDn = "ou=groups,ou=idm,dc=cru,dc=org";
 
     private void assumeConfigured() throws Exception {
@@ -26,7 +25,7 @@ public class GroupDnResolverTest
     @BeforeClass
     public static void beforeClass()
     {
-        groupDnResolver = new GroupDnResolver();
+        groupDnResolver = new GroupValueTranscoder();
         groupDnResolver.setBaseDn(baseDn);
     }
 
@@ -36,12 +35,12 @@ public class GroupDnResolverTest
 
         String groupDn = "cn=" + name + ",ou=Cru,ou=Cru,ou=GoogleApps," + groupDnResolver.getBaseDn();
 
-        Group group = groupDnResolver.resolve(groupDn);
+        Group group = groupDnResolver.decodeStringValue(groupDn);
 
         assertEquals(name, group.getName());
         assertEquals(Arrays.toString(path), Arrays.toString(group.getPath()));
 
-        assertEquals(groupDn, groupDnResolver.resolve(group));
+        assertEquals(groupDn, groupDnResolver.encodeStringValue(group));
     }
 
     @Test
@@ -51,12 +50,12 @@ public class GroupDnResolverTest
         String groupDn = "CN=" + name + ",OU=Cru,ou=Cru,OU=GoogleApps," +
                 groupDnResolver.getBaseDn().toUpperCase();
 
-        Group group = groupDnResolver.resolve(groupDn);
+        Group group = groupDnResolver.decodeStringValue(groupDn);
 
         assertEquals(name, group.getName());
         assertEquals(Arrays.toString(path), Arrays.toString(group.getPath()));
 
-        assertTrue(groupDn.equalsIgnoreCase(groupDnResolver.resolve(group)));
+        assertTrue(groupDn.equalsIgnoreCase(groupDnResolver.encodeStringValue(group)));
     }
 
     @Test
@@ -65,9 +64,9 @@ public class GroupDnResolverTest
 
         String groupDn = "cn=" + name + ",ou=Cru,ou=Cru,ou=GoogleApps," + groupDnResolver.getBaseDn();
 
-        Group group = groupDnResolver.resolve(groupDn);
+        Group group = groupDnResolver.decodeStringValue(groupDn);
 
-        assertEquals(groupDn, groupDnResolver.resolve(group));
-        assertEquals(groupDn, groupDnResolver.resolve(group));
+        assertEquals(groupDn, groupDnResolver.encodeStringValue(group));
+        assertEquals(groupDn, groupDnResolver.encodeStringValue(group));
     }
 }

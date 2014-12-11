@@ -1,9 +1,10 @@
-package org.ccci.idm.user.ldaptive.dao.mapper;
+package org.ccci.idm.user.ldaptive.dao.io;
 
 import com.google.common.base.Strings;
 import com.google.common.collect.Lists;
 import org.ccci.idm.user.Group;
 import org.ldaptive.LdapAttribute;
+import org.ldaptive.io.AbstractStringValueTranscoder;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -11,7 +12,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
-public class GroupDnResolver {
+public class GroupValueTranscoder extends AbstractStringValueTranscoder<Group> {
     private String baseDn = "";
     private String pathRdnAttr = "ou";
     private String nameRdnAttr = "cn";
@@ -45,9 +46,15 @@ public class GroupDnResolver {
     }
 
     private final String delimiter = ",";
-    private final Character valueDelimiter = '=';
+    private final String valueDelimiter = "=";
 
-    public String resolve(@Nonnull final Group group) {
+    @Override
+    public Class<Group> getType() {
+        return Group.class;
+    }
+
+    @Override
+    public String encodeStringValue(@Nonnull final Group group) {
         final StringBuilder sb = new StringBuilder();
 
         sb.append(this.nameRdnAttr).append(valueDelimiter).append(LdapAttribute.escapeValue(group.getName()));
@@ -66,40 +73,30 @@ public class GroupDnResolver {
         return sb.toString();
     }
 
-    public Group resolve(@Nonnull final String groupDn) throws InvalidGroupDnException
-    {
+    @Override
+    public Group decodeStringValue(@Nonnull final String groupDn) {
         if(!groupDn.toLowerCase().endsWith(baseDn.toLowerCase())) {
-            throw new InvalidGroupDnException(groupDn);
+            throw new IllegalArgumentException(groupDn);
         }
 
         String relative = groupDn.substring(0, groupDn.length() - baseDn.length() - 1);
-
-        final String valueDelimiterString = "" + valueDelimiter;
 
         List<String> path = Lists.newArrayList();
         String name = "";
         for(String element : relative.split(delimiter))
         {
-            if(element.toLowerCase().startsWith(pathRdnAttr + valueDelimiterString))
+            if(element.toLowerCase().startsWith(pathRdnAttr + valueDelimiter))
             {
-                path.add(element.split(valueDelimiterString)[1]);
+                path.add(element.split(valueDelimiter)[1]);
             }
-            else if(element.toLowerCase().startsWith(nameRdnAttr + valueDelimiterString))
+            else if(element.toLowerCase().startsWith(nameRdnAttr + valueDelimiter))
             {
-                name = element.split(valueDelimiterString)[1];
+                name = element.split(valueDelimiter)[1];
             }
         }
 
         Collections.reverse(path);
 
         return new Group(path.toArray(new String[path.size()]), name);
-    }
-
-    public class InvalidGroupDnException extends Exception {
-        private static final long serialVersionUID = -5804952464495954102L;
-
-        public InvalidGroupDnException(String message) {
-            super(message);
-        }
     }
 }

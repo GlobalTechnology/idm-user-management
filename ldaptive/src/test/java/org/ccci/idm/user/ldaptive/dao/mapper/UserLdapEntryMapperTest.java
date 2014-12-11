@@ -4,6 +4,7 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 
 import org.ccci.idm.user.Group;
+import org.ccci.idm.user.ldaptive.dao.io.GroupValueTranscoder;
 import org.junit.Test;
 import org.ldaptive.LdapAttribute;
 import org.ldaptive.LdapEntry;
@@ -30,7 +31,7 @@ public class UserLdapEntryMapperTest {
 
         // test resolution using no Group DN resolver
         {
-            mapper.setGroupDnResolver(null);
+            mapper.setGroupValueTranscoder(null);
             final Collection<Group> groups = mapper.getGroupValues(entry, name);
             assertNotNull(groups);
             assertEquals(0, groups.size());
@@ -38,7 +39,7 @@ public class UserLdapEntryMapperTest {
 
         // test resolution using a base Group DN resolver
         {
-            mapper.setGroupDnResolver(new GroupDnResolver());
+            mapper.setGroupValueTranscoder(new GroupValueTranscoder());
             final Collection<Group> groups = mapper.getGroupValues(entry, name);
             assertNotNull(groups);
             assertEquals(2, groups.size());
