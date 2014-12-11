@@ -53,6 +53,7 @@ import org.ldaptive.control.ResponseControl;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.annotation.Nullable;
 import javax.validation.constraints.NotNull;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -81,7 +82,7 @@ public class LdaptiveUserDao extends AbstractLdapUserDao {
     @NotNull
     protected LdapEntryMapper<User> userMapper;
 
-    @NotNull
+    @Nullable
     protected GroupDnResolver groupDnResolver;
 
     private String baseSearchDn = "";
@@ -98,9 +99,8 @@ public class LdaptiveUserDao extends AbstractLdapUserDao {
         this.baseSearchDn = dn;
     }
 
-    public void setGroupDnResolver(GroupDnResolver groupDnResolver)
-    {
-        this.groupDnResolver = groupDnResolver;
+    public void setGroupDnResolver(@Nullable final GroupDnResolver resolver) {
+        this.groupDnResolver = resolver;
     }
 
     /**
@@ -330,6 +330,10 @@ public class LdaptiveUserDao extends AbstractLdapUserDao {
     }
 
     private void modifyGroupMembership(User user, Group group, AttributeModificationType attributeModificationType) {
+        if (this.groupDnResolver == null) {
+            throw new UnsupportedOperationException("Modifying group membership requires a configured GroupDnResolver");
+        }
+
         Connection conn = null;
         try {
             conn = this.connectionFactory.getConnection();

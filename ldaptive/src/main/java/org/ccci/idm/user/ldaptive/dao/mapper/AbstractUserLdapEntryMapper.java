@@ -65,6 +65,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.util.StringUtils;
 
+import javax.annotation.Nullable;
 import javax.validation.constraints.NotNull;
 import java.util.Collection;
 import java.util.Collections;
@@ -86,12 +87,11 @@ public abstract class AbstractUserLdapEntryMapper<O extends User> implements Lda
         this.dnResolver = dnResolver;
     }
 
-    @NotNull
+    @Nullable
     protected GroupDnResolver groupDnResolver;
 
-    public void setGroupDnResolver(GroupDnResolver groupDnResolver)
-    {
-        this.groupDnResolver = groupDnResolver;
+    public void setGroupDnResolver(@Nullable final GroupDnResolver resolver) {
+        this.groupDnResolver = resolver;
     }
 
     @Override
@@ -278,22 +278,20 @@ public abstract class AbstractUserLdapEntryMapper<O extends User> implements Lda
         LOG.debug("User loaded from LdapEntry: {}", user.getGuid());
     }
 
-    private void userSetGroups(Collection<String> groupDns, O user)
-    {
-        Collection<Group> groups = Sets.newHashSet();
+    private void userSetGroups(final Collection<String> groupDns, final O user) {
+        if (this.groupDnResolver != null) {
+            final Collection<Group> groups = Sets.newHashSet();
 
-        for(String groupDn : groupDns)
-        {
-            try {
-                groups.add(groupDnResolver.resolve(groupDn));
+            for (final String dn : groupDns) {
+                try {
+                    groups.add(groupDnResolver.resolve(dn));
+                } catch (final GroupDnResolver.InvalidGroupDnException e) {
+                    LOG.info("Caught exception resolving group from group dn {}", dn, e);
+                }
             }
-            catch (GroupDnResolver.InvalidGroupDnException e)
-            {
-                LOG.info("Caught exception resolving group from group dn {}", groupDn, e);
-            }
+
+            user.setGroups(groups);
         }
-
-        user.setGroups(groups);
     }
 
     protected final LdapAttribute attr(final String name, final String... values) {
