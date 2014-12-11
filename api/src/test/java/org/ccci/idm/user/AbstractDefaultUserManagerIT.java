@@ -62,6 +62,19 @@ public abstract class AbstractDefaultUserManagerIT {
             }
             assertFalse(this.userManager.doesEmailExist(user.getEmail()));
         }
+
+        // test whitespace padded email address
+        {
+            final User user = this.getNewUser();
+            user.setEmail(" " + user.getEmail());
+            try {
+                this.userManager.createUser(user);
+                fail("no exception for an invalid email");
+            } catch(final InvalidEmailUserException expected) {
+                // This exception is expected
+            }
+            assertFalse(this.userManager.doesEmailExist(user.getEmail()));
+        }
     }
 
     @Test
