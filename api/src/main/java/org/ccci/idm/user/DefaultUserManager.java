@@ -1,6 +1,7 @@
 package org.ccci.idm.user;
 
 import com.github.inspektr.audit.annotation.Audit;
+import com.google.common.base.CharMatcher;
 import org.apache.commons.validator.routines.EmailValidator;
 import org.ccci.idm.user.dao.ExceededMaximumAllowedResultsException;
 import org.ccci.idm.user.dao.UserDao;
@@ -278,7 +279,7 @@ public class DefaultUserManager implements UserManager {
 
     protected void validateUser(final User user) throws UserException {
         // throw an error if we don't have a valid email
-        if (!VALIDATOR_EMAIL.isValid(user.getEmail())) {
+        if (!VALIDATOR_EMAIL.isValid(user.getEmail()) || CharMatcher.WHITESPACE.matchesAnyOf(user.getEmail())) {
             throw new InvalidEmailUserException("Invalid email specified for creating a user");
         }
     }
