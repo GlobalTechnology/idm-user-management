@@ -139,6 +139,7 @@ public abstract class AbstractUserLdapEntryMapper<O extends User> implements Lda
         entry.addAttribute(this.attr(LDAP_FLAG_LOGINDISABLED, user.isLoginDisabled()));
         entry.addAttribute(this.attr(LDAP_FLAG_FORCEPASSWORDCHANGE, user.isForcePasswordChange()));
         entry.addAttribute(this.attr(LDAP_FLAG_EMAILVERIFIED, user.isEmailVerified()));
+        entry.addAttribute(user.isLocked() ? this.attr(LDAP_FLAG_LOCKED, true) : this.attr(LDAP_FLAG_LOCKED));
 
         // set the multi-valued attributes
         entry.addAttribute(this.attr(LDAP_ATTR_DOMAINSVISITED, user.getDomainsVisited()));
@@ -277,6 +278,10 @@ public abstract class AbstractUserLdapEntryMapper<O extends User> implements Lda
 
         // return the loaded User object
         LOG.debug("User loaded from LdapEntry: {}", user.getGuid());
+    }
+
+    protected final LdapAttribute attr(@Nonnull final String name) {
+        return new LdapAttribute(name);
     }
 
     protected final LdapAttribute attr(final String name, final String... values) {
