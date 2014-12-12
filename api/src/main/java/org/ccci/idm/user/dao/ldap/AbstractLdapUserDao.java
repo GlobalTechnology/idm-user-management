@@ -22,6 +22,7 @@ import static org.ccci.idm.user.dao.ldap.Constants.LDAP_ATTR_FACEBOOKIDSTRENGTH;
 import static org.ccci.idm.user.dao.ldap.Constants.LDAP_ATTR_FIRSTNAME;
 import static org.ccci.idm.user.dao.ldap.Constants.LDAP_ATTR_LASTNAME;
 import static org.ccci.idm.user.dao.ldap.Constants.LDAP_ATTR_LOGINTIME;
+import static org.ccci.idm.user.dao.ldap.Constants.LDAP_ATTR_OBJECTCLASS;
 import static org.ccci.idm.user.dao.ldap.Constants.LDAP_ATTR_PASSWORD;
 import static org.ccci.idm.user.dao.ldap.Constants.LDAP_ATTR_POSTAL_CODE;
 import static org.ccci.idm.user.dao.ldap.Constants.LDAP_ATTR_PROPOSEDEMAIL;
@@ -47,24 +48,27 @@ import java.util.Set;
 public abstract class AbstractLdapUserDao extends AbstractUserDao {
 
     private static final Map<Attr, Set<String>> MASK = ImmutableMap.<Attr, Set<String>>builder()
-            .put(Attr.EMAIL, ImmutableSet.of(LDAP_ATTR_USERID, LDAP_FLAG_EMAILVERIFIED))
+            .put(Attr.EMAIL, ImmutableSet.of(LDAP_ATTR_USERID, LDAP_FLAG_EMAILVERIFIED, LDAP_ATTR_OBJECTCLASS))
             .put(Attr.NAME, ImmutableSet.of(LDAP_ATTR_FIRSTNAME, LDAP_ATTR_LASTNAME))
-            .put(Attr.PASSWORD, ImmutableSet.of(LDAP_ATTR_PASSWORD, LDAP_FLAG_FORCEPASSWORDCHANGE))
+            .put(Attr.PASSWORD, ImmutableSet.of(LDAP_ATTR_PASSWORD, LDAP_FLAG_FORCEPASSWORDCHANGE,
+                    LDAP_ATTR_OBJECTCLASS))
             .put(Attr.LOGINTIME, ImmutableSet.of(LDAP_ATTR_LOGINTIME))
             .put(Attr.FLAGS, ImmutableSet.of(LDAP_FLAG_ALLOWPASSWORDCHANGE, LDAP_FLAG_EMAILVERIFIED,
-                    LDAP_FLAG_LOGINDISABLED, LDAP_FLAG_FORCEPASSWORDCHANGE))
-            .put(Attr.DOMAINSVISITED, ImmutableSet.of(LDAP_ATTR_DOMAINSVISITED))
+                    LDAP_FLAG_LOGINDISABLED, LDAP_FLAG_FORCEPASSWORDCHANGE, LDAP_ATTR_OBJECTCLASS))
+            .put(Attr.DOMAINSVISITED, ImmutableSet.of(LDAP_ATTR_DOMAINSVISITED, LDAP_ATTR_OBJECTCLASS))
             .put(Attr.SELFSERVICEKEYS, ImmutableSet.of(LDAP_ATTR_CHANGEEMAILKEY, LDAP_ATTR_PROPOSEDEMAIL,
-                    LDAP_ATTR_RESETPASSWORDKEY, LDAP_ATTR_SIGNUPKEY))
-            .put(Attr.FACEBOOK, ImmutableSet.of(LDAP_ATTR_FACEBOOKID, LDAP_ATTR_FACEBOOKIDSTRENGTH))
-            .put(Attr.RELAY_GUID, ImmutableSet.of(LDAP_ATTR_RELAY_GUID))
+                    LDAP_ATTR_RESETPASSWORDKEY, LDAP_ATTR_SIGNUPKEY, LDAP_ATTR_OBJECTCLASS))
+            .put(Attr.FACEBOOK, ImmutableSet.of(LDAP_ATTR_FACEBOOKID, LDAP_ATTR_FACEBOOKIDSTRENGTH,
+                    LDAP_ATTR_OBJECTCLASS))
+            .put(Attr.RELAY_GUID, ImmutableSet.of(LDAP_ATTR_RELAY_GUID, LDAP_ATTR_OBJECTCLASS))
             .put(Attr.LOCATION, ImmutableSet.of(LDAP_ATTR_CITY, LDAP_ATTR_STATE, LDAP_ATTR_POSTAL_CODE,
-                    LDAP_ATTR_COUNTRY))
+                    LDAP_ATTR_COUNTRY, LDAP_ATTR_OBJECTCLASS))
             .put(Attr.CRU_PERSON, ImmutableSet.of(LDAP_ATTR_EMPLOYEE_NUMBER, LDAP_ATTR_DEPARTMENT_NUMBER,
                     LDAP_ATTR_TELEPHONE, LDAP_ATTR_CRU_DESIGNATION, LDAP_ATTR_CRU_EMPLOYEE_STATUS,
                     LDAP_ATTR_CRU_GENDER, LDAP_ATTR_CRU_HR_STATUS_CODE, LDAP_ATTR_CRU_JOB_CODE,
                     LDAP_ATTR_CRU_MANAGER_ID, LDAP_ATTR_CRU_MINISTRY_CODE, LDAP_ATTR_CRU_PAY_GROUP,
-                    LDAP_ATTR_CRU_PREFERRED_NAME, LDAP_ATTR_CRU_SUB_MINISTRY_CODE, LDAP_ATTR_CRU_PROXY_ADDRESSES))
+                    LDAP_ATTR_CRU_PREFERRED_NAME, LDAP_ATTR_CRU_SUB_MINISTRY_CODE, LDAP_ATTR_CRU_PROXY_ADDRESSES,
+                    LDAP_ATTR_OBJECTCLASS))
             .build();
 
     private Set<String> MASK_DEFAULT = ImmutableSet.<String>builder().addAll(MASK.get(Attr.EMAIL)).addAll(MASK.get

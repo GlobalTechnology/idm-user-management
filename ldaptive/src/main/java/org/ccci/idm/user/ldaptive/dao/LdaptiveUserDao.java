@@ -366,7 +366,7 @@ public class LdaptiveUserDao extends AbstractLdapUserDao {
         final Set<String> mask = this.getAttributeMask(attrs);
 
         for (final LdapAttribute attribute : entry.getAttributes()) {
-            if (mask.contains(attribute.getName()) || LDAP_ATTR_OBJECTCLASS.equals(attribute.getName())) {
+            if (mask.contains(attribute.getName())) {
                 modifications.add(new AttributeModification(AttributeModificationType.REPLACE, attribute));
             }
         }

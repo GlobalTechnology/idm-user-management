@@ -318,7 +318,8 @@ public abstract class AbstractUserLdapEntryMapper<O extends User> implements Lda
         if(hasCruPersonAttributes(user)) {
             objectClasses.add(LDAP_OBJECTCLASS_CRU_PERSON_ATTRIBUTES);
         } else {
-            objectClasses.remove(LDAP_OBJECTCLASS_CRU_PERSON_ATTRIBUTES);
+//            // XXX: disabled until post-merge, see: https://github.com/GlobalTechnology/idm-user-management/pull/30
+//            objectClasses.remove(LDAP_OBJECTCLASS_CRU_PERSON_ATTRIBUTES);
         }
 
         return this.attr(LDAP_ATTR_OBJECTCLASS, objectClasses);
