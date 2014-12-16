@@ -139,6 +139,7 @@ public abstract class AbstractUserLdapEntryMapper<O extends User> implements Lda
         entry.addAttribute(this.attr(LDAP_FLAG_LOGINDISABLED, user.isLoginDisabled()));
         entry.addAttribute(this.attr(LDAP_FLAG_FORCEPASSWORDCHANGE, user.isForcePasswordChange()));
         entry.addAttribute(this.attr(LDAP_FLAG_EMAILVERIFIED, user.isEmailVerified()));
+        // the lockedByIntruder flag is handled differently to maintain consistency with how LDAP updates the attribute
         entry.addAttribute(user.isLocked() ? this.attr(LDAP_FLAG_LOCKED, true) : this.attr(LDAP_FLAG_LOCKED));
 
         // set the multi-valued attributes
