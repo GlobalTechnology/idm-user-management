@@ -50,23 +50,11 @@ public abstract class AbstractDefaultUserManagerIT {
             assertTrue(this.userManager.doesEmailExist(user.getEmail()));
         }
 
-        // test an invalid email address
-        {
+        // test various invalid email addresses
+        for (final String email : new String[]{randomEmail() + " ", " " + randomEmail(), "email." + RAND.nextInt
+                (Integer.MAX_VALUE)}) {
             final User user = this.getNewUser();
-            user.setEmail("invalid.email." + RAND.nextInt(Integer.MAX_VALUE));
-            try {
-                this.userManager.createUser(user);
-                fail("no exception for an invalid email");
-            } catch(final InvalidEmailUserException expected) {
-                // This exception is expected
-            }
-            assertFalse(this.userManager.doesEmailExist(user.getEmail()));
-        }
-
-        // test whitespace padded email address
-        {
-            final User user = this.getNewUser();
-            user.setEmail(" " + user.getEmail());
+            user.setEmail(email);
             try {
                 this.userManager.createUser(user);
                 fail("no exception for an invalid email");
@@ -89,7 +77,7 @@ public abstract class AbstractDefaultUserManagerIT {
         // update email of user
         {
             final String oldEmail = user.getEmail();
-            user.setEmail("test.user." + RAND.nextInt(Integer.MAX_VALUE) + "@example.com");
+            user.setEmail(randomEmail());
             this.userManager.updateUser(user, User.Attr.EMAIL);
 
             assertFalse(this.userManager.doesEmailExist(oldEmail));
@@ -115,12 +103,16 @@ public abstract class AbstractDefaultUserManagerIT {
 
     private User getNewUser() {
         final User user = new User();
-        user.setEmail("test.user." + RAND.nextInt(Integer.MAX_VALUE) + "@example.com");
+        user.setEmail(randomEmail());
         user.setGuid(UUID.randomUUID().toString().toUpperCase());
         user.setRelayGuid(UUID.randomUUID().toString().toUpperCase());
         user.setPassword("testPassword");
         user.setFirstName("Test");
         user.setLastName("User");
         return user;
+    }
+
+    private String randomEmail() {
+        return "test.user." + RAND.nextInt(Integer.MAX_VALUE) + "@example.com";
     }
 }
