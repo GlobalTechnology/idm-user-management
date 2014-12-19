@@ -39,6 +39,7 @@ public class User implements Cloneable, Serializable {
     private String lastName;
 
     private ReadableInstant loginTime;
+    private ReadableInstant pwdChangedTime;
 
     // account flags
     private boolean emailVerified = false;
@@ -139,6 +140,8 @@ public class User implements Cloneable, Serializable {
         this.telephoneNumber = source.telephoneNumber;
 
         this.implMeta.putAll(source.implMeta);
+
+        this.pwdChangedTime = source.pwdChangedTime;
     }
 
     @Nullable
@@ -228,6 +231,15 @@ public class User implements Cloneable, Serializable {
     public void setLoginTime(final ReadableInstant loginTime)
     {
         this.loginTime = loginTime;
+    }
+
+    @Nullable
+    public ReadableInstant getPasswordChangedTime() {
+        return pwdChangedTime;
+    }
+
+    public void setPasswordChangedTime(@Nullable final ReadableInstant time) {
+        this.pwdChangedTime = time;
     }
 
     public boolean isEmailVerified() {
@@ -596,6 +608,7 @@ public class User implements Cloneable, Serializable {
                 .add("postal", postal)
                 .add("country", country)
                 .add("telephoneNumber", telephoneNumber)
+                .add("pwdChangedTime", pwdChangedTime)
                 .toString();
     }
 
@@ -606,7 +619,7 @@ public class User implements Cloneable, Serializable {
                 domainsVisited, groups, signupKey, changeEmailKey, resetPasswordKey, proposedEmail, facebookId,
                 facebookIdStrength, employeeId, departmentNumber, cruDesignation, cruEmployeeStatus, cruGender,
                 cruHrStatusCode, cruJobCode, cruManagerID, cruMinistryCode, cruPayGroup, cruPreferredName,
-                cruSubMinistryCode, cruProxyAddresses, city, state, postal, country, telephoneNumber);
+                cruSubMinistryCode, cruProxyAddresses, city, state, postal, country, telephoneNumber, pwdChangedTime);
     }
 
     @Override
@@ -652,6 +665,7 @@ public class User implements Cloneable, Serializable {
                 Objects.equal(this.state, other.state) &&
                 Objects.equal(this.postal, other.postal) &&
                 Objects.equal(this.country, other.country) &&
-                Objects.equal(this.telephoneNumber, other.telephoneNumber);
+                Objects.equal(this.telephoneNumber, other.telephoneNumber) &&
+                Objects.equal(this.pwdChangedTime, other.pwdChangedTime);
     }
 }
