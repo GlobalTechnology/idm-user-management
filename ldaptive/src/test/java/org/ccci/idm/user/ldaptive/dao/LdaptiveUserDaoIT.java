@@ -177,7 +177,7 @@ public class LdaptiveUserDaoIT {
             assertTrue(all.contains(user2));
         }
 
-        // create a deactivated user with unique attributes to test individual findUserBy* support
+        // create a deactivated user with unique attributes to test individual findBy* support
         final User user3 = getStaffUser();
         user3.setFirstName("first_" +RAND.nextInt(Integer.MAX_VALUE));
         user3.setLastName("last_" +RAND.nextInt(Integer.MAX_VALUE));
@@ -186,7 +186,7 @@ public class LdaptiveUserDaoIT {
         // save new user
         this.dao.save(user3);
 
-        // test findUserByEmail
+        // test findByEmail
         {
             final User activeUser = this.dao.findByEmail(user3.getEmail(), false);
             final User anyUser = this.dao.findByEmail(user3.getEmail(), true);
