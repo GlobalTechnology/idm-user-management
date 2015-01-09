@@ -43,4 +43,14 @@ public class DefaultMigrationUserManager extends DefaultUserManager implements M
         // update the guid for the user
         this.migrationUserDao.updateGuid(user);
     }
+
+    @Override
+    public User findLegacyKeyUserByTheKeyGuid(final String guid) {
+        return this.findLegacyKeyUserByTheKeyGuid(guid, true);
+    }
+
+    @Override
+    public User findLegacyKeyUserByTheKeyGuid(final String guid, final boolean includeDeactivated) {
+        return this.migrationUserDao.findLegacyKeyByTheKeyGuid(guid, includeDeactivated);
+    }
 }
