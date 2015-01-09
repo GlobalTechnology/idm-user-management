@@ -63,15 +63,15 @@ public class DefaultUserManager implements UserManager {
         return this.userDao.isReadOnly();
     }
 
-    protected boolean doesGuidExist(final String guid) {
+    public boolean doesGuidExist(final String guid) {
         return guid != null && this.userDao.findByGuid(guid, true) != null;
     }
 
-    protected boolean doesRelayGuidExist(final String guid) {
+    public boolean doesRelayGuidExist(final String guid) {
         return guid != null && this.userDao.findByRelayGuid(guid, true) != null;
     }
 
-    protected boolean doesTheKeyGuidExist(final String guid) {
+    public boolean doesTheKeyGuidExist(final String guid) {
         return guid != null && this.userDao.findByTheKeyGuid(guid, true) != null;
     }
 
