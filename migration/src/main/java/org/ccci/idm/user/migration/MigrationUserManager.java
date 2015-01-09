@@ -4,6 +4,8 @@ import org.ccci.idm.user.User;
 import org.ccci.idm.user.UserManager;
 import org.ccci.idm.user.exception.UserException;
 
+import java.util.List;
+
 public interface MigrationUserManager extends UserManager {
     void moveLegacyKeyUser(User user);
 
@@ -42,4 +44,6 @@ public interface MigrationUserManager extends UserManager {
      * @return {@link User} with the specified e-mail address, or <tt>null</tt> if not found.
      */
     User findLegacyKeyUserByEmail(String email, boolean includeDeactivated);
+
+    List<User> getAllLegacyUsers(boolean includeDeactivated);
 }

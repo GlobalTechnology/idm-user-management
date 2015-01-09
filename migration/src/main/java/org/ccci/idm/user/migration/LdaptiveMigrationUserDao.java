@@ -157,4 +157,9 @@ public class LdaptiveMigrationUserDao extends LdaptiveUserDao implements Migrati
         // Execute search & return results
         return this.findLegacyKeyByFilter(filter, includeDeactivated);
     }
+
+    @Override
+    public List<User> findAllLegacyKeyUsers(final boolean includeDeactivated) {
+        return this.findAllLegacyKeyByFilter(FILTER_PERSON, includeDeactivated);
+    }
 }

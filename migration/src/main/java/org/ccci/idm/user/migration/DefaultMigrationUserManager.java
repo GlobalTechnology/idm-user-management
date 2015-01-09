@@ -7,6 +7,7 @@ import org.springframework.util.StringUtils;
 
 import javax.inject.Inject;
 import javax.validation.constraints.NotNull;
+import java.util.List;
 import java.util.Locale;
 import java.util.UUID;
 
@@ -62,5 +63,10 @@ public class DefaultMigrationUserManager extends DefaultUserManager implements M
     @Override
     public User findLegacyKeyUserByEmail(final String email, final boolean includeDeactivated) {
         return this.migrationUserDao.findLegacyKeyByEmail(email, includeDeactivated);
+    }
+
+    @Override
+    public List<User> getAllLegacyUsers(final boolean includeDeactivated) {
+        return this.migrationUserDao.findAllLegacyKeyUsers(includeDeactivated);
     }
 }
