@@ -16,6 +16,7 @@
     <module>api</module>
     <module>inspektr</module>
     <module>ldaptive</module>
+    <module>migration</module>
   </modules>
 
   <scm>
@@ -40,6 +41,11 @@
         <groupId>org.ccci.gto</groupId>
         <artifactId>idm-user-management-api</artifactId>
         <type>test-jar</type>
+        <version>${project.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.ccci.gto</groupId>
+        <artifactId>idm-user-management-ldaptive</artifactId>
         <version>${project.version}</version>
       </dependency>
     </dependencies>
