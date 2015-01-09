@@ -123,8 +123,6 @@ public abstract class AbstractUserLdapEntryMapper<O extends User> implements Lda
         entry.addAttribute(this.attrObjectClass(user));
 
         // set the email for this user
-        entry.addAttribute(this.attr(LDAP_ATTR_CN, user.isDeactivated() ? LDAP_DEACTIVATED_PREFIX + user.getGuid()
-                : user.getEmail()));
         entry.addAttribute(this.attr(LDAP_ATTR_USERID, user.getEmail()));
 
         // set the simple attributes for this user
