@@ -53,4 +53,14 @@ public class DefaultMigrationUserManager extends DefaultUserManager implements M
     public User findLegacyKeyUserByTheKeyGuid(final String guid, final boolean includeDeactivated) {
         return this.migrationUserDao.findLegacyKeyByTheKeyGuid(guid, includeDeactivated);
     }
+
+    @Override
+    public User findLegacyKeyUserByEmail(final String email) {
+        return this.findLegacyKeyUserByEmail(email, false);
+    }
+
+    @Override
+    public User findLegacyKeyUserByEmail(final String email, final boolean includeDeactivated) {
+        return this.migrationUserDao.findLegacyKeyByEmail(email, includeDeactivated);
+    }
 }

@@ -9,4 +9,6 @@ public interface MigrationUserDao extends UserDao {
     void updateGuid(User user);
 
     User findLegacyKeyByTheKeyGuid(String guid, boolean includeDeactivated);
+
+    User findLegacyKeyByEmail(String email, boolean includeDeactivated);
 }

@@ -1,7 +1,9 @@
 package org.ccci.idm.user.migration;
 
+import static org.ccci.idm.user.dao.ldap.Constants.LDAP_ATTR_CN;
 import static org.ccci.idm.user.dao.ldap.Constants.LDAP_ATTR_GUID;
 import static org.ccci.idm.user.dao.ldap.Constants.LDAP_ATTR_THEKEY_GUID;
+import static org.ccci.idm.user.dao.ldap.Constants.LDAP_ATTR_USERID;
 
 import com.google.common.base.Objects;
 import com.google.common.base.Throwables;
@@ -140,5 +142,19 @@ public class LdaptiveMigrationUserDao extends LdaptiveUserDao implements Migrati
         // theKeyGuid == {guid} || (guid == {guid} && theKeyGuid == null)
         return this.findLegacyKeyByFilter(new EqualsFilter(LDAP_ATTR_THEKEY_GUID, guid).or(new EqualsFilter
                 (LDAP_ATTR_GUID, guid).and(new PresentFilter(LDAP_ATTR_THEKEY_GUID).not())), includeDeactivated);
+    }
+
+    @Override
+    public User findLegacyKeyByEmail(final String email, final boolean includeDeactivated) {
+        // filter = (!deactivated && cn = email)
+        BaseFilter filter = FILTER_NOT_DEACTIVATED.and(new EqualsFilter(LDAP_ATTR_CN, email));
+
+        // filter = (filter || (deactivated && uid = email))
+        if (includeDeactivated) {
+            filter = filter.or(FILTER_DEACTIVATED.and(new EqualsFilter(LDAP_ATTR_USERID, email)));
+        }
+
+        // Execute search & return results
+        return this.findLegacyKeyByFilter(filter, includeDeactivated);
     }
 }
