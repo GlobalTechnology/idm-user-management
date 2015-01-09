@@ -53,7 +53,7 @@ public class DefaultUserManager implements UserManager {
         return guid != null && this.userDao.findByRelayGuid(guid, true) != null;
     }
 
-    protected boolean doesTheKeyGuidExist(final String guid) {
+    public boolean doesTheKeyGuidExist(final String guid) {
         return guid != null && this.userDao.findByTheKeyGuid(guid, true) != null;
     }
 
