@@ -14,16 +14,15 @@ import java.util.UUID;
 public class DefaultMigrationUserManager extends DefaultUserManager implements MigrationUserManager {
     @Inject
     @NotNull
-    protected MigrationUserDao userDao;
+    protected MigrationUserDao migrationUserDao;
 
-    public void setUserDao(final MigrationUserDao userDao) {
-        super.setUserDao(userDao);
-        this.userDao = userDao;
+    public void setMigrationUserDao(final MigrationUserDao migrationUserDao) {
+        this.migrationUserDao = migrationUserDao;
     }
 
     @Override
     public void moveLegacyKeyUser(final User user) {
-        this.userDao.moveLegacyKeyUser(user);
+        this.migrationUserDao.moveLegacyKeyUser(user);
     }
 
     @Override
@@ -43,7 +42,7 @@ public class DefaultMigrationUserManager extends DefaultUserManager implements M
         }
 
         // update the guid for the user
-        this.userDao.updateGuid(user);
+        this.migrationUserDao.updateGuid(user);
     }
 
     @Override
@@ -53,7 +52,7 @@ public class DefaultMigrationUserManager extends DefaultUserManager implements M
 
     @Override
     public User findLegacyKeyUserByTheKeyGuid(final String guid, final boolean includeDeactivated) {
-        return this.userDao.findLegacyKeyByTheKeyGuid(guid, includeDeactivated);
+        return this.migrationUserDao.findLegacyKeyByTheKeyGuid(guid, includeDeactivated);
     }
 
     @Override
@@ -63,11 +62,11 @@ public class DefaultMigrationUserManager extends DefaultUserManager implements M
 
     @Override
     public User findLegacyKeyUserByEmail(final String email, final boolean includeDeactivated) {
-        return this.userDao.findLegacyKeyByEmail(email, includeDeactivated);
+        return this.migrationUserDao.findLegacyKeyByEmail(email, includeDeactivated);
     }
 
     @Override
     public List<User> getAllLegacyUsers(final boolean includeDeactivated) {
-        return this.userDao.findAllLegacyKeyUsers(includeDeactivated);
+        return this.migrationUserDao.findAllLegacyKeyUsers(includeDeactivated);
     }
 }
