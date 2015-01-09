@@ -29,7 +29,7 @@ public class DefaultMigrationUserManager extends DefaultUserManager implements M
     public void generateNewGuid(final User user) throws UserException {
         // generate a guid for the user if there isn't a valid one already set
         int count = 0;
-        String guid = user.getGuid();
+        String guid = null;
         while (!StringUtils.hasText(guid) || this.doesGuidExist(guid) || this.doesRelayGuidExist(guid) || this
                 .doesTheKeyGuidExist(guid)) {
             guid = UUID.randomUUID().toString().toUpperCase(Locale.US);
