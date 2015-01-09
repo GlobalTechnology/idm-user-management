@@ -37,4 +37,9 @@ public class LdaptiveMigrationUserDao extends LdaptiveUserDao implements Migrati
             LdapUtils.closeConnection(conn);
         }
     }
+
+    public void setLegacyKeyUserMapper(LdapEntryMapper<User> legacyKeyUserMapper)
+    {
+        this.legacyKeyUserMapper = legacyKeyUserMapper;
+    }
 }
