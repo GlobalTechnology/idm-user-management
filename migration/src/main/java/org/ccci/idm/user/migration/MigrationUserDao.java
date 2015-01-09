@@ -5,4 +5,6 @@ import org.ccci.idm.user.dao.UserDao;
 
 public interface MigrationUserDao extends UserDao {
     void moveLegacyKeyUser(User user);
+
+    void updateGuid(User user);
 }
