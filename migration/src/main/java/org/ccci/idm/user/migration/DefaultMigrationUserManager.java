@@ -16,6 +16,7 @@ public class DefaultMigrationUserManager extends DefaultUserManager implements M
     protected MigrationUserDao userDao;
 
     public void setUserDao(final MigrationUserDao userDao) {
+        super.setUserDao(userDao);
         this.userDao = userDao;
     }
 
@@ -42,5 +43,15 @@ public class DefaultMigrationUserManager extends DefaultUserManager implements M
 
         // update the guid for the user
         this.userDao.updateGuid(user);
+    }
+
+    @Override
+    public User findLegacyKeyUserByTheKeyGuid(final String guid) {
+        return this.findLegacyKeyUserByTheKeyGuid(guid, true);
+    }
+
+    @Override
+    public User findLegacyKeyUserByTheKeyGuid(final String guid, final boolean includeDeactivated) {
+        return this.userDao.findLegacyKeyByTheKeyGuid(guid, includeDeactivated);
     }
 }
