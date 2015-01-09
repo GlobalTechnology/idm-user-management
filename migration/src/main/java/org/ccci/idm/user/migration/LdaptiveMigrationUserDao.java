@@ -1,14 +1,21 @@
 package org.ccci.idm.user.migration;
 
+import static org.ccci.idm.user.dao.ldap.Constants.LDAP_ATTR_GUID;
+
 import com.google.common.base.Objects;
 import com.google.common.base.Throwables;
 import org.ccci.idm.user.User;
 import org.ccci.idm.user.ldaptive.dao.LdaptiveUserDao;
 import org.ccci.idm.user.ldaptive.dao.util.LdapUtils;
+import org.ldaptive.AttributeModification;
+import org.ldaptive.AttributeModificationType;
 import org.ldaptive.Connection;
+import org.ldaptive.LdapEntry;
 import org.ldaptive.LdapException;
 import org.ldaptive.ModifyDnOperation;
 import org.ldaptive.ModifyDnRequest;
+import org.ldaptive.ModifyOperation;
+import org.ldaptive.ModifyRequest;
 import org.ldaptive.beans.LdapEntryMapper;
 
 import javax.validation.constraints.NotNull;
@@ -30,6 +37,29 @@ public class LdaptiveMigrationUserDao extends LdaptiveUserDao implements Migrati
             if (!Objects.equal(legacyDn, dn)) {
                 new ModifyDnOperation(conn).execute(new ModifyDnRequest(legacyDn, dn));
             }
+        } catch (final LdapException e) {
+            // XXX: for now just propagate any exceptions as RuntimeExceptions
+            throw Throwables.propagate(e);
+        } finally {
+            LdapUtils.closeConnection(conn);
+        }
+    }
+
+    @Override
+    public void updateGuid(final User user) {
+        Connection conn = null;
+        try {
+            conn = this.connectionFactory.getConnection();
+            conn.open();
+
+            // generate the LdapEntry for this user
+            final LdapEntry entry = new LdapEntry();
+            this.userMapper.map(user, entry);
+
+            // execute the ModifyOperation
+            final String dn = this.userMapper.mapDn(user);
+            new ModifyOperation(conn).execute(new ModifyRequest(dn, new AttributeModification
+                    (AttributeModificationType.REPLACE, entry.getAttribute(LDAP_ATTR_GUID))));
         } catch (final LdapException e) {
             // XXX: for now just propagate any exceptions as RuntimeExceptions
             throw Throwables.propagate(e);
