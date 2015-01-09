@@ -42,6 +42,12 @@
         <artifactId>idm-user-management-ldaptive</artifactId>
         <version>${project.version}</version>
       </dependency>
+      <dependency>
+        <groupId>org.ccci.gto</groupId>
+        <artifactId>idm-user-management-ldaptive</artifactId>
+        <type>test-jar</type>
+        <version>${project.version}</version>
+      </dependency>
     </dependencies>
   </dependencyManagement>
   <dependencies>

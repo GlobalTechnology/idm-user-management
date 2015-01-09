@@ -15,10 +15,32 @@
       <groupId>org.ccci.gto</groupId>
       <artifactId>idm-user-management-api</artifactId>
     </dependency>
-
     <dependency>
       <groupId>org.ccci.gto</groupId>
       <artifactId>idm-user-management-ldaptive</artifactId>
+    </dependency>
+
+    <dependency>
+      <groupId>org.springframework</groupId>
+      <artifactId>spring-context</artifactId>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.springframework</groupId>
+      <artifactId>spring-test</artifactId>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.ccci.gto</groupId>
+      <artifactId>idm-user-management-api</artifactId>
+      <type>test-jar</type>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.ccci.gto</groupId>
+      <artifactId>idm-user-management-ldaptive</artifactId>
+      <type>test-jar</type>
+      <scope>test</scope>
     </dependency>
   </dependencies>
 </project>
