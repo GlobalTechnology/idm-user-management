@@ -94,6 +94,11 @@ public class TheKeyMigrationIT {
         User existingUser;
         while ((existingUser = userManager.findUserByTheKeyGuid(guid)) != null) {
             try {
+                if(guid.equals(existingUser.getRawTheKeyGuid())) {
+                    LOG.error("this is strange, an account with the exact Key guid already exists");
+                    return false;
+                }
+
                 userManager.generateNewGuid(existingUser);
             } catch (final UserException e) {
                 LOG.debug("unable to generate new guid", e);
