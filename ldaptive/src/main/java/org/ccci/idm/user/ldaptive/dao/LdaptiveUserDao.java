@@ -303,7 +303,9 @@ public class LdaptiveUserDao extends AbstractLdapUserDao {
             final String dn = this.userMapper.mapDn(user);
             final String originalDn = this.userMapper.mapDn(original);
             if (!Objects.equal(originalDn, dn)) {
-                new ModifyDnOperation(conn).execute(new ModifyDnRequest(originalDn, dn));
+                synchronized (this) {
+                    new ModifyDnOperation(conn).execute(new ModifyDnRequest(originalDn, dn));
+                }
             }
 
             // update the actual user account
