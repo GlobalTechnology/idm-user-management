@@ -8,6 +8,7 @@ import static org.ccci.idm.user.dao.ldap.Constants.LDAP_ATTR_USERID;
 import com.google.common.base.Objects;
 import com.google.common.base.Throwables;
 import org.ccci.idm.user.User;
+import org.ccci.idm.user.dao.ExceededMaximumAllowedResultsException;
 import org.ccci.idm.user.ldaptive.dao.LdaptiveUserDao;
 import org.ccci.idm.user.ldaptive.dao.filter.BaseFilter;
 import org.ccci.idm.user.ldaptive.dao.filter.EqualsFilter;
@@ -171,6 +172,11 @@ public class LdaptiveMigrationUserDao extends LdaptiveUserDao implements Migrati
 
         // Execute search & return results
         return this.findLegacyKeyByFilter(filter, includeDeactivated);
+    }
+
+    @Override
+    public List<User> findAll(final boolean includeDeactivated) throws ExceededMaximumAllowedResultsException {
+        return this.findAllByFilter(FILTER_PERSON, includeDeactivated, 0);
     }
 
     @Override

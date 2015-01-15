@@ -111,7 +111,7 @@ public class LdaptiveUserDao extends AbstractLdapUserDao {
      * @param limit              the maximum number of results to return
      * @return
      */
-    private List<User> findAllByFilter(BaseFilter filter, final boolean includeDeactivated,
+    protected List<User> findAllByFilter(BaseFilter filter, final boolean includeDeactivated,
                                        final int limit) throws ExceededMaximumAllowedResultsException {
         // restrict filter as necessary
         filter = filter.and(FILTER_PERSON);
