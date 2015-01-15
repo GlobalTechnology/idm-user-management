@@ -28,8 +28,6 @@ public class DefaultUserManager implements UserManager {
 
     private static final String AUDIT_ACTION_RESOLVER = "IDM_USER_MANAGER_ACTION_RESOLVER";
 
-    private static final EmailValidator VALIDATOR_EMAIL = EmailValidator.getInstance();
-
     @NotNull
     protected RandomPasswordGenerator randomPasswordGenerator = new DefaultRandomPasswordGenerator();
 
@@ -45,15 +43,15 @@ public class DefaultUserManager implements UserManager {
         this.userDao = dao;
     }
 
-    protected boolean doesGuidExist(final String guid) {
+    public boolean doesGuidExist(final String guid) {
         return guid != null && this.userDao.findByGuid(guid, true) != null;
     }
 
-    protected boolean doesRelayGuidExist(final String guid) {
+    public boolean doesRelayGuidExist(final String guid) {
         return guid != null && this.userDao.findByRelayGuid(guid, true) != null;
     }
 
-    protected boolean doesTheKeyGuidExist(final String guid) {
+    public boolean doesTheKeyGuidExist(final String guid) {
         return guid != null && this.userDao.findByTheKeyGuid(guid, true) != null;
     }
 
@@ -279,7 +277,7 @@ public class DefaultUserManager implements UserManager {
 
     protected void validateUser(final User user) throws UserException {
         // throw an error if we don't have a valid email
-        if (!VALIDATOR_EMAIL.isValid(user.getEmail()) || CharMatcher.WHITESPACE.matchesAnyOf(user.getEmail())) {
+        if (CharMatcher.WHITESPACE.matchesAnyOf(user.getEmail())) {
             throw new InvalidEmailUserException("Invalid email specified for user");
         }
     }

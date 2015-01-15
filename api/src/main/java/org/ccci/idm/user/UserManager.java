@@ -12,6 +12,30 @@ public interface UserManager {
     boolean doesEmailExist(String email);
 
     /**
+     * returns true if the specified guid already exists.
+     *
+     * @param guid
+     * @return
+     */
+    boolean doesGuidExist(String guid);
+
+    /**
+     * returns true if the specified Relay guid already exists.
+     *
+     * @param guid
+     * @return
+     */
+    boolean doesRelayGuidExist(String guid);
+
+    /**
+     * returns true if the specified The Key guid already exists.
+     *
+     * @param guid
+     * @return
+     */
+    boolean doesTheKeyGuidExist(String guid);
+
+    /**
      * Create a new {@link User}.
      *
      * @param user {@link User} object to be saved.

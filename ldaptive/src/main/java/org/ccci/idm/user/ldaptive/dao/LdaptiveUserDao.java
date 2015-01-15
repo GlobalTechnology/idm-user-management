@@ -64,9 +64,9 @@ public class LdaptiveUserDao extends AbstractLdapUserDao {
     private static final Logger LOG = LoggerFactory.getLogger(LdaptiveUserDao.class);
 
     // common LDAP search filters
-    private static final BaseFilter FILTER_PERSON = new EqualsFilter(LDAP_ATTR_OBJECTCLASS, LDAP_OBJECTCLASS_PERSON);
-    private static final BaseFilter FILTER_DEACTIVATED = new LikeFilter(LDAP_ATTR_CN, LDAP_DEACTIVATED_PREFIX + "*");
-    private static final BaseFilter FILTER_NOT_DEACTIVATED = FILTER_DEACTIVATED.not();
+    protected static final BaseFilter FILTER_PERSON = new EqualsFilter(LDAP_ATTR_OBJECTCLASS, LDAP_OBJECTCLASS_PERSON);
+    protected static final BaseFilter FILTER_DEACTIVATED = new LikeFilter(LDAP_ATTR_CN, LDAP_DEACTIVATED_PREFIX + "*");
+    protected static final BaseFilter FILTER_NOT_DEACTIVATED = FILTER_DEACTIVATED.not();
 
     // Predicates used for filtering objects
     private static final Predicate<LdapAttribute> PREDICATE_EMPTY_ATTRIBUTE = new Predicate<LdapAttribute>() {
@@ -106,8 +106,9 @@ public class LdaptiveUserDao extends AbstractLdapUserDao {
     /**
      * find {@link User} objects that match the provided filter.
      *
-     * @param filter the LDAP search filter to use when searching
-     * @param limit  the maximum number of results to return
+     * @param filter             the LDAP search filter to use when searching
+     * @param includeDeactivated Whether deactivated accounts should be included in the search
+     * @param limit              the maximum number of results to return
      * @return
      */
     private List<User> findAllByFilter(BaseFilter filter, final boolean includeDeactivated,
@@ -302,7 +303,9 @@ public class LdaptiveUserDao extends AbstractLdapUserDao {
             final String dn = this.userMapper.mapDn(user);
             final String originalDn = this.userMapper.mapDn(original);
             if (!Objects.equal(originalDn, dn)) {
-                new ModifyDnOperation(conn).execute(new ModifyDnRequest(originalDn, dn));
+                synchronized (this) {
+                    new ModifyDnOperation(conn).execute(new ModifyDnRequest(originalDn, dn));
+                }
             }
 
             // update the actual user account
@@ -355,7 +358,7 @@ public class LdaptiveUserDao extends AbstractLdapUserDao {
         }
     }
 
-    private void updateInternal(final Connection conn, final String dn, final User user,
+    protected void updateInternal(final Connection conn, final String dn, final User user,
                                 User.Attr... attrs) throws LdapException {
         // generate the list of modifications to make for this account
         final ArrayList<AttributeModification> modifications = new ArrayList<AttributeModification>();
