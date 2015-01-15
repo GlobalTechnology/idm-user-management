@@ -467,7 +467,7 @@ public class LdaptiveUserDao extends AbstractLdapUserDao {
         }
     }
 
-    private void updateInternal(final Connection conn, final String dn, final User user,
+    protected void updateInternal(final Connection conn, final String dn, final User user,
                                 User.Attr... attrs) throws LdapException {
         // generate the list of modifications to make for this account
         final ArrayList<AttributeModification> modifications = new ArrayList<AttributeModification>();

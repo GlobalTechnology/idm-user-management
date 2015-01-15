@@ -53,6 +53,13 @@ public class LdaptiveMigrationUserDao extends LdaptiveUserDao implements Migrati
 
     @Override
     public synchronized void moveLegacyKeyUser(final User user) {
+        this.moveLegacyKeyUser(user, user.getEmail());
+    }
+
+    @Override
+    public synchronized void moveLegacyKeyUser(final User user, final String newEmail) {
+        final boolean changingEmail = !newEmail.equals(user.getEmail());
+
         Connection conn = null;
         try {
             conn = this.connectionFactory.getConnection();
@@ -60,9 +67,17 @@ public class LdaptiveMigrationUserDao extends LdaptiveUserDao implements Migrati
 
             // modify the DN if it changed
             final String legacyDn = this.legacyKeyUserMapper.mapDn(user);
+            if(changingEmail) {
+                user.setEmail(newEmail, newEmail.equalsIgnoreCase(user.getEmail()) && user.isEmailVerified());
+            }
             final String dn = this.userMapper.mapDn(user);
             if (!Objects.equal(legacyDn, dn)) {
                 new ModifyDnOperation(conn).execute(new ModifyDnRequest(legacyDn, dn));
+            }
+
+            // update email if changing email
+            if(changingEmail) {
+                this.updateInternal(conn, dn, user, User.Attr.EMAIL);
             }
         } catch (final LdapException e) {
             // XXX: for now just propagate any exceptions as RuntimeExceptions
