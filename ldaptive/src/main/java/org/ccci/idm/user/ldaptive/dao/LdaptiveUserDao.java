@@ -130,7 +130,7 @@ public class LdaptiveUserDao extends AbstractLdapUserDao {
      * @throws ExceededMaximumAllowedResultsException exception thrown when there are more results than the maximum
      */
     @Nonnull
-    private List<User> findAllByFilter(@Nullable BaseFilter filter, final boolean includeDeactivated, final int limit,
+    protected List<User> findAllByFilter(@Nullable BaseFilter filter, final boolean includeDeactivated, final int limit,
                                        final boolean restrictMaxAllowedResults)
             throws ExceededMaximumAllowedResultsException {
         final List<User> results = new ArrayList<User>();
