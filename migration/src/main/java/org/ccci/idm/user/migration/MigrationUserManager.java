@@ -9,6 +9,8 @@ import java.util.List;
 public interface MigrationUserManager extends UserManager {
     void moveLegacyKeyUser(User user);
 
+    void moveLegacyKeyUser(User user, String newEmail);
+
     void generateNewGuid(User user) throws UserException;
 
     /**

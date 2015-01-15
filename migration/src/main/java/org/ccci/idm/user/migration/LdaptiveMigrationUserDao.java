@@ -53,6 +53,11 @@ public class LdaptiveMigrationUserDao extends LdaptiveUserDao implements Migrati
 
     @Override
     public synchronized void moveLegacyKeyUser(final User user) {
+        this.moveLegacyKeyUser(user, user.getEmail());
+    }
+
+    @Override
+    public void moveLegacyKeyUser(final User user, final String newEmail) {
         Connection conn = null;
         try {
             conn = this.connectionFactory.getConnection();
@@ -60,6 +65,7 @@ public class LdaptiveMigrationUserDao extends LdaptiveUserDao implements Migrati
 
             // modify the DN if it changed
             final String legacyDn = this.legacyKeyUserMapper.mapDn(user);
+            user.setEmail(newEmail);
             final String dn = this.userMapper.mapDn(user);
             if (!Objects.equal(legacyDn, dn)) {
                 new ModifyDnOperation(conn).execute(new ModifyDnRequest(legacyDn, dn));

@@ -26,6 +26,11 @@ public class DefaultMigrationUserManager extends DefaultUserManager implements M
     }
 
     @Override
+    public void moveLegacyKeyUser(final User user, final String newEmail) {
+        this.migrationUserDao.moveLegacyKeyUser(user, newEmail);
+    }
+
+    @Override
     public void generateNewGuid(final User user) throws UserException {
         // generate a guid for the user if there isn't a valid one already set
         int count = 0;

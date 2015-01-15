@@ -8,6 +8,8 @@ import java.util.List;
 public interface MigrationUserDao extends UserDao {
     void moveLegacyKeyUser(User user);
 
+    void moveLegacyKeyUser(User user, String newEmail);
+
     void updateGuid(User user);
 
     User findLegacyKeyByTheKeyGuid(String guid, boolean includeDeactivated);
