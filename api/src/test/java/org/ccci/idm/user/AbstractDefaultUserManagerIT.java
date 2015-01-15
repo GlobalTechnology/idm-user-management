@@ -12,7 +12,6 @@ import static org.junit.Assume.assumeNotNull;
 import com.google.common.collect.ImmutableList;
 import org.ccci.idm.user.DefaultUserManager.SimpleUserManagerListener;
 import org.ccci.idm.user.DefaultUserManager.UserManagerListener;
-import org.ccci.idm.user.exception.InvalidEmailUserException;
 import org.ccci.idm.user.exception.UserException;
 import org.ccci.idm.user.util.PasswordHistoryManager;
 import org.junit.Test;
@@ -62,19 +61,19 @@ public abstract class AbstractDefaultUserManagerIT {
             assertTrue(user.getCruPasswordHistory().size() == 1);
         }
 
-        // test various invalid email addresses
-        for (final String email : new String[]{randomEmail() + " ", " " + randomEmail(), "email." + RAND.nextInt
-                (Integer.MAX_VALUE)}) {
-            final User user = newUser();
-            user.setEmail(email);
-            try {
-                this.userManager.createUser(user);
-                fail("no exception for an invalid email");
-            } catch(final InvalidEmailUserException expected) {
-                // This exception is expected
-            }
-            assertFalse(this.userManager.doesEmailExist(user.getEmail()));
-        }
+//        // test various invalid email addresses
+//        for (final String email : new String[]{randomEmail() + " ", " " + randomEmail(), "email." + RAND.nextInt
+//                (Integer.MAX_VALUE)}) {
+//            final User user = newUser();
+//            user.setEmail(email);
+//            try {
+//                this.userManager.createUser(user);
+//                fail("no exception for an invalid email");
+//            } catch(final InvalidEmailUserException expected) {
+//                // This exception is expected
+//            }
+//            assertFalse(this.userManager.doesEmailExist(user.getEmail()));
+//        }
     }
 
     @Test
@@ -307,20 +306,20 @@ public abstract class AbstractDefaultUserManagerIT {
             assertTrue(this.userManager.doesEmailExist(user.getEmail()));
         }
 
-        // update to invalid email
-        {
-            final String oldEmail = user.getEmail();
-            user.setEmail("invalid.email." + RAND.nextInt(Integer.MAX_VALUE));
-
-            try {
-                this.userManager.updateUser(user, User.Attr.EMAIL);
-                fail("no error when updating to invalid email");
-            } catch(final InvalidEmailUserException expected) {
-                // This exception is expected
-            }
-
-            assertTrue(this.userManager.doesEmailExist(oldEmail));
-            assertFalse(this.userManager.doesEmailExist(user.getEmail()));
-        }
+//        // update to invalid email
+//        {
+//            final String oldEmail = user.getEmail();
+//            user.setEmail("invalid.email." + RAND.nextInt(Integer.MAX_VALUE));
+//
+//            try {
+//                this.userManager.updateUser(user, User.Attr.EMAIL);
+//                fail("no error when updating to invalid email");
+//            } catch(final InvalidEmailUserException expected) {
+//                // This exception is expected
+//            }
+//
+//            assertTrue(this.userManager.doesEmailExist(oldEmail));
+//            assertFalse(this.userManager.doesEmailExist(user.getEmail()));
+//        }
     }
 }

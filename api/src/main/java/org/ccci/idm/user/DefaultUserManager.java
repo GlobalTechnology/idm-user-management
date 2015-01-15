@@ -1,15 +1,12 @@
 package org.ccci.idm.user;
 
 import com.github.inspektr.audit.annotation.Audit;
-import com.google.common.base.CharMatcher;
 import com.google.common.collect.FluentIterable;
 import com.google.common.collect.ImmutableList;
-import org.apache.commons.validator.routines.EmailValidator;
 import org.ccci.idm.user.dao.UserDao;
 import org.ccci.idm.user.dao.exception.DaoException;
 import org.ccci.idm.user.dao.exception.ExceededMaximumAllowedResultsException;
 import org.ccci.idm.user.exception.EmailAlreadyExistsException;
-import org.ccci.idm.user.exception.InvalidEmailUserException;
 import org.ccci.idm.user.exception.RelayGuidAlreadyExistsException;
 import org.ccci.idm.user.exception.TheKeyGuidAlreadyExistsException;
 import org.ccci.idm.user.exception.UserException;
@@ -34,8 +31,6 @@ public class DefaultUserManager implements UserManager {
     private static final Logger LOG = LoggerFactory.getLogger(DefaultUserManager.class);
 
     private static final String AUDIT_ACTION_RESOLVER = "IDM_USER_MANAGER_ACTION_RESOLVER";
-
-    private static final EmailValidator VALIDATOR_EMAIL = EmailValidator.getInstance();
 
     @NotNull
     @Autowired(required = false)
@@ -351,9 +346,9 @@ public class DefaultUserManager implements UserManager {
 
     protected void validateUser(final User user) throws UserException {
         // throw an error if we don't have a valid email
-        if (!VALIDATOR_EMAIL.isValid(user.getEmail()) || CharMatcher.WHITESPACE.matchesAnyOf(user.getEmail())) {
-            throw new InvalidEmailUserException("Invalid email specified for user");
-        }
+//        if (CharMatcher.WHITESPACE.matchesAnyOf(user.getEmail())) {
+//            throw new InvalidEmailUserException("Invalid email specified for user");
+//        }
     }
 
     public interface UserManagerListener {
