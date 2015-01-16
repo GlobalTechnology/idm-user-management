@@ -19,5 +19,7 @@ public interface MigrationUserDao extends UserDao {
 
     List<User> findAll(boolean includeDeactivated) throws ExceededMaximumAllowedResultsException;
 
+    List<User> findAllMissingRelayGuid() throws ExceededMaximumAllowedResultsException;
+
     List<User> findAllLegacyKeyUsers(boolean includeDeactivated);
 }
