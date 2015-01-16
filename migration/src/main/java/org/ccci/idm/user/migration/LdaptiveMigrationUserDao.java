@@ -2,6 +2,7 @@ package org.ccci.idm.user.migration;
 
 import static org.ccci.idm.user.dao.ldap.Constants.LDAP_ATTR_CN;
 import static org.ccci.idm.user.dao.ldap.Constants.LDAP_ATTR_GUID;
+import static org.ccci.idm.user.dao.ldap.Constants.LDAP_ATTR_RELAY_GUID;
 import static org.ccci.idm.user.dao.ldap.Constants.LDAP_ATTR_THEKEY_GUID;
 import static org.ccci.idm.user.dao.ldap.Constants.LDAP_ATTR_USERID;
 
@@ -177,6 +178,11 @@ public class LdaptiveMigrationUserDao extends LdaptiveUserDao implements Migrati
     @Override
     public List<User> findAll(final boolean includeDeactivated) throws ExceededMaximumAllowedResultsException {
         return this.findAllByFilter(FILTER_PERSON, includeDeactivated, 0, false);
+    }
+
+    @Override
+    public List<User> findAllMissingRelayGuid() throws ExceededMaximumAllowedResultsException {
+        return this.findAllByFilter(new PresentFilter(LDAP_ATTR_RELAY_GUID).not(), true, 0, false);
     }
 
     @Override

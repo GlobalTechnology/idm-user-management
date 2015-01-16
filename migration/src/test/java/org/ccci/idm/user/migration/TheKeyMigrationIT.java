@@ -2,7 +2,9 @@ package org.ccci.idm.user.migration;
 
 import static org.junit.Assume.assumeNotNull;
 
+import com.google.common.base.Throwables;
 import org.ccci.idm.user.User;
+import org.ccci.idm.user.dao.exception.DaoException;
 import org.ccci.idm.user.exception.UserException;
 import org.junit.Ignore;
 import org.junit.Test;
@@ -14,7 +16,9 @@ import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 import javax.inject.Inject;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
@@ -53,11 +57,18 @@ public class TheKeyMigrationIT {
     public void migrateTheKeyUsers() throws Exception {
         assumeConfigured();
 
+        LOG.info("test start");
+
+        // rotate guids while there are conflicting guids
+        while (checkForConflictingGuids()) { }
+
         // fetch all remaining un-migrated Key users
+        LOG.info("fetching legacy users");
         final List<User> users = userManager.getAllLegacyUsers(true);
+        LOG.info("found {} users", users.size());
 
         // migrate users via thread pool
-        final ExecutorService executor = Executors.newFixedThreadPool(1);
+        final ExecutorService executor = Executors.newFixedThreadPool(50);
         for (final User user : users) {
             executor.execute(new Runnable() {
                 @Override
@@ -84,7 +95,58 @@ public class TheKeyMigrationIT {
 
         // shutdown and wait for threads to catch up
         executor.shutdown();
-        while (!executor.awaitTermination(1, TimeUnit.SECONDS)) {}
+        while (!executor.awaitTermination(1, TimeUnit.SECONDS)) { }
+
+        // set missing relayGuids
+        this.updateRelayGuids();
+    }
+
+    private boolean checkForConflictingGuids() throws Exception {
+        LOG.info("loading all users");
+        final List<User> users = dao.findAll(true);
+        LOG.info("found {} users", users.size());
+
+        boolean changed = false;
+
+        // check for conflicting relayGuids
+        {
+            final Map<String, User> relayGuids = new HashMap<String, User>(users.size());
+            for (final User user : users) {
+                if (relayGuids.containsKey(user.getRelayGuid())) {
+                    LOG.info("conflicting relay guids");
+                    if (user.getRawRelayGuid() == null) {
+                        this.userManager.generateNewGuid(user);
+                    } else {
+                        final User user2 = relayGuids.remove(user.getRelayGuid());
+                        this.userManager.generateNewGuid(user2);
+                        relayGuids.put(user2.getRelayGuid(), user2);
+                    }
+                    changed = true;
+                }
+                relayGuids.put(user.getRelayGuid(), user);
+            }
+        }
+
+        // check for conflicting thekeyGuids
+        {
+            final Map<String, User> thekeyGuids = new HashMap<String, User>(users.size());
+            for (final User user : users) {
+                if (thekeyGuids.containsKey(user.getTheKeyGuid())) {
+                    LOG.info("conflicting Key guids");
+                    if (user.getRawTheKeyGuid() == null) {
+                        this.userManager.generateNewGuid(user);
+                    } else {
+                        final User user2 = thekeyGuids.remove(user.getTheKeyGuid());
+                        this.userManager.generateNewGuid(user2);
+                        thekeyGuids.put(user2.getTheKeyGuid(), user2);
+                    }
+                    changed = true;
+                }
+                thekeyGuids.put(user.getTheKeyGuid(), user);
+            }
+        }
+
+        return changed;
     }
 
     private boolean clearConflictingGuids(final User user) {
@@ -131,5 +193,31 @@ public class TheKeyMigrationIT {
         }
 
         return true;
+    }
+
+    private void updateRelayGuids() throws Exception {
+        LOG.info("setting missing relayGuids");
+        final List<User> users = dao.findAllMissingRelayGuid();
+        LOG.info("found {} accounts to set relayGuid for", users.size());
+
+        final ExecutorService executor = Executors.newFixedThreadPool(50);
+        for (final User user : users) {
+            executor.execute(new Runnable() {
+                @Override
+                public void run() {
+                    user.setRelayGuid(user.getRelayGuid());
+                    try {
+                        userManager.updateUser(user, User.Attr.RELAY_GUID);
+                    } catch (final DaoException e) {
+                        throw Throwables.propagate(e);
+                    } catch (final UserException e) {
+                        throw Throwables.propagate(e);
+                    }
+                }
+            });
+        }
+
+        executor.shutdown();
+        while (!executor.awaitTermination(1, TimeUnit.SECONDS)) { ; }
     }
 }
