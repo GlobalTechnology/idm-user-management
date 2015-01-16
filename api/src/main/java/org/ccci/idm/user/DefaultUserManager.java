@@ -148,7 +148,7 @@ public class DefaultUserManager implements UserManager {
         user.removeFacebookId(original.getFacebookId());
 
         // update the user object
-        this.userDao.update(original, user);
+        this.userDao.update(original, user, User.Attr.EMAIL, User.Attr.FLAGS, User.Attr.FACEBOOK);
     }
 
     @Override
@@ -172,7 +172,7 @@ public class DefaultUserManager implements UserManager {
         user.setAllowPasswordChange(true);
 
         // update the user object
-        this.userDao.update(original, user);
+        this.userDao.update(original, user, User.Attr.EMAIL, User.Attr.FLAGS);
     }
 
     @Override
