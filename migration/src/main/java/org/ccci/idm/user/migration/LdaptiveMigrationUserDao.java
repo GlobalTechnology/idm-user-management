@@ -59,6 +59,46 @@ public class LdaptiveMigrationUserDao extends LdaptiveUserDao implements Migrati
     }
 
     @Override
+    public synchronized void deactivateAndMoveLegacyKeyUser(final User user) {
+        Connection conn = null;
+        try {
+            conn = this.connectionFactory.getConnection();
+            conn.open();
+
+            // get original DN
+            final String legacyDn = this.legacyKeyUserMapper.mapDn(user);
+
+            // deactivate user
+            final String guid = user.getGuid();
+            if(guid == null) {
+                user.setGuid(user.getTheKeyGuid());
+            }
+            user.setDeactivated(true);
+            user.setLoginDisabled(true);
+            user.removeFacebookId(user.getFacebookId());
+
+            // get new DN
+            final String dn = this.userMapper.mapDn(user);
+
+            // reset guid
+            user.setGuid(guid);
+
+            // perform move
+            if (!Objects.equal(legacyDn, dn)) {
+                new ModifyDnOperation(conn).execute(new ModifyDnRequest(legacyDn, dn));
+            }
+
+            // update user now that it's moved
+            this.updateInternal(conn, dn, user, User.Attr.EMAIL, User.Attr.FLAGS, User.Attr.FACEBOOK);
+        } catch (final LdapException e) {
+            // XXX: for now just propagate any exceptions as RuntimeExceptions
+            throw Throwables.propagate(e);
+        } finally {
+            LdapUtils.closeConnection(conn);
+        }
+    }
+
+    @Override
     public synchronized void moveLegacyKeyUser(final User user, final String newEmail) {
         final boolean changingEmail = !newEmail.equals(user.getEmail());
 

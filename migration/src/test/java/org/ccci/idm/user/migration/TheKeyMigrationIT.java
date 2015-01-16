@@ -78,14 +78,13 @@ public class TheKeyMigrationIT {
                         return;
                     }
 
-                    // deactivate user if there is a conflicting email address
-                    if(!user.isDeactivated() && userManager.doesEmailExist(user.getEmail())) {
-                        // TODO: deactivate this user before moving
-                        return;
-                    }
-
                     // move user
-                    userManager.moveLegacyKeyUser(user);
+                    if(!user.isDeactivated() && userManager.doesEmailExist(user.getEmail())) {
+                        // deactivate user if there is a conflicting email address
+                        dao.deactivateAndMoveLegacyKeyUser(user);
+                    } else {
+                        userManager.moveLegacyKeyUser(user);
+                    }
 
                     // populate ccciGuid
                     populateGuid(user);
