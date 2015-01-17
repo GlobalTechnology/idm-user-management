@@ -59,7 +59,7 @@ public class LdaptiveMigrationUserDao extends LdaptiveUserDao implements Migrati
     }
 
     @Override
-    public void deactivateAndMoveLegacyKeyUser(final User user) {
+    public synchronized void deactivateAndMoveLegacyKeyUser(final User user) {
         Connection conn = null;
         try {
             conn = this.connectionFactory.getConnection();
