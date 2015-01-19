@@ -22,7 +22,7 @@ import com.google.common.base.Throwables;
 import com.google.common.collect.Collections2;
 import org.ccci.idm.user.Group;
 import org.ccci.idm.user.User;
-import org.ccci.idm.user.dao.ExceededMaximumAllowedResultsException;
+import org.ccci.idm.user.dao.exception.ExceededMaximumAllowedResultsException;
 import org.ccci.idm.user.dao.ldap.AbstractLdapUserDao;
 import org.ccci.idm.user.ldaptive.dao.filter.BaseFilter;
 import org.ccci.idm.user.ldaptive.dao.filter.EqualsFilter;

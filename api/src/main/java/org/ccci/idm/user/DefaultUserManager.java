@@ -3,7 +3,7 @@ package org.ccci.idm.user;
 import com.github.inspektr.audit.annotation.Audit;
 import com.google.common.base.CharMatcher;
 import org.apache.commons.validator.routines.EmailValidator;
-import org.ccci.idm.user.dao.ExceededMaximumAllowedResultsException;
+import org.ccci.idm.user.dao.exception.ExceededMaximumAllowedResultsException;
 import org.ccci.idm.user.dao.UserDao;
 import org.ccci.idm.user.exception.EmailAlreadyExistsException;
 import org.ccci.idm.user.exception.InvalidEmailUserException;

@@ -1,6 +1,6 @@
 package org.ccci.idm.user;
 
-import org.ccci.idm.user.dao.ExceededMaximumAllowedResultsException;
+import org.ccci.idm.user.dao.exception.ExceededMaximumAllowedResultsException;
 import org.ccci.idm.user.exception.EmailAlreadyExistsException;
 import org.ccci.idm.user.exception.UserAlreadyExistsException;
 import org.ccci.idm.user.exception.UserException;

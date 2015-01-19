@@ -2,6 +2,7 @@ package org.ccci.idm.user.dao;
 
 import org.ccci.idm.user.Group;
 import org.ccci.idm.user.User;
+import org.ccci.idm.user.dao.exception.ExceededMaximumAllowedResultsException;
 
 import java.util.List;
 
