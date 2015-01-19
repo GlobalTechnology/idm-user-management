@@ -6,8 +6,8 @@ import static org.junit.Assert.fail;
 import org.ccci.idm.user.dao.exception.ReadOnlyDaoException;
 import org.junit.Test;
 
-public abstract class AbstractUserDaoTest<T extends AbstractUserDao> {
-    protected abstract T getUserDao();
+public abstract class AbstractUserDaoTest {
+    protected abstract AbstractUserDao getUserDao();
 
     @Test
     public void testReadOnly() throws Exception {
