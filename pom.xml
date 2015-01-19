@@ -18,6 +18,12 @@
     <module>ldaptive</module>
   </modules>
 
+  <scm>
+    <connection>scm:git:git@github.com:GlobalTechnology/idm-user-management.git</connection>
+    <developerConnection>scm:git:git@github.com:GlobalTechnology/idm-user-management.git</developerConnection>
+    <tag>HEAD</tag>
+  </scm>
+
   <properties>
     <maven.compiler.source>1.6</maven.compiler.source>
     <maven.compiler.target>1.6</maven.compiler.target>
