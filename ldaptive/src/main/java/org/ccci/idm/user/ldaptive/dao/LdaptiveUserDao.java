@@ -22,6 +22,7 @@ import com.google.common.base.Throwables;
 import com.google.common.collect.Collections2;
 import org.ccci.idm.user.Group;
 import org.ccci.idm.user.User;
+import org.ccci.idm.user.dao.exception.DaoException;
 import org.ccci.idm.user.dao.exception.ExceededMaximumAllowedResultsException;
 import org.ccci.idm.user.dao.ldap.AbstractLdapUserDao;
 import org.ccci.idm.user.ldaptive.dao.filter.BaseFilter;
@@ -250,7 +251,8 @@ public class LdaptiveUserDao extends AbstractLdapUserDao {
     }
 
     @Override
-    public void save(final User user) {
+    public void save(final User user) throws DaoException {
+        assertWritable();
         assertValidUser(user);
 
         // attempt saving the user
@@ -272,7 +274,8 @@ public class LdaptiveUserDao extends AbstractLdapUserDao {
     }
 
     @Override
-    public void update(final User user, User.Attr... attrs) {
+    public void update(final User user, User.Attr... attrs) throws DaoException {
+        assertWritable();
         assertValidUser(user);
 
         Connection conn = null;
@@ -289,7 +292,8 @@ public class LdaptiveUserDao extends AbstractLdapUserDao {
     }
 
     @Override
-    public void update(final User original, final User user, final User.Attr... attrs) {
+    public void update(final User original, final User user, final User.Attr... attrs) throws DaoException {
+        assertWritable();
         assertValidUser(original);
         assertValidUser(user);
 
@@ -316,14 +320,16 @@ public class LdaptiveUserDao extends AbstractLdapUserDao {
     }
 
     @Override
-    public void addToGroup(User user, Group group) {
+    public void addToGroup(User user, Group group) throws DaoException {
+        assertWritable();
         assertValidUser(user);
 
         modifyGroupMembership(user, group, AttributeModificationType.ADD);
     }
 
     @Override
-    public void removeFromGroup(User user, Group group) {
+    public void removeFromGroup(User user, Group group) throws DaoException {
+        assertWritable();
         assertValidUser(user);
 
         modifyGroupMembership(user, group, AttributeModificationType.REMOVE);

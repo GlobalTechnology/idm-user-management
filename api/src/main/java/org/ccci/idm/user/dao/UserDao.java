@@ -2,6 +2,7 @@ package org.ccci.idm.user.dao;
 
 import org.ccci.idm.user.Group;
 import org.ccci.idm.user.User;
+import org.ccci.idm.user.dao.exception.DaoException;
 import org.ccci.idm.user.dao.exception.ExceededMaximumAllowedResultsException;
 
 import java.util.List;
@@ -12,14 +13,14 @@ public interface UserDao {
      *
      * @param user User to be created.
      */
-    void save(User user);
+    void save(User user) throws DaoException;
 
     /**
      * Update an existing user in the persistent user store.
      *
      * @param user User to be updated.
      */
-    void update(User user, User.Attr... attrs);
+    void update(final User user, User.Attr... attrs) throws DaoException;
 
     /**
      * Update an existing user in the persistent user store.
@@ -27,7 +28,7 @@ public interface UserDao {
      * @param original The original version of the user being updated
      * @param user     User to be updated.
      */
-    void update(User original, User user, User.Attr... attrs);
+    void update(User original, User user, User.Attr... attrs) throws DaoException;
 
     /**
      * Find the user with the specified e-mail.
@@ -121,7 +122,7 @@ public interface UserDao {
      * @param user to add
      * @param group to group
      */
-    void addToGroup(User user, Group group);
+    void addToGroup(User user, Group group) throws DaoException;
 
     /**
      * Remove user from group
@@ -129,6 +130,6 @@ public interface UserDao {
      * @param user to remove
      * @param group from group
      */
-    void removeFromGroup(User user, Group group);
+    void removeFromGroup(User user, Group group) throws DaoException;
 
 }
