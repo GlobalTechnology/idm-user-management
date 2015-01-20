@@ -3,8 +3,9 @@ package org.ccci.idm.user;
 import com.github.inspektr.audit.annotation.Audit;
 import com.google.common.base.CharMatcher;
 import org.apache.commons.validator.routines.EmailValidator;
-import org.ccci.idm.user.dao.ExceededMaximumAllowedResultsException;
 import org.ccci.idm.user.dao.UserDao;
+import org.ccci.idm.user.dao.exception.DaoException;
+import org.ccci.idm.user.dao.exception.ExceededMaximumAllowedResultsException;
 import org.ccci.idm.user.exception.EmailAlreadyExistsException;
 import org.ccci.idm.user.exception.InvalidEmailUserException;
 import org.ccci.idm.user.exception.RelayGuidAlreadyExistsException;
@@ -68,7 +69,7 @@ public class DefaultUserManager implements UserManager {
     @Override
     @Audit(action = "IDM_CREATE_USER", actionResolverName = AUDIT_ACTION_RESOLVER, resourceResolverName =
             "IDM_USER_MANAGER_CREATE_USER_RESOURCE_RESOLVER")
-    public void createUser(final User user) throws UserException {
+    public void createUser(final User user) throws DaoException, UserException {
         // validate user being created
         this.validateNewUser(user);
 
@@ -113,7 +114,7 @@ public class DefaultUserManager implements UserManager {
     @Override
     @Audit(action = "IDM_UPDATE_USER", actionResolverName = AUDIT_ACTION_RESOLVER, resourceResolverName =
             "IDM_USER_MANAGER_UPDATE_USER_RESOURCE_RESOLVER")
-    public void updateUser(final User user, final User.Attr... attrs) throws UserException {
+    public void updateUser(final User user, final User.Attr... attrs) throws DaoException, UserException {
         // validate user object before trying to update it
         this.validateUpdateUser(user, attrs);
 
@@ -130,7 +131,7 @@ public class DefaultUserManager implements UserManager {
     @Override
     @Audit(action = "IDM_DEACTIVATE_USER", actionResolverName = AUDIT_ACTION_RESOLVER, resourceResolverName =
             "IDM_USER_MANAGER_DEACTIVATE_USER_RESOURCE_RESOLVER")
-    public void deactivateUser(final User user) throws UserException {
+    public void deactivateUser(final User user) throws DaoException, UserException {
         // Create a deep clone copy before proceeding
         final User original = user.clone();
 
@@ -148,7 +149,7 @@ public class DefaultUserManager implements UserManager {
     @Override
     @Audit(action = "IDM_REACTIVATE_USER", actionResolverName = AUDIT_ACTION_RESOLVER, resourceResolverName =
             "IDM_USER_MANAGER_REACTIVATE_USER_RESOURCE_RESOLVER")
-    public void reactivateUser(final User user) throws UserException {
+    public void reactivateUser(final User user) throws DaoException, UserException {
         // Determine if the user already exists, and can't be reactivated
         if (this.doesEmailExist(user.getEmail())) {
             final String error = "Unable to reactivate user because an account with the email address '" + user
@@ -262,12 +263,12 @@ public class DefaultUserManager implements UserManager {
     }
 
     @Override
-    public void addToGroup(User user, Group group) {
+    public void addToGroup(final User user, final Group group) throws DaoException {
         this.userDao.addToGroup(user, group);
     }
 
     @Override
-    public void removeFromGroup(User user, Group group) {
+    public void removeFromGroup(final User user, final Group group) throws DaoException {
         this.userDao.removeFromGroup(user, group);
     }
 

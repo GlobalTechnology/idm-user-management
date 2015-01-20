@@ -1,6 +1,7 @@
 package org.ccci.idm.user;
 
-import org.ccci.idm.user.dao.ExceededMaximumAllowedResultsException;
+import org.ccci.idm.user.dao.exception.DaoException;
+import org.ccci.idm.user.dao.exception.ExceededMaximumAllowedResultsException;
 import org.ccci.idm.user.exception.EmailAlreadyExistsException;
 import org.ccci.idm.user.exception.UserAlreadyExistsException;
 import org.ccci.idm.user.exception.UserException;
@@ -17,7 +18,7 @@ public interface UserManager {
      * @param user {@link User} object to be saved.
      * @throws UserAlreadyExistsException Thrown when the specified User conflicts with an existing user
      */
-    void createUser(User user) throws UserException;
+    void createUser(User user) throws DaoException, UserException;
 
     /**
      * Update the specified {@link User}.
@@ -26,14 +27,14 @@ public interface UserManager {
      * @param attrs The User attributes to be updated. An empty list means to update default attributes.
      * @throws UserNotFoundException The specified user cannot be found to be updated
      */
-    void updateUser(User user, User.Attr... attrs) throws UserException;
+    void updateUser(User user, User.Attr... attrs) throws DaoException, UserException;
 
     /**
      * Deactivate the user by disabling the account and changing the e-mail address.
      *
      * @param user {@link User} to deactivate
      */
-    void deactivateUser(User user) throws UserException;
+    void deactivateUser(User user) throws DaoException, UserException;
 
     /**
      * Reactivate a previously deactivated user.
@@ -42,7 +43,7 @@ public interface UserManager {
      * @throws EmailAlreadyExistsException thrown if the user being reactivated conflicts with another user that
      * already exists
      */
-    void reactivateUser(User user) throws UserException;
+    void reactivateUser(User user) throws DaoException, UserException;
 
     /**
      * @param user the {@link User} to retrieve a fresh instance of
@@ -191,7 +192,7 @@ public interface UserManager {
      * @param user to add
      * @param group to group
      */
-    void addToGroup(User user, Group group);
+    void addToGroup(User user, Group group) throws DaoException;
 
     /**
      * Remove user from group
@@ -199,5 +200,5 @@ public interface UserManager {
      * @param user to remove
      * @param group from group
      */
-    void removeFromGroup(User user, Group group);
+    void removeFromGroup(User user, Group group) throws DaoException;
 }

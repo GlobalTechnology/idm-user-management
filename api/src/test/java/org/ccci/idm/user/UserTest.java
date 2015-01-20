@@ -1,5 +1,7 @@
 package org.ccci.idm.user;
 
+import static org.ccci.idm.user.TestUtil.guid;
+import static org.ccci.idm.user.TestUtil.randomEmail;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNull;
@@ -10,16 +12,10 @@ import org.junit.Ignore;
 import org.junit.Test;
 
 import java.security.SecureRandom;
-import java.util.Locale;
 import java.util.Random;
-import java.util.UUID;
 
 public class UserTest {
     private Random RAND = new SecureRandom();
-
-    private static String guid() {
-        return UUID.randomUUID().toString().toUpperCase(Locale.US);
-    }
 
     @Ignore
     @Test
@@ -98,7 +94,7 @@ public class UserTest {
             user.setTheKeyGuid(guid());
 
             // use random guid as random strings
-            user.setEmail(guid());
+            user.setEmail(randomEmail());
             user.setPassword(guid());
             user.setFirstName(guid());
             user.setLastName(guid());
@@ -146,15 +142,15 @@ public class UserTest {
             // test behavior when no verified flag is specified
             user.setEmailVerified(true);
             assertTrue(user.isEmailVerified());
-            user.setEmail("user1@example.com");
+            user.setEmail(randomEmail());
             assertFalse(user.isEmailVerified());
 
             // test behavior when verified flag is specified
             user.setEmailVerified(true);
             assertTrue(user.isEmailVerified());
-            user.setEmail("user2@example.com", false);
+            user.setEmail(randomEmail(), false);
             assertFalse(user.isEmailVerified());
-            user.setEmail("user3@example.com", true);
+            user.setEmail(randomEmail(), true);
             assertTrue(user.isEmailVerified());
         }
     }

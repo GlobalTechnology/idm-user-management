@@ -1,5 +1,7 @@
 package org.ccci.idm.user;
 
+import static org.ccci.idm.user.TestUtil.newUser;
+import static org.ccci.idm.user.TestUtil.randomEmail;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
@@ -13,7 +15,6 @@ import javax.inject.Inject;
 import javax.validation.constraints.NotNull;
 import java.security.SecureRandom;
 import java.util.Random;
-import java.util.UUID;
 
 public abstract class AbstractDefaultUserManagerIT {
     protected static final Random RAND = new SecureRandom();
@@ -45,7 +46,7 @@ public abstract class AbstractDefaultUserManagerIT {
 
         // test simple creation
         {
-            final User user = this.getNewUser();
+            final User user = newUser();
             this.userManager.createUser(user);
             assertTrue(this.userManager.doesEmailExist(user.getEmail()));
         }
@@ -53,7 +54,7 @@ public abstract class AbstractDefaultUserManagerIT {
         // test various invalid email addresses
         for (final String email : new String[]{randomEmail() + " ", " " + randomEmail(), "email." + RAND.nextInt
                 (Integer.MAX_VALUE)}) {
-            final User user = this.getNewUser();
+            final User user = newUser();
             user.setEmail(email);
             try {
                 this.userManager.createUser(user);
@@ -70,7 +71,7 @@ public abstract class AbstractDefaultUserManagerIT {
         assumeConfigured();
 
         // create base user
-        final User user = this.getNewUser();
+        final User user = newUser();
         this.userManager.createUser(user);
         assertTrue(this.userManager.doesEmailExist(user.getEmail()));
 
@@ -99,20 +100,5 @@ public abstract class AbstractDefaultUserManagerIT {
             assertTrue(this.userManager.doesEmailExist(oldEmail));
             assertFalse(this.userManager.doesEmailExist(user.getEmail()));
         }
-    }
-
-    private User getNewUser() {
-        final User user = new User();
-        user.setEmail(randomEmail());
-//        user.setGuid(UUID.randomUUID().toString().toUpperCase());
-        user.setRelayGuid(UUID.randomUUID().toString().toUpperCase());
-        user.setPassword("testPassword");
-        user.setFirstName("Test");
-        user.setLastName("User");
-        return user;
-    }
-
-    private String randomEmail() {
-        return "test.user." + RAND.nextInt(Integer.MAX_VALUE) + "@example.com";
     }
 }

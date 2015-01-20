@@ -556,8 +556,8 @@ public class User implements Cloneable, Serializable {
         return MoreObjects.toStringHelper(this).omitNullValues()
                 .add("email", email)
                 .add("guid", guid)
-                .add("theKeyGuid", theKeyGuid)
-                .add("relayGuid", relayGuid)
+                .add("theKeyGuid", this.getTheKeyGuid())
+                .add("relayGuid", this.getRelayGuid())
                 .add("firstName", firstName)
                 .add("lastName", lastName)
                 .add("emailVerified", emailVerified)
@@ -597,10 +597,10 @@ public class User implements Cloneable, Serializable {
 
     @Override
     public int hashCode() {
-        return Objects.hashCode(email, password, guid, theKeyGuid, relayGuid, firstName, lastName, emailVerified,
-                allowPasswordChange, forcePasswordChange, deactivated, loginDisabled, locked, domainsVisited, groups,
-                signupKey, changeEmailKey, resetPasswordKey, proposedEmail, facebookId, facebookIdStrength,
-                employeeId, departmentNumber, cruDesignation, cruEmployeeStatus, cruGender,
+        return Objects.hashCode(email, password, guid, this.getTheKeyGuid(), this.getRelayGuid(), firstName, lastName,
+                emailVerified, allowPasswordChange, forcePasswordChange, deactivated, loginDisabled, locked,
+                domainsVisited, groups, signupKey, changeEmailKey, resetPasswordKey, proposedEmail, facebookId,
+                facebookIdStrength, employeeId, departmentNumber, cruDesignation, cruEmployeeStatus, cruGender,
                 cruHrStatusCode, cruJobCode, cruManagerID, cruMinistryCode, cruPayGroup, cruPreferredName,
                 cruSubMinistryCode, cruProxyAddresses, city, state, postal, country, telephoneNumber);
     }
@@ -613,8 +613,8 @@ public class User implements Cloneable, Serializable {
         return Objects.equal(this.email, other.email) &&
                 Objects.equal(this.password, other.password) &&
                 Objects.equal(this.guid, other.guid) &&
-                Objects.equal(this.theKeyGuid, other.theKeyGuid) &&
-                Objects.equal(this.relayGuid, other.relayGuid) &&
+                Objects.equal(this.getTheKeyGuid(), other.getTheKeyGuid()) &&
+                Objects.equal(this.getRelayGuid(), other.getRelayGuid()) &&
                 Objects.equal(this.firstName, other.firstName) &&
                 Objects.equal(this.lastName, other.lastName) &&
                 Objects.equal(this.emailVerified, other.emailVerified) &&
