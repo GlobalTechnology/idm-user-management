@@ -10,6 +10,12 @@ import org.ccci.idm.user.exception.UserNotFoundException;
 import java.util.List;
 
 public interface UserManager {
+    /**
+     * Check to see if the specified email already exists
+     *
+     * @param email Email to check for
+     * @return true if the specified email already exists
+     */
     boolean doesEmailExist(String email);
 
     /**
