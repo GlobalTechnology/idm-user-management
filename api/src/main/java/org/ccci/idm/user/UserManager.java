@@ -11,6 +11,13 @@ import java.util.List;
 
 public interface UserManager {
     /**
+     * Returns whether the underlying UserDao is readonly
+     *
+     * @return true if the underlying UserDao is readonly
+     */
+    boolean isReadOnly();
+
+    /**
      * Check to see if the specified email already exists
      *
      * @param email Email to check for
