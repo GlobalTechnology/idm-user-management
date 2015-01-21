@@ -46,6 +46,11 @@ public class DefaultUserManager implements UserManager {
         this.userDao = dao;
     }
 
+    @Override
+    public boolean isReadOnly() {
+        return this.userDao.isReadOnly();
+    }
+
     protected boolean doesGuidExist(final String guid) {
         return guid != null && this.userDao.findByGuid(guid, true) != null;
     }

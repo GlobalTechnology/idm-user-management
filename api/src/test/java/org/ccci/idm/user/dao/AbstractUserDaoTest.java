@@ -1,6 +1,7 @@
 package org.ccci.idm.user.dao;
 
 import static org.ccci.idm.user.TestUtil.newUser;
+import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
 import org.ccci.idm.user.dao.exception.ReadOnlyDaoException;
@@ -13,6 +14,9 @@ public abstract class AbstractUserDaoTest {
     public void testReadOnly() throws Exception {
         final AbstractUserDao dao = this.getUserDao();
         dao.setReadOnly(true);
+
+        // test isReadOnly
+        assertTrue(dao.isReadOnly());
 
         // test save user
         try {
