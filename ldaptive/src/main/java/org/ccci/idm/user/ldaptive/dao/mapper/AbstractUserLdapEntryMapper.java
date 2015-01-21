@@ -373,7 +373,7 @@ public abstract class AbstractUserLdapEntryMapper<O extends User> implements Lda
                 try {
                     groups.add(groupValueTranscoder.decodeStringValue(dn));
                 } catch (final Exception e) {
-                    LOG.info("Caught exception resolving group from group dn {}", dn, e);
+                    LOG.info("Caught exception resolving group from group dn {}", dn);
                 }
             }
         }
