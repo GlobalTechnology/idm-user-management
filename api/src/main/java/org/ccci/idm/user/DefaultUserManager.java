@@ -47,6 +47,11 @@ public class DefaultUserManager implements UserManager {
         this.userDao = dao;
     }
 
+    @Override
+    public boolean isReadOnly() {
+        return this.userDao.isReadOnly();
+    }
+
     @Deprecated
     protected boolean doesGuidExist(final String guid) {
         throw new UnsupportedOperationException("doesGuidExist() is not currently supported");

@@ -9,6 +9,12 @@ import java.util.List;
 
 public interface UserDao {
     /**
+     * Indicates if this UserDao is readonly
+     * @return true if this UserDao is readonly
+     */
+    boolean isReadOnly();
+
+    /**
      * Save the specified user.
      *
      * @param user User to be created.
@@ -134,5 +140,4 @@ public interface UserDao {
      * @param group from group
      */
     void removeFromGroup(User user, Group group) throws DaoException;
-
 }

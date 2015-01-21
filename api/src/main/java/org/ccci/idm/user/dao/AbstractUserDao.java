@@ -11,6 +11,11 @@ public abstract class AbstractUserDao implements UserDao {
         this.readOnly = readOnly;
     }
 
+    @Override
+    public boolean isReadOnly() {
+        return this.readOnly;
+    }
+
     protected void assertWritable() throws ReadOnlyDaoException {
         if (this.readOnly) {
             throw new ReadOnlyDaoException();
