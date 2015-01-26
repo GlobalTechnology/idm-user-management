@@ -64,11 +64,23 @@ public abstract class AbstractLdapUserDao extends AbstractUserDao {
             .put(Attr.RELAY_GUID, ImmutableSet.of(LDAP_ATTR_RELAY_GUID, LDAP_ATTR_OBJECTCLASS))
             .put(Attr.LOCATION, ImmutableSet.of(LDAP_ATTR_CITY, LDAP_ATTR_STATE, LDAP_ATTR_POSTAL_CODE,
                     LDAP_ATTR_COUNTRY, LDAP_ATTR_OBJECTCLASS))
-            .put(Attr.CRU_PERSON, ImmutableSet.of(LDAP_ATTR_EMPLOYEE_NUMBER, LDAP_ATTR_DEPARTMENT_NUMBER,
-                    LDAP_ATTR_TELEPHONE, LDAP_ATTR_CRU_DESIGNATION, LDAP_ATTR_CRU_EMPLOYEE_STATUS,
-                    LDAP_ATTR_CRU_GENDER, LDAP_ATTR_CRU_HR_STATUS_CODE, LDAP_ATTR_CRU_JOB_CODE,
-                    LDAP_ATTR_CRU_MANAGER_ID, LDAP_ATTR_CRU_MINISTRY_CODE, LDAP_ATTR_CRU_PAY_GROUP,
-                    LDAP_ATTR_CRU_PREFERRED_NAME, LDAP_ATTR_CRU_SUB_MINISTRY_CODE, LDAP_ATTR_CRU_PROXY_ADDRESSES,
+
+            // Cru Relay Attributes
+            .put(Attr.EMPLOYEE_NUMBER, ImmutableSet.of(LDAP_ATTR_EMPLOYEE_NUMBER, LDAP_ATTR_OBJECTCLASS))
+            .put(Attr.CRU_DESIGNATION, ImmutableSet.of(LDAP_ATTR_CRU_DESIGNATION, LDAP_ATTR_OBJECTCLASS))
+            .put(Attr.CONTACT, ImmutableSet.of(LDAP_ATTR_TELEPHONE, LDAP_ATTR_OBJECTCLASS))
+            .put(Attr.CRU_PREFERRED_NAME, ImmutableSet.of(LDAP_ATTR_CRU_PREFERRED_NAME, LDAP_ATTR_OBJECTCLASS))
+            .put(Attr.CRU_PROXY_ADDRESSES, ImmutableSet.of(LDAP_ATTR_CRU_PROXY_ADDRESSES, LDAP_ATTR_OBJECTCLASS))
+            .put(Attr.HUMAN_RESOURCE, ImmutableSet.of(
+                    LDAP_ATTR_DEPARTMENT_NUMBER,
+                    LDAP_ATTR_CRU_EMPLOYEE_STATUS,
+                    LDAP_ATTR_CRU_HR_STATUS_CODE,
+                    LDAP_ATTR_CRU_GENDER,
+                    LDAP_ATTR_CRU_JOB_CODE,
+                    LDAP_ATTR_CRU_MANAGER_ID,
+                    LDAP_ATTR_CRU_MINISTRY_CODE,
+                    LDAP_ATTR_CRU_PAY_GROUP,
+                    LDAP_ATTR_CRU_SUB_MINISTRY_CODE,
                     LDAP_ATTR_OBJECTCLASS))
             .build();
 

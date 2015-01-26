@@ -43,7 +43,6 @@ public class Constants {
     public static final String LDAP_OBJECTCLASS_INETORGPERSON = "inetOrgPerson";
     public static final String LDAP_OBJECTCLASS_THEKEYATTRIBUTES = "thekeyAttributes";
     public static final String LDAP_OBJECTCLASS_RELAY_ATTRIBUTES = "relayAttributes";
-    public static final String LDAP_OBJECTCLASS_CRU_PERSON_ATTRIBUTES = "cruPerson";
     public static final Set<String> LDAP_OBJECTCLASSES_USER = ImmutableSet.of(LDAP_OBJECTCLASS_TOP,
             LDAP_OBJECTCLASS_PERSON, LDAP_OBJECTCLASS_NDSLOGIN, LDAP_OBJECTCLASS_ORGANIZATIONALPERSON,
             LDAP_OBJECTCLASS_INETORGPERSON, LDAP_OBJECTCLASS_THEKEYATTRIBUTES, LDAP_OBJECTCLASS_RELAY_ATTRIBUTES);

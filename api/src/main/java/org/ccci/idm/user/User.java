@@ -25,7 +25,7 @@ public class User implements Cloneable, Serializable {
     private static final long serialVersionUID = -1174980195690210236L;
 
     public enum Attr {EMAIL, PASSWORD, NAME, LOGINTIME, FLAGS, SELFSERVICEKEYS, DOMAINSVISITED, FACEBOOK, RELAY_GUID,
-       LOCATION, CRU_PERSON }
+       LOCATION, EMPLOYEE_NUMBER, CRU_DESIGNATION, CONTACT, CRU_PREFERRED_NAME, CRU_PROXY_ADDRESSES, HUMAN_RESOURCE }
 
     private String email;
     private String password;
