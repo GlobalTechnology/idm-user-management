@@ -222,7 +222,7 @@ public class LdaptiveUserDaoIT {
         user.setCity(user.getCity() + "modified");
         user.setEmployeeId(user.getEmployeeId() + "modified");
 
-        this.dao.update(user, User.Attr.LOCATION, User.Attr.CRU_PERSON);
+        this.dao.update(user, User.Attr.LOCATION);
 
         foundUser = this.dao.findByEmail(user.getEmail(), false);
 
