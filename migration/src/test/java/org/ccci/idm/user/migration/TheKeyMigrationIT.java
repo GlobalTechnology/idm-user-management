@@ -119,6 +119,7 @@ public class TheKeyMigrationIT {
                         this.userManager.generateNewGuid(user2);
                         relayGuids.put(user2.getRelayGuid(), user2);
                     }
+                    changed = true;
                 }
                 relayGuids.put(user.getRelayGuid(), user);
             }
@@ -137,6 +138,7 @@ public class TheKeyMigrationIT {
                         this.userManager.generateNewGuid(user2);
                         thekeyGuids.put(user2.getTheKeyGuid(), user2);
                     }
+                    changed = true;
                 }
                 thekeyGuids.put(user.getTheKeyGuid(), user);
             }
