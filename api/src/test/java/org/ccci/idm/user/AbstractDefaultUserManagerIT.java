@@ -8,6 +8,7 @@ import static org.junit.Assert.fail;
 import static org.junit.Assume.assumeNotNull;
 
 import org.ccci.idm.user.exception.InvalidEmailUserException;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Value;
 
@@ -100,5 +101,21 @@ public abstract class AbstractDefaultUserManagerIT {
             assertTrue(this.userManager.doesEmailExist(oldEmail));
             assertFalse(this.userManager.doesEmailExist(user.getEmail()));
         }
+    }
+
+    @Ignore
+    @Test
+    public void testPasswordPolicy() throws Exception {
+        assumeConfigured();
+
+        // create base user
+        final User user = newUser();
+        user.setPassword("Password1");
+        this.userManager.createUser(user);
+        assertTrue(this.userManager.doesEmailExist(user.getEmail()));
+
+        // change password to too short of a password
+        user.setPassword("a1b2c3");
+        this.userManager.updateUser(user, User.Attr.PASSWORD);
     }
 }
