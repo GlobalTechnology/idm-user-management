@@ -22,6 +22,7 @@ import java.util.Map;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicInteger;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(locations = {"/org/ccci/idm/user/ldaptive/dao/ldap.xml",
@@ -68,7 +69,8 @@ public class TheKeyMigrationIT {
         LOG.info("found {} users", users.size());
 
         // migrate users via thread pool
-        final ExecutorService executor = Executors.newFixedThreadPool(50);
+        final ExecutorService executor = Executors.newFixedThreadPool(20);
+        final AtomicInteger count = new AtomicInteger(0);
         for (final User user : users) {
             executor.execute(new Runnable() {
                 @Override
@@ -81,6 +83,7 @@ public class TheKeyMigrationIT {
                     // move user
                     if(!user.isDeactivated() && userManager.doesEmailExist(user.getEmail())) {
                         // deactivate user if there is a conflicting email address
+                        LOG.info("conflicting email: {} deactivating account", user.getEmail());
                         dao.deactivateAndMoveLegacyKeyUser(user);
                     } else {
                         userManager.moveLegacyKeyUser(user);
@@ -88,6 +91,12 @@ public class TheKeyMigrationIT {
 
                     // populate ccciGuid
                     populateGuid(user);
+
+                    // log a count of accounts processed
+                    final int i = count.addAndGet(1);
+                    if (i % 2000 == 0) {
+                        LOG.info("migrated {} The Key accounts", i);
+                    }
                 }
             });
         }
@@ -112,7 +121,7 @@ public class TheKeyMigrationIT {
             final Map<String, User> relayGuids = new HashMap<String, User>(users.size());
             for (final User user : users) {
                 if (relayGuids.containsKey(user.getRelayGuid())) {
-                    LOG.info("conflicting relay guids");
+                    LOG.info("conflicting relay guid {}", user.getRelayGuid());
                     if (user.getRawRelayGuid() == null) {
                         this.userManager.generateNewGuid(user);
                     } else {
@@ -131,7 +140,7 @@ public class TheKeyMigrationIT {
             final Map<String, User> thekeyGuids = new HashMap<String, User>(users.size());
             for (final User user : users) {
                 if (thekeyGuids.containsKey(user.getTheKeyGuid())) {
-                    LOG.info("conflicting Key guids");
+                    LOG.info("conflicting Key guid {}", user.getTheKeyGuid());
                     if (user.getRawTheKeyGuid() == null) {
                         this.userManager.generateNewGuid(user);
                     } else {
@@ -199,7 +208,8 @@ public class TheKeyMigrationIT {
         final List<User> users = dao.findAllMissingRelayGuid();
         LOG.info("found {} accounts to set relayGuid for", users.size());
 
-        final ExecutorService executor = Executors.newFixedThreadPool(50);
+        final ExecutorService executor = Executors.newFixedThreadPool(20);
+        final AtomicInteger count = new AtomicInteger(0);
         for (final User user : users) {
             executor.execute(new Runnable() {
                 @Override
@@ -211,6 +221,11 @@ public class TheKeyMigrationIT {
                         throw Throwables.propagate(e);
                     } catch (final UserException e) {
                         throw Throwables.propagate(e);
+                    }
+
+                    final int i = count.addAndGet(1);
+                    if (i % 2000 == 0) {
+                        LOG.info("updated {} relayGuids", i);
                     }
                 }
             });

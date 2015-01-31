@@ -173,10 +173,16 @@ public class LdaptiveMigrationUserDao extends LdaptiveUserDao implements Migrati
 
             // process response
             final List<User> users = new ArrayList<User>();
+            int count = 0;
             for (final LdapEntry entry : result.getEntries()) {
                 final User user = new User();
                 this.legacyKeyUserMapper.map(entry, user);
                 users.add(user);
+
+                count++;
+                if (count % 2000 == 0) {
+                    LOG.info("loaded {} users", count);
+                }
             }
 
             // return found users

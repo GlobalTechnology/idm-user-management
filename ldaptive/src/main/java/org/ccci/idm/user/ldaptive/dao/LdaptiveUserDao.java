@@ -212,6 +212,10 @@ public class LdaptiveUserDao extends AbstractLdapUserDao {
                         users.add(user);
                     }
                     processed++;
+
+                    if (processed % 2000 == 0) {
+                        LOG.info("loaded {} users", processed);
+                    }
                 }
 
                 // have we reached our limit?
@@ -238,7 +242,7 @@ public class LdaptiveUserDao extends AbstractLdapUserDao {
             // return found users
             return processed;
         } catch (final LdapException e) {
-            LOG.debug("error searching for users, wrapping & propagating exception", e);
+            LOG.info("error searching for users, wrapping & propagating exception", e);
             if (e.getCause() instanceof InterruptedNamingException) {
                 throw new InterruptedDaoException(e);
             } else {
