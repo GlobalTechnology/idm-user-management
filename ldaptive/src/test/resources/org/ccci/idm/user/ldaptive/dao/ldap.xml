@@ -40,12 +40,16 @@
     <property name="poolConfig">
       <bean class="org.ldaptive.pool.PoolConfig"
           p:minPoolSize="${ldap.pool.minSize:3}"
-          p:maxPoolSize="${ldap.pool.maxSize:10}" />
+          p:maxPoolSize="${ldap.pool.maxSize:10}"
+          p:validateOnCheckOut="true" />
     </property>
     <property name="pruneStrategy">
       <bean class="org.ldaptive.pool.IdlePruneStrategy"
           p:prunePeriod="${ldap.pool.prunePeriod:300}"
           p:idleTime="${ldap.pool.idleTime:600}" />
+    </property>
+    <property name="validator">
+      <bean class="org.ldaptive.pool.SearchValidator" />
     </property>
   </bean>
 
