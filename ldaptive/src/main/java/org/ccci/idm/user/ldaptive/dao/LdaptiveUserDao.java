@@ -152,17 +152,23 @@ public class LdaptiveUserDao extends AbstractLdapUserDao {
             }
 
             // process response
+            int count = 0;
             final List<User> users = new ArrayList<User>();
             for (final LdapEntry entry : result.getEntries()) {
                 final User user = new User();
                 userMapper.map(entry, user);
                 users.add(user);
+
+                count++;
+                if (count % 2000 == 0) {
+                    LOG.info("loaded {} users", count);
+                }
             }
 
             // return found users
             return users;
         } catch (final LdapException e) {
-            LOG.debug("error searching for users, returning an empty list", e);
+            LOG.info("error searching for users, returning an empty list", e);
             return Collections.emptyList();
         } finally {
             LdapUtils.closeConnection(conn);
