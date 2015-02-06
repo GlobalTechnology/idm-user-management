@@ -414,9 +414,7 @@ public class LdaptiveUserDao extends AbstractLdapUserDao {
             final String dn = this.userMapper.mapDn(user);
             final String originalDn = this.userMapper.mapDn(original);
             if (!Objects.equal(originalDn, dn)) {
-                synchronized (this) {
-                    new ModifyDnOperation(conn).execute(new ModifyDnRequest(originalDn, dn));
-                }
+                this.modifyDn(conn, new ModifyDnRequest(originalDn, dn));
             }
 
             // update the actual user account
@@ -443,6 +441,33 @@ public class LdaptiveUserDao extends AbstractLdapUserDao {
         assertValidUser(user);
 
         modifyGroupMembership(user, group, AttributeModificationType.REMOVE);
+    }
+
+    protected void modifyDn(final Connection conn, final ModifyDnRequest request) throws LdapException {
+        boolean complete = false;
+        while (!complete) {
+            try {
+                new ModifyDnOperation(conn).execute(request);
+                complete = true;
+            } catch (final LdapException e) {
+                if (e.getResultCode() != null) {
+                    switch (e.getResultCode()) {
+                        case OTHER:
+                            // this is a partition is busy error, let's pause, then retry
+                            try {
+                                LOG.debug("sleeping 100ms, then retrying rename");
+                                Thread.sleep(100L);
+                            } catch (final InterruptedException ignored) {
+                            }
+                            break;
+                        default:
+                            throw e;
+                    }
+                } else {
+                    throw e;
+                }
+            }
+        }
     }
 
     private void modifyGroupMembership(User user, Group group, AttributeModificationType attributeModificationType) {
