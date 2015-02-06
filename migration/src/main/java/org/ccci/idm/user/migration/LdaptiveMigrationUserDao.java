@@ -20,7 +20,6 @@ import org.ldaptive.AttributeModificationType;
 import org.ldaptive.Connection;
 import org.ldaptive.LdapEntry;
 import org.ldaptive.LdapException;
-import org.ldaptive.ModifyDnOperation;
 import org.ldaptive.ModifyDnRequest;
 import org.ldaptive.ModifyOperation;
 import org.ldaptive.ModifyRequest;
@@ -54,12 +53,12 @@ public class LdaptiveMigrationUserDao extends LdaptiveUserDao implements Migrati
     }
 
     @Override
-    public synchronized void moveLegacyKeyUser(final User user) {
+    public void moveLegacyKeyUser(final User user) {
         this.moveLegacyKeyUser(user, user.getEmail());
     }
 
     @Override
-    public synchronized void deactivateAndMoveLegacyKeyUser(final User user) {
+    public void deactivateAndMoveLegacyKeyUser(final User user) {
         Connection conn = null;
         try {
             conn = this.connectionFactory.getConnection();
@@ -85,7 +84,7 @@ public class LdaptiveMigrationUserDao extends LdaptiveUserDao implements Migrati
 
             // perform move
             if (!Objects.equal(legacyDn, dn)) {
-                new ModifyDnOperation(conn).execute(new ModifyDnRequest(legacyDn, dn));
+                this.modifyDn(conn, new ModifyDnRequest(legacyDn, dn) );
             }
 
             // update user now that it's moved
@@ -99,7 +98,7 @@ public class LdaptiveMigrationUserDao extends LdaptiveUserDao implements Migrati
     }
 
     @Override
-    public synchronized void moveLegacyKeyUser(final User user, final String newEmail) {
+    public void moveLegacyKeyUser(final User user, final String newEmail) {
         final boolean changingEmail = !newEmail.equals(user.getEmail());
 
         Connection conn = null;
@@ -114,7 +113,7 @@ public class LdaptiveMigrationUserDao extends LdaptiveUserDao implements Migrati
             }
             final String dn = this.userMapper.mapDn(user);
             if (!Objects.equal(legacyDn, dn)) {
-                new ModifyDnOperation(conn).execute(new ModifyDnRequest(legacyDn, dn));
+                this.modifyDn(conn, new ModifyDnRequest(legacyDn, dn) );
             }
 
             // update email if changing email

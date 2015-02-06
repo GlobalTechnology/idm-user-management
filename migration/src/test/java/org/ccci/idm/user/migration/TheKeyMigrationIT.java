@@ -3,6 +3,7 @@ package org.ccci.idm.user.migration;
 import static org.junit.Assume.assumeNotNull;
 
 import com.google.common.base.Throwables;
+import com.google.common.collect.Lists;
 import org.ccci.idm.user.User;
 import org.ccci.idm.user.exception.UserException;
 import org.junit.Ignore;
@@ -18,8 +19,11 @@ import javax.inject.Inject;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.Callable;
+import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -50,6 +54,38 @@ public class TheKeyMigrationIT {
     private void assumeConfigured() throws Exception {
         assumeNotNull(url, base, username, password, dn);
         assumeNotNull(dao, userManager);
+    }
+
+    @Test
+    @Ignore
+    public void testSimultaneousMoves() throws Throwable {
+        assumeConfigured();
+
+        // load all users
+        final List<User> users = this.userManager.getAllLegacyUsers(true);
+
+        // deactivate or reactivate all users simultaneously
+        final ExecutorService executor = Executors.newFixedThreadPool(25);
+        final List<Future<Object>> results = Lists.newArrayList();
+        for (final User user : users) {
+            results.add(executor.submit(new Callable<Object>() {
+                @Override
+                public Object call() throws Exception {
+                    userManager.moveLegacyKeyUser(user);
+                    return null;
+                }
+            }));
+        }
+
+        executor.shutdown();
+        for (final Future<Object> result : results) {
+            try {
+                result.get();
+            } catch (final ExecutionException e) {
+                // unwrap exception
+                throw e.getCause();
+            }
+        }
     }
 
     @Test
