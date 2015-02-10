@@ -337,26 +337,28 @@ public class LdaptiveUserDao extends AbstractLdapUserDao {
     }
 
     protected void modifyDn(final Connection conn, final ModifyDnRequest request) throws LdapException {
-        try {
-            new ModifyDnOperation(conn).execute(request);
-        } catch (final LdapException e) {
-            if (e.getResultCode() != null) {
-                switch (e.getResultCode()) {
-                    case OTHER:
-                        // this is a partition is busy error, let's pause, then retry
-                        try {
-                            Thread.sleep(100L);
-                        } catch (final InterruptedException ignored) {
-                        }
-
-                        LOG.debug("retrying rename");
-                        this.modifyDn(conn, request);
-                        break;
-                    default:
-                        throw e;
+        boolean complete = false;
+        while (!complete) {
+            try {
+                new ModifyDnOperation(conn).execute(request);
+                complete = true;
+            } catch (final LdapException e) {
+                if (e.getResultCode() != null) {
+                    switch (e.getResultCode()) {
+                        case OTHER:
+                            // this is a partition is busy error, let's pause, then retry
+                            try {
+                                LOG.debug("sleeping 100ms, then retrying rename");
+                                Thread.sleep(100L);
+                            } catch (final InterruptedException ignored) {
+                            }
+                            break;
+                        default:
+                            throw e;
+                    }
+                } else {
+                    throw e;
                 }
-            } else {
-                throw e;
             }
         }
     }
