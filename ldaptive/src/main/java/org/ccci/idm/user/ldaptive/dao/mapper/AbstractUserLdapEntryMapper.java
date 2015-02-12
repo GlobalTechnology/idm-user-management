@@ -311,6 +311,7 @@ public abstract class AbstractUserLdapEntryMapper<O extends User> implements Lda
         return id != null ? JOINER_STRENGTH.join(id, strength) : null;
     }
 
+    @Nullable
     protected final String getStringValue(final LdapEntry entry, final String attribute) {
         final LdapAttribute attr = entry.getAttribute(attribute);
         if (attr != null) {
@@ -319,6 +320,7 @@ public abstract class AbstractUserLdapEntryMapper<O extends User> implements Lda
         return null;
     }
 
+    @Nonnull
     protected final Collection<String> getStringValues(final LdapEntry entry, final String attribute) {
         final LdapAttribute attr = entry.getAttribute(attribute);
         if (attr != null) {
