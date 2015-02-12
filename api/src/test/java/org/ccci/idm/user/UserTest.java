@@ -158,6 +158,8 @@ public class UserTest {
 
         // test preserving emailVerified flag when setting email to same address or changing case of email
         {
+            user.setEmail(randomEmail());
+            assert user.getEmail() != null;
             user.setEmailVerified(true);
             assertTrue(user.isEmailVerified());
             user.setEmail(user.getEmail());
