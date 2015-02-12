@@ -27,6 +27,7 @@ public class User implements Cloneable, Serializable {
     public enum Attr {EMAIL, PASSWORD, NAME, LOGINTIME, FLAGS, SELFSERVICEKEYS, DOMAINSVISITED, FACEBOOK, RELAY_GUID,
        LOCATION, EMPLOYEE_NUMBER, CRU_DESIGNATION, CONTACT, CRU_PREFERRED_NAME, CRU_PROXY_ADDRESSES, HUMAN_RESOURCE }
 
+    @Nullable
     private String email;
     private String password;
 
@@ -140,15 +141,20 @@ public class User implements Cloneable, Serializable {
         this.implMeta.putAll(source.implMeta);
     }
 
+    @Nullable
     public String getEmail() {
         return this.email;
     }
 
-    public void setEmail(final String email) {
-        this.setEmail(email, false);
+    public void setEmail(@Nullable final String email) {
+        // preserve the emailVerified flag if the email isn't actually changing
+        // (case changes are not considered changing emails)
+        final boolean noChange = this.email == null ? email == null : this.email.equalsIgnoreCase(email);
+        //noinspection SimplifiableConditionalExpression
+        this.setEmail(email, noChange ? this.emailVerified : false);
     }
 
-    public void setEmail(final String email, final boolean verified) {
+    public void setEmail(@Nullable final String email, final boolean verified) {
         this.email = email;
         this.emailVerified = verified;
     }
