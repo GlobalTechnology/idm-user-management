@@ -11,6 +11,7 @@ import org.apache.commons.collections.CollectionUtils;
 import org.junit.Test;
 
 import java.security.SecureRandom;
+import java.util.Locale;
 import java.util.Random;
 
 public class UserTest {
@@ -150,6 +151,29 @@ public class UserTest {
             assertFalse(user.isEmailVerified());
             user.setEmail(randomEmail(), true);
             assertTrue(user.isEmailVerified());
+        }
+
+        // test preserving emailVerified flag when setting email to same address or changing case of email
+        {
+            user.setEmail(randomEmail());
+            assert user.getEmail() != null;
+            user.setEmailVerified(true);
+            assertTrue(user.isEmailVerified());
+            user.setEmail(user.getEmail());
+            assertTrue(user.isEmailVerified());
+            user.setEmail(user.getEmail().toUpperCase(Locale.US));
+            assertTrue(user.isEmailVerified());
+            user.setEmail(user.getEmail().toLowerCase(Locale.US));
+            assertTrue(user.isEmailVerified());
+
+            user.setEmailVerified(false);
+            assertFalse(user.isEmailVerified());
+            user.setEmail(user.getEmail());
+            assertFalse(user.isEmailVerified());
+            user.setEmail(user.getEmail().toUpperCase(Locale.US));
+            assertFalse(user.isEmailVerified());
+            user.setEmail(user.getEmail().toLowerCase(Locale.US));
+            assertFalse(user.isEmailVerified());
         }
     }
 }
