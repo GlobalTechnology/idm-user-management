@@ -42,7 +42,6 @@ import static org.ccci.idm.user.dao.ldap.Constants.LDAP_FLAG_FORCEPASSWORDCHANGE
 import static org.ccci.idm.user.dao.ldap.Constants.LDAP_FLAG_LOCKED;
 import static org.ccci.idm.user.dao.ldap.Constants.LDAP_FLAG_LOGINDISABLED;
 import static org.ccci.idm.user.dao.ldap.Constants.LDAP_OBJECTCLASSES_USER;
-import static org.ccci.idm.user.dao.ldap.Constants.LDAP_OBJECTCLASS_CRU_PERSON_ATTRIBUTES;
 
 import com.google.common.base.Joiner;
 import com.google.common.base.Strings;
@@ -186,21 +185,6 @@ public abstract class AbstractUserLdapEntryMapper<O extends User> implements Lda
         entry.addAttribute(this.attr(LDAP_ATTR_COUNTRY, user.getCountry()));
     }
 
-    private boolean hasCruPersonAttributes(final O user)
-    {
-        return  !Strings.isNullOrEmpty(user.getCruDesignation()) ||
-                !Strings.isNullOrEmpty(user.getCruEmployeeStatus()) ||
-                !Strings.isNullOrEmpty(user.getCruGender()) ||
-                !Strings.isNullOrEmpty(user.getCruHrStatusCode()) ||
-                !Strings.isNullOrEmpty(user.getCruJobCode()) ||
-                !Strings.isNullOrEmpty(user.getCruManagerID()) ||
-                !Strings.isNullOrEmpty(user.getCruMinistryCode()) ||
-                !Strings.isNullOrEmpty(user.getCruPayGroup()) ||
-                !Strings.isNullOrEmpty(user.getCruPreferredName()) ||
-                !Strings.isNullOrEmpty(user.getCruSubMinistryCode()) ||
-                (user.getCruProxyAddresses() != null && !user.getCruProxyAddresses().isEmpty());
-    }
-
     @Override
     public void map(final LdapEntry entry, final O user) {
         // set email & deactivated flag accordingly
@@ -318,12 +302,6 @@ public abstract class AbstractUserLdapEntryMapper<O extends User> implements Lda
 
         // update objectClasses
         objectClasses.addAll(LDAP_OBJECTCLASSES_USER);
-        if(hasCruPersonAttributes(user)) {
-            objectClasses.add(LDAP_OBJECTCLASS_CRU_PERSON_ATTRIBUTES);
-        } else {
-//            // XXX: disabled until post-merge, see: https://github.com/GlobalTechnology/idm-user-management/pull/30
-//            objectClasses.remove(LDAP_OBJECTCLASS_CRU_PERSON_ATTRIBUTES);
-        }
 
         return this.attr(LDAP_ATTR_OBJECTCLASS, objectClasses);
     }
@@ -332,6 +310,7 @@ public abstract class AbstractUserLdapEntryMapper<O extends User> implements Lda
         return id != null ? JOINER_STRENGTH.join(id, strength) : null;
     }
 
+    @Nullable
     protected final String getStringValue(final LdapEntry entry, final String attribute) {
         final LdapAttribute attr = entry.getAttribute(attribute);
         if (attr != null) {
@@ -340,6 +319,7 @@ public abstract class AbstractUserLdapEntryMapper<O extends User> implements Lda
         return null;
     }
 
+    @Nonnull
     protected final Collection<String> getStringValues(final LdapEntry entry, final String attribute) {
         final LdapAttribute attr = entry.getAttribute(attribute);
         if (attr != null) {
@@ -372,7 +352,7 @@ public abstract class AbstractUserLdapEntryMapper<O extends User> implements Lda
                 try {
                     groups.add(groupValueTranscoder.decodeStringValue(dn));
                 } catch (final Exception e) {
-                    LOG.info("Caught exception resolving group from group dn {}", dn, e);
+                    LOG.info("Caught exception resolving group from group dn {}", dn);
                 }
             }
         }
