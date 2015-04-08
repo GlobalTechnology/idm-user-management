@@ -77,11 +77,11 @@
         <executions>
           <execution>
             <id>default-deploy</id>
-            <phase>none</phase>
+            <phase>deploy</phase>
           </execution>
           <execution>
             <id>public-deploy</id>
-            <phase>deploy</phase>
+            <phase>none</phase>
           </execution>
         </executions>
       </plugin>
