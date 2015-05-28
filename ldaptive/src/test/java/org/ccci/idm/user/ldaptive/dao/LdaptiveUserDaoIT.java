@@ -5,12 +5,14 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 import static org.junit.Assume.assumeNotNull;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 import org.ccci.idm.user.Group;
 import org.ccci.idm.user.User;
+import org.ccci.idm.user.dao.exception.ExceededMaximumAllowedResultsException;
 import org.joda.time.DateTime;
 import org.junit.Assert;
 import org.junit.Test;
@@ -195,6 +197,71 @@ public class LdaptiveUserDaoIT {
             assertNotNull(anyUser);
 
             assertEquals(user3, anyUser);
+        }
+    }
+
+    @Test
+    public void testExceededMaximumResults() throws Exception {
+        assumeConfigured();
+
+        // create multiple users with the same name and email, one is deactivated
+        final User user1 = getStaffUser();
+        user1.setFirstName("first_" + RAND.nextInt(Integer.MAX_VALUE));
+        user1.setLastName("last_" + RAND.nextInt(Integer.MAX_VALUE));
+        final User user2 = getStaffUser();
+        user2.setEmail(user1.getEmail());
+        user2.setFirstName(user1.getFirstName());
+        user2.setLastName(user1.getLastName());
+        user2.setDeactivated(true);
+
+        // save both users
+        this.dao.save(user1);
+        this.dao.save(user2);
+
+        // test no limit
+        {
+            this.dao.setMaxSearchResults(0);
+
+            final List<User> firstNameUsers = this.dao.findAllByFirstName(user1.getFirstName(), true);
+            assertEquals(2, firstNameUsers.size());
+
+            final List<User> lastNameUsers = this.dao.findAllByLastName(user1.getLastName(), true);
+            assertEquals(2, lastNameUsers.size());
+
+            final List<User> emailUsers = this.dao.findAllByEmail(user1.getEmail(), true);
+            assertEquals(2, emailUsers.size());
+        }
+
+        // test with maxSearchResults = 1
+        try {
+            this.dao.setMaxSearchResults(1);
+
+            // test first name
+            try {
+                this.dao.findAllByFirstName(user1.getFirstName(), true);
+                fail("ExceededMaximumAllowedResultsException was not thrown by findAllByFirstName");
+            } catch (final ExceededMaximumAllowedResultsException e) {
+                // this exception was expected
+            }
+
+            // test last name
+            try {
+                this.dao.findAllByLastName(user1.getLastName(), true);
+                fail("ExceededMaximumAllowedResultsException was not thrown by findAllByLastName");
+            } catch (final ExceededMaximumAllowedResultsException e) {
+                // this exception was expected
+            }
+
+            // test last name
+            try {
+                this.dao.findAllByEmail(user1.getEmail(), true);
+                fail("ExceededMaximumAllowedResultsException was not thrown by findAllByEmail");
+            } catch (final ExceededMaximumAllowedResultsException e) {
+                // this exception was expected
+            }
+        } finally {
+            // disable limit to prevent interference in other tests
+            this.dao.setMaxSearchResults(0);
         }
     }
 
