@@ -58,6 +58,7 @@ import javax.annotation.Nullable;
 import javax.validation.constraints.NotNull;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 
@@ -88,6 +89,8 @@ public class LdaptiveUserDao extends AbstractLdapUserDao {
 
     private String baseSearchDn = "";
 
+    private int maxPageSize = 1000;
+
     public void setConnectionFactory(final ConnectionFactory factory) {
         this.connectionFactory = factory;
     }
@@ -102,6 +105,10 @@ public class LdaptiveUserDao extends AbstractLdapUserDao {
 
     public void setGroupValueTranscoder(@Nullable ValueTranscoder<Group> transcoder) {
         this.groupValueTranscoder = transcoder;
+    }
+
+    public void setMaxPageSize(final int size) {
+        this.maxPageSize = size;
     }
 
     /**
@@ -131,37 +138,58 @@ public class LdaptiveUserDao extends AbstractLdapUserDao {
             SearchOperation search = new SearchOperation(conn);
             final SearchRequest request = new SearchRequest(this.baseSearchDn, filter);
 
-            // calculate the actual limit based on the provided limit & maxSearchResults
-            final int actualLimit = limit == SEARCH_NO_LIMIT ? maxSearchResults : maxSearchResults == SEARCH_NO_LIMIT
-                    ? limit : limit > maxSearchResults ? maxSearchResults : limit;
-            if (actualLimit != SEARCH_NO_LIMIT) {
-                request.setControls(new PagedResultsControl(actualLimit));
+            // calculate the page size based on the provided limit & maxPageSize
+            int pageSize = maxPageSize;
+            if (limit != SEARCH_NO_LIMIT && pageSize > limit) {
+                pageSize = limit;
             }
+            if (restrictMaxAllowedResults && maxPageSize != SEARCH_NO_LIMIT && pageSize > maxPageSize + 1) {
+                pageSize = maxPageSize + 1;
+            }
+            final PagedResultsControl prc = new PagedResultsControl(pageSize);
+            request.setControls(prc);
 
-            // execute search
-            final Response<SearchResult> response = search.execute(request);
-            final SearchResult result = response.getResult();
+            // retrieve results
+            byte[] cookie = null;
+            final List<User> users = new ArrayList<User>();
+            int processed = 0;
+            do {
+                // execute request
+                prc.setCookie(cookie);
+                cookie = null;
+                final Response<SearchResult> response = search.execute(request);
 
-            // check for too many results when we are limiting results
-            if (restrictMaxAllowedResults && maxSearchResults != SEARCH_NO_LIMIT && actualLimit != SEARCH_NO_LIMIT) {
+                // process response
+                final SearchResult result = response.getResult();
+                final Iterator<LdapEntry> entries = result.getEntries().iterator();
+                while ((limit == SEARCH_NO_LIMIT || processed < limit) && (!restrictMaxAllowedResults ||
+                        maxSearchResults == SEARCH_NO_LIMIT || processed < maxSearchResults) && entries.hasNext()) {
+                    final User user = new User();
+                    userMapper.map(entries.next(), user);
+                    users.add(user);
+                    processed++;
+                }
+
+                // have we reached our limit?
+                if (limit != SEARCH_NO_LIMIT && processed >= limit) {
+                    break;
+                }
+
+                // check for too many results
+                if (restrictMaxAllowedResults && maxSearchResults != SEARCH_NO_LIMIT && processed >= maxSearchResults
+                        && entries.hasNext()) {
+                    LOG.debug("Search exceeds maxSearchResults of {}: Filter: {} Limit: {}", maxSearchResults, filter
+                            .format(), limit);
+                    throw new ExceededMaximumAllowedResultsException();
+                }
+
+                // process the PRC in the response
                 final ResponseControl ctl = response.getControl(PagedResultsControl.OID);
                 if (ctl instanceof PagedResultsControl) {
-                    final PagedResultsControl prc = (PagedResultsControl) ctl;
-                    if ((limit == SEARCH_NO_LIMIT || limit > maxSearchResults) && prc.getSize() > maxSearchResults) {
-                        LOG.error("Search exceeds maxSearchResults of {}: Filter: {} Limit: {} Found Results: " +
-                                "{}", maxSearchResults, filter.format(), limit, prc.getSize());
-                        throw new ExceededMaximumAllowedResultsException();
-                    }
+                    // get cookie for next page of results
+                    cookie = ((PagedResultsControl) ctl).getCookie();
                 }
-            }
-
-            // process response
-            final List<User> users = new ArrayList<User>();
-            for (final LdapEntry entry : result.getEntries()) {
-                final User user = new User();
-                userMapper.map(entry, user);
-                users.add(user);
-            }
+            } while (cookie != null && cookie.length > 0);
 
             // return found users
             return users;
@@ -199,16 +227,19 @@ public class LdaptiveUserDao extends AbstractLdapUserDao {
     @Override
     public List<User> findAllByEmail(final String pattern, final boolean includeDeactivated) throws
             ExceededMaximumAllowedResultsException {
-        // filter = (!deactivated && cn LIKE pattern)
-        BaseFilter filter = FILTER_NOT_DEACTIVATED.and(new LikeFilter(LDAP_ATTR_CN, pattern));
+        return findAllByFilter(new LikeFilter(LDAP_ATTR_USERID, pattern), includeDeactivated, SEARCH_NO_LIMIT, true);
 
-        // filter = (filter || (deactivated && uid LIKE pattern))
-        if (includeDeactivated) {
-            filter = filter.or(FILTER_DEACTIVATED.and(new LikeFilter(LDAP_ATTR_USERID, pattern)));
-        }
-
-        // Execute search & return results
-        return findAllByFilter(filter, includeDeactivated, SEARCH_NO_LIMIT, true);
+        // XXX: this is more correct, but triggers a bug in the eDirectory PagedResultsControl causing duplicate records
+//        // filter = (!deactivated && cn LIKE pattern)
+//        BaseFilter filter = FILTER_NOT_DEACTIVATED.and(new LikeFilter(LDAP_ATTR_CN, pattern));
+//
+//        // filter = (filter || (deactivated && uid LIKE pattern))
+//        if (includeDeactivated) {
+//            filter = filter.or(FILTER_DEACTIVATED.and(new LikeFilter(LDAP_ATTR_USERID, pattern)));
+//        }
+//
+//        // Execute search & return results
+//        return findAllByFilter(filter, includeDeactivated, SEARCH_NO_LIMIT, true);
     }
 
     @Override
