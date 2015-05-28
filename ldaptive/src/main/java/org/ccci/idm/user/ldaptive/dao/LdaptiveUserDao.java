@@ -25,6 +25,7 @@ import org.ccci.idm.user.User;
 import org.ccci.idm.user.dao.exception.DaoException;
 import org.ccci.idm.user.dao.exception.ExceededMaximumAllowedResultsException;
 import org.ccci.idm.user.dao.ldap.AbstractLdapUserDao;
+import org.ccci.idm.user.ldaptive.dao.exception.LdaptiveDaoException;
 import org.ccci.idm.user.ldaptive.dao.filter.BaseFilter;
 import org.ccci.idm.user.ldaptive.dao.filter.EqualsFilter;
 import org.ccci.idm.user.ldaptive.dao.filter.LikeFilter;
@@ -54,13 +55,16 @@ import org.ldaptive.io.ValueTranscoder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import javax.validation.constraints.NotNull;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
+import java.util.concurrent.BlockingQueue;
 
 public class LdaptiveUserDao extends AbstractLdapUserDao {
     private static final Logger LOG = LoggerFactory.getLogger(LdaptiveUserDao.class);
@@ -121,11 +125,37 @@ public class LdaptiveUserDao extends AbstractLdapUserDao {
      * @return
      * @throws ExceededMaximumAllowedResultsException exception thrown when there are more results than the maximum
      */
-    private List<User> findAllByFilter(BaseFilter filter, final boolean includeDeactivated, final int limit,
+    private List<User> findAllByFilter(@Nullable BaseFilter filter, final boolean includeDeactivated, final int limit,
                                        final boolean restrictMaxAllowedResults)
             throws ExceededMaximumAllowedResultsException {
+        final List<User> results = new ArrayList<User>();
+        try {
+            enqueueAllByFilter(results, filter, includeDeactivated, limit, restrictMaxAllowedResults);
+            return results;
+        } catch (final ExceededMaximumAllowedResultsException e) {
+            // propagate ExceededMaximumAllowedResultsException exceptions
+            throw e;
+        } catch (final DaoException suppressed) {
+            // suppress any other DaoExceptions
+            return Collections.emptyList();
+        }
+    }
+
+    /**
+     * @param users                     collection to populate with loaded users
+     * @param filter                    the LDAP search filter to use when searching
+     * @param includeDeactivated        whether deactivated users should be included with the results
+     * @param limit                     the maximum number of results to return, a limit of 0 indicates that all results
+     *                                  should be returned
+     * @param restrictMaxAllowedResults a flag indicating if maxSearchResults should be observed
+     * @return number of users loaded
+     * @throws DaoException
+     */
+    private int enqueueAllByFilter(@Nonnull final Collection<User> users, @Nullable BaseFilter filter,
+                                   final boolean includeDeactivated, final int limit,
+                                   final boolean restrictMaxAllowedResults) throws DaoException {
         // restrict filter as necessary
-        filter = filter.and(FILTER_PERSON);
+        filter = filter != null ? filter.and(FILTER_PERSON) : FILTER_PERSON;
         if (!includeDeactivated) {
             filter = filter.and(FILTER_NOT_DEACTIVATED);
         }
@@ -151,7 +181,6 @@ public class LdaptiveUserDao extends AbstractLdapUserDao {
 
             // retrieve results
             byte[] cookie = null;
-            final List<User> users = new ArrayList<User>();
             int processed = 0;
             do {
                 // execute request
@@ -166,7 +195,17 @@ public class LdaptiveUserDao extends AbstractLdapUserDao {
                         maxSearchResults == SEARCH_NO_LIMIT || processed < maxSearchResults) && entries.hasNext()) {
                     final User user = new User();
                     userMapper.map(entries.next(), user);
-                    users.add(user);
+                    if (users instanceof BlockingQueue) {
+                        try {
+                            ((BlockingQueue<User>) users).put(user);
+                        } catch (final InterruptedException e) {
+                            LOG.debug("Error adding user to the BlockingQueue, let's propagate the exception", e);
+                            // XXX: should we come up with a more specific exception?
+                            throw new DaoException(e);
+                        }
+                    } else {
+                        users.add(user);
+                    }
                     processed++;
                 }
 
@@ -192,10 +231,10 @@ public class LdaptiveUserDao extends AbstractLdapUserDao {
             } while (cookie != null && cookie.length > 0);
 
             // return found users
-            return users;
+            return processed;
         } catch (final LdapException e) {
-            LOG.debug("error searching for users, returning an empty list", e);
-            return Collections.emptyList();
+            LOG.debug("error searching for users, propagating exception", e);
+            throw new LdaptiveDaoException(e);
         } finally {
             LdapUtils.closeConnection(conn);
         }
@@ -283,6 +322,12 @@ public class LdaptiveUserDao extends AbstractLdapUserDao {
     @Override
     public User findByEmployeeId(final String employeeId, final boolean includeDeactivated) {
         return this.findByFilter(new EqualsFilter(LDAP_ATTR_EMPLOYEE_NUMBER, employeeId), includeDeactivated);
+    }
+
+    @Override
+    public int enqueueAll(@Nonnull final BlockingQueue<User> queue, final boolean includeDeactivated)
+            throws DaoException {
+        return enqueueAllByFilter(queue, FILTER_PERSON, includeDeactivated, SEARCH_NO_LIMIT, false);
     }
 
     @Override
