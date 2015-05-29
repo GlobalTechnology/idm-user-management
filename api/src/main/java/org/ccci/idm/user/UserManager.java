@@ -7,7 +7,9 @@ import org.ccci.idm.user.exception.UserAlreadyExistsException;
 import org.ccci.idm.user.exception.UserException;
 import org.ccci.idm.user.exception.UserNotFoundException;
 
+import javax.annotation.Nonnull;
 import java.util.List;
+import java.util.concurrent.BlockingQueue;
 
 public interface UserManager {
     /**
@@ -198,6 +200,16 @@ public interface UserManager {
      * @throws ExceededMaximumAllowedResultsException
      */
     List<User> findAllByEmail(String pattern, boolean includeDeactivated) throws ExceededMaximumAllowedResultsException;
+
+    /**
+     * Add all users to the specified {@link BlockingQueue}. This method will use {@link BlockingQueue#put(Object)} to
+     * enqueue users.
+     *
+     * @param queue              The {@link BlockingQueue} to add all users to.
+     * @param includeDeactivated If <tt>true</tt> then deactivated accounts are included.
+     * @return number of users enqueued
+     */
+    int enqueueAll(@Nonnull BlockingQueue<User> queue, boolean includeDeactivated) throws DaoException;
 
     /**
      * Add user to group
