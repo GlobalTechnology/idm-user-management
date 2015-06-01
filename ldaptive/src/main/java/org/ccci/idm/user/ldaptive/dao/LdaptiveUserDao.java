@@ -327,7 +327,7 @@ public class LdaptiveUserDao extends AbstractLdapUserDao {
     @Override
     public int enqueueAll(@Nonnull final BlockingQueue<User> queue, final boolean includeDeactivated)
             throws DaoException {
-        return enqueueAllByFilter(queue, FILTER_PERSON, includeDeactivated, SEARCH_NO_LIMIT, false);
+        return enqueueAllByFilter(queue, null, includeDeactivated, SEARCH_NO_LIMIT, false);
     }
 
     @Override
