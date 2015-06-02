@@ -24,6 +24,7 @@ import org.ccci.idm.user.Group;
 import org.ccci.idm.user.User;
 import org.ccci.idm.user.dao.exception.DaoException;
 import org.ccci.idm.user.dao.exception.ExceededMaximumAllowedResultsException;
+import org.ccci.idm.user.dao.exception.InterruptedDaoException;
 import org.ccci.idm.user.dao.ldap.AbstractLdapUserDao;
 import org.ccci.idm.user.ldaptive.dao.exception.LdaptiveDaoException;
 import org.ccci.idm.user.ldaptive.dao.filter.BaseFilter;
@@ -57,6 +58,7 @@ import org.slf4j.LoggerFactory;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+import javax.naming.InterruptedNamingException;
 import javax.validation.constraints.NotNull;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -200,8 +202,7 @@ public class LdaptiveUserDao extends AbstractLdapUserDao {
                             ((BlockingQueue<User>) users).put(user);
                         } catch (final InterruptedException e) {
                             LOG.debug("Error adding user to the BlockingQueue, let's propagate the exception", e);
-                            // XXX: should we come up with a more specific exception?
-                            throw new DaoException(e);
+                            throw new InterruptedDaoException(e);
                         }
                     } else {
                         users.add(user);
@@ -233,8 +234,12 @@ public class LdaptiveUserDao extends AbstractLdapUserDao {
             // return found users
             return processed;
         } catch (final LdapException e) {
-            LOG.debug("error searching for users, propagating exception", e);
-            throw new LdaptiveDaoException(e);
+            LOG.debug("error searching for users, wrapping & propagating exception", e);
+            if (e.getCause() instanceof InterruptedNamingException) {
+                throw new InterruptedDaoException(e);
+            } else {
+                throw new LdaptiveDaoException(e);
+            }
         } finally {
             LdapUtils.closeConnection(conn);
         }
