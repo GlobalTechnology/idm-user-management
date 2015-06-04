@@ -18,11 +18,13 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.util.StringUtils;
 
+import javax.annotation.Nonnull;
 import javax.inject.Inject;
 import javax.validation.constraints.NotNull;
 import java.util.List;
 import java.util.Locale;
 import java.util.UUID;
+import java.util.concurrent.BlockingQueue;
 
 public class DefaultUserManager implements UserManager {
     private static final Logger LOG = LoggerFactory.getLogger(DefaultUserManager.class);
@@ -271,6 +273,12 @@ public class DefaultUserManager implements UserManager {
     public List<User> findAllByEmail(final String pattern, final boolean includeDeactivated) throws
             ExceededMaximumAllowedResultsException {
         return this.userDao.findAllByEmail(pattern, includeDeactivated);
+    }
+
+    @Override
+    public int enqueueAll(@Nonnull final BlockingQueue<User> queue, final boolean includeDeactivated)
+            throws DaoException {
+        return this.userDao.enqueueAll(queue, includeDeactivated);
     }
 
     @Override

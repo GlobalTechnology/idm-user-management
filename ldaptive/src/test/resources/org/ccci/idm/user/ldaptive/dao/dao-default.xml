@@ -7,7 +7,7 @@
   <bean class="org.ccci.idm.user.ldaptive.dao.LdaptiveUserDao"
       p:connectionFactory-ref="ldap.connection.factory.pooled.management"
       p:baseSearchDn="${ldap.base}"
-      p:maxSearchResults="${ldap.maxresults:0}"
+      p:maxPageSize="1"
       p:groupValueTranscoder-ref="groupValueTranscoder">
     <property name="userMapper">
       <bean class="org.ccci.idm.user.ldaptive.dao.mapper.UserLdapEntryMapper"
