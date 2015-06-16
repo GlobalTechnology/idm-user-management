@@ -3,6 +3,7 @@ package org.ccci.idm.user.ldaptive.dao.io;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
+import com.google.common.base.Strings;
 import org.ccci.idm.user.Group;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -20,10 +21,12 @@ public class GroupValueTranscoderTest {
         return Arrays.asList(new Object[][]{{null}, {""}, {"ou=groups,ou=idm,dc=cru,dc=org"}});
     }
 
+    private final String groupSuffix;
     @Nonnull
     private final GroupValueTranscoder groupDnResolver;
 
     public GroupValueTranscoderTest(@Nullable final String baseDn) {
+        groupSuffix = Strings.isNullOrEmpty(baseDn) ? "" : ("," + baseDn);
         groupDnResolver = new GroupValueTranscoder();
         groupDnResolver.setBaseDn(baseDn);
     }
@@ -33,7 +36,7 @@ public class GroupValueTranscoderTest {
 
     @Test
     public void testGroupDnResolver() throws Exception {
-        String groupDn = "cn=" + name + ",ou=Cru,ou=Cru,ou=GoogleApps," + groupDnResolver.getBaseDn();
+        final String groupDn = "cn=" + name + ",ou=Cru,ou=Cru,ou=GoogleApps" + groupSuffix;
 
         Group group = groupDnResolver.decodeStringValue(groupDn);
 
@@ -45,8 +48,7 @@ public class GroupValueTranscoderTest {
 
     @Test
     public void testGroupDnResolverCaseInsensitiveDn() throws Exception {
-        String groupDn = "CN=" + name + ",OU=Cru,ou=Cru,OU=GoogleApps," +
-                groupDnResolver.getBaseDn().toUpperCase();
+        final String groupDn = "CN=" + name + ",OU=Cru,ou=Cru,OU=GoogleApps" + groupSuffix.toUpperCase();
 
         Group group = groupDnResolver.decodeStringValue(groupDn);
 
@@ -58,7 +60,7 @@ public class GroupValueTranscoderTest {
 
     @Test
     public void testGroupNotMutated() throws Exception {
-        String groupDn = "cn=" + name + ",ou=Cru,ou=Cru,ou=GoogleApps," + groupDnResolver.getBaseDn();
+        final String groupDn = "cn=" + name + ",ou=Cru,ou=Cru,ou=GoogleApps" + groupSuffix;
 
         Group group = groupDnResolver.decodeStringValue(groupDn);
 

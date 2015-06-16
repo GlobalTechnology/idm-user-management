@@ -67,7 +67,9 @@ public class GroupValueTranscoder extends AbstractStringValueTranscoder<Group> {
             sb.append(this.pathRdnAttr).append(valueDelimiter).append(LdapAttribute.escapeValue(component));
         }
 
-        sb.append(delimiter).append(this.baseDn);
+        if (baseDn.length() > 0) {
+            sb.append(delimiter).append(this.baseDn);
+        }
 
         // return generated DN
         return sb.toString();
@@ -75,11 +77,16 @@ public class GroupValueTranscoder extends AbstractStringValueTranscoder<Group> {
 
     @Override
     public Group decodeStringValue(@Nonnull final String groupDn) {
-        if(!groupDn.toLowerCase().endsWith(baseDn.toLowerCase())) {
+        if (baseDn.length() > 0 && !groupDn.toLowerCase().endsWith("," + baseDn.toLowerCase())) {
             throw new IllegalArgumentException(groupDn);
         }
 
-        String relative = groupDn.substring(0, groupDn.length() - baseDn.length() - 1);
+        final String relative;
+        if (baseDn.length() > 0) {
+            relative = groupDn.substring(0, groupDn.length() - baseDn.length() - 1);
+        } else {
+            relative = groupDn;
+        }
 
         List<String> path = Lists.newArrayList();
         String name = "";
