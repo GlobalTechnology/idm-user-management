@@ -275,6 +275,12 @@ public class DefaultUserManager implements UserManager {
         return this.userDao.findAllByEmail(pattern, includeDeactivated);
     }
 
+    @Nonnull
+    @Override
+    public List<User> findAllByGroup(@Nonnull final Group group, final boolean includeDeactivated) throws DaoException {
+        return this.userDao.findAllByGroup(group, includeDeactivated);
+    }
+
     @Override
     public int enqueueAll(@Nonnull final BlockingQueue<User> queue, final boolean includeDeactivated)
             throws DaoException {

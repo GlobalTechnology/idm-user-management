@@ -202,6 +202,18 @@ public interface UserManager {
     List<User> findAllByEmail(String pattern, boolean includeDeactivated) throws ExceededMaximumAllowedResultsException;
 
     /**
+     * Find all users in the specified group
+     *
+     * @param group              The {@link Group} to return membership for.
+     * @param includeDeactivated If <tt>true</tt> then deactivated accounts are included.
+     * @return {@link List} of {@link User} objects found.
+     * @throws ExceededMaximumAllowedResultsException if there are too many users found
+     * @throws DaoException
+     */
+    @Nonnull
+    List<User> findAllByGroup(@Nonnull Group group, boolean includeDeactivated) throws DaoException;
+
+    /**
      * Add all users to the specified {@link BlockingQueue}. This method will use {@link BlockingQueue#put(Object)} to
      * enqueue users.
      *
