@@ -18,6 +18,7 @@ import org.ccci.idm.user.User;
 import org.ccci.idm.user.dao.exception.ExceededMaximumAllowedResultsException;
 import org.joda.time.DateTime;
 import org.junit.Assert;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Value;
@@ -37,6 +38,7 @@ import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.atomic.AtomicInteger;
 
+@Ignore
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(locations = {"ldap.xml", "config.xml", "dao-default.xml"})
 public class LdaptiveUserDaoIT {
