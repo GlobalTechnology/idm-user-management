@@ -127,6 +127,7 @@ public class LdaptiveUserDao extends AbstractLdapUserDao {
      * @return
      * @throws ExceededMaximumAllowedResultsException exception thrown when there are more results than the maximum
      */
+    @Nonnull
     private List<User> findAllByFilter(@Nullable BaseFilter filter, final boolean includeDeactivated, final int limit,
                                        final boolean restrictMaxAllowedResults)
             throws ExceededMaximumAllowedResultsException {
@@ -268,6 +269,7 @@ public class LdaptiveUserDao extends AbstractLdapUserDao {
         return findAllByFilter(new LikeFilter(LDAP_ATTR_LASTNAME, pattern), includeDeactivated, SEARCH_NO_LIMIT, true);
     }
 
+    @Nonnull
     @Override
     public List<User> findAllByEmail(final String pattern, final boolean includeDeactivated) throws
             ExceededMaximumAllowedResultsException {

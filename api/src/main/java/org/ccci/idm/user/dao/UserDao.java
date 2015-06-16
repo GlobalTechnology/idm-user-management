@@ -110,9 +110,10 @@ public interface UserDao {
      *
      * @param pattern            Pattern used for matching emails.
      * @param includeDeactivated If <tt>true</tt> then deactivated accounts are included.
-     * @return {@link List} of {@link User} objects, or <tt>null</tt> if none are found.
+     * @return {@link List} of {@link User} objects found.
      * @throws ExceededMaximumAllowedResultsException
      */
+    @Nonnull
     List<User> findAllByEmail(String pattern, boolean includeDeactivated) throws ExceededMaximumAllowedResultsException;
 
     /**
