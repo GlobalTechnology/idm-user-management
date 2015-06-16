@@ -6,6 +6,7 @@ import static org.junit.Assert.fail;
 
 import com.google.common.base.Strings;
 import org.ccci.idm.user.Group;
+import org.ccci.idm.user.ldaptive.dao.io.GroupValueTranscoder.IllegalGroupDnException;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
@@ -75,14 +76,14 @@ public class GroupValueTranscoderTest {
         try {
             groupDnResolver.decodeStringValue(groupDnResolver.getBaseDn());
             fail("parsing the baseDn should have triggered an IllegalArgumentException");
-        } catch (final IllegalArgumentException expected) {
+        } catch (final IllegalGroupDnException expected) {
         }
 
         // test missing name component
         try {
             groupDnResolver.decodeStringValue("ou=test" + groupSuffix);
             fail("parsing with no name component should fail");
-        } catch (final IllegalArgumentException expected) {
+        } catch (final IllegalGroupDnException expected) {
         }
     }
 }

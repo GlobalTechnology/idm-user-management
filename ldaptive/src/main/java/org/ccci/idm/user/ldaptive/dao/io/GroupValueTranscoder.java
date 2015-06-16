@@ -79,7 +79,7 @@ public class GroupValueTranscoder extends AbstractStringValueTranscoder<Group> {
     public Group decodeStringValue(@Nonnull final String groupDn) {
         // make sure the group DN ends with the base DN (plus delimiter) if we have a base DN
         if (baseDn.length() > 0 && !groupDn.toLowerCase().endsWith(delimiter + baseDn.toLowerCase())) {
-            throw new IllegalArgumentException(groupDn);
+            throw new IllegalGroupDnException(groupDn);
         }
 
         final String relative;
@@ -105,11 +105,28 @@ public class GroupValueTranscoder extends AbstractStringValueTranscoder<Group> {
 
         // throw an exception if we didn't find a name component
         if (name == null) {
-            throw new IllegalArgumentException(groupDn);
+            throw new IllegalGroupDnException(groupDn);
         }
 
         Collections.reverse(path);
 
         return new Group(path.toArray(new String[path.size()]), name);
+    }
+
+    public static class IllegalGroupDnException extends IllegalArgumentException {
+        private static final long serialVersionUID = 3119012756644385809L;
+
+        @Nonnull
+        private final String groupDn;
+
+        public IllegalGroupDnException(@Nonnull final String groupDn) {
+            super("Group " + groupDn + " cannot be parsed");
+            this.groupDn = groupDn;
+        }
+
+        @Nonnull
+        public String getGroupDn() {
+            return groupDn;
+        }
     }
 }
