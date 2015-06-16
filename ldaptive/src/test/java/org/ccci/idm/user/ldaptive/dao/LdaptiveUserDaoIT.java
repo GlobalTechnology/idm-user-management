@@ -9,6 +9,8 @@ import static org.junit.Assert.fail;
 import static org.junit.Assume.assumeFalse;
 import static org.junit.Assume.assumeNotNull;
 
+import com.google.common.base.Function;
+import com.google.common.collect.FluentIterable;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Sets;
 import org.ccci.idm.user.Group;
@@ -22,6 +24,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
+import javax.annotation.Nullable;
 import javax.inject.Inject;
 import javax.inject.Named;
 import java.security.SecureRandom;
@@ -422,6 +425,65 @@ public class LdaptiveUserDaoIT {
             assertEquals(ImmutableSet.of(), foundUser.getGroups());
             assertEquals(user, foundUser);
         }
+    }
+
+    @Test
+    public void testFindAllByGroup() throws Exception {
+        assumeConfigured();
+        assumeGroupsConfigured();
+
+        // create a couple users for testing
+        final User user1 = getUser();
+        final User user2 = getUser();
+        user2.setDeactivated(true);
+        this.dao.save(user1);
+        this.dao.save(user2);
+
+        final Function<User, String> FUNCTION_GUID = new Function<User, String>() {
+            @Nullable
+            @Override
+            public String apply(final User user) {
+                return user != null ? user.getGuid() : null;
+            }
+        };
+
+        // assert the 2 users are not in the group
+        {
+            final Set<String> guids = FluentIterable.from(this.dao.findAllByGroup(group1, true)).transform
+                    (FUNCTION_GUID).toSet();
+            assertFalse(guids.contains(user1.getGuid()));
+            assertFalse(guids.contains(user2.getGuid()));
+        }
+
+        // add user1 to the group
+        {
+            this.dao.addToGroup(user1, group1);
+            final Set<String> guids = FluentIterable.from(this.dao.findAllByGroup(group1, true)).transform
+                    (FUNCTION_GUID).toSet();
+            assertTrue(guids.contains(user1.getGuid()));
+            assertFalse(guids.contains(user2.getGuid()));
+        }
+
+        // add user2 to the group
+        {
+            this.dao.addToGroup(user2, group1);
+            final Set<String> guids = FluentIterable.from(this.dao.findAllByGroup(group1, true)).transform
+                    (FUNCTION_GUID).toSet();
+            assertTrue(guids.contains(user1.getGuid()));
+            assertTrue(guids.contains(user2.getGuid()));
+        }
+
+        // test includeDeactivated flag
+        {
+            final Set<String> guids = FluentIterable.from(this.dao.findAllByGroup(group1, false)).transform
+                    (FUNCTION_GUID).toSet();
+            assertTrue(guids.contains(user1.getGuid()));
+            assertFalse(guids.contains(user2.getGuid()));
+        }
+
+        // remove the users from the group
+        this.dao.removeFromGroup(user1, group1);
+        this.dao.removeFromGroup(user2, group1);
     }
 
     private User getUser() {

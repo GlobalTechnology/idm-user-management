@@ -288,6 +288,20 @@ public class LdaptiveUserDao extends AbstractLdapUserDao {
 //        return findAllByFilter(filter, includeDeactivated, SEARCH_NO_LIMIT, true);
     }
 
+    @Nonnull
+    @Override
+    public List<User> findAllByGroup(@Nonnull final Group group, final boolean includeDeactivated) throws DaoException {
+        // short-circuit if we can't transcode the group
+        if (groupValueTranscoder == null) {
+            throw new UnsupportedOperationException("Searching by group membership requires a configured Group " +
+                    "ValueTranscoder");
+        }
+
+        // execute the search
+        return findAllByFilter(new EqualsFilter(LDAP_ATTR_GROUPS, groupValueTranscoder.encodeStringValue(group)),
+                includeDeactivated, SEARCH_NO_LIMIT, true);
+    }
+
     @Override
     public User findByGuid(final String guid, final boolean includeDeactivated) {
         return this.findByFilter(new EqualsFilter(LDAP_ATTR_GUID, guid), includeDeactivated);
