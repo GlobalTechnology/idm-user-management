@@ -13,6 +13,9 @@ import java.util.Collections;
 import java.util.List;
 
 public class GroupValueTranscoder extends AbstractStringValueTranscoder<Group> {
+    private static final String delimiter = ",";
+    private static final String valueDelimiter = "=";
+
     private String baseDn = "";
     private String pathRdnAttr = "ou";
     private String nameRdnAttr = "cn";
@@ -45,9 +48,6 @@ public class GroupValueTranscoder extends AbstractStringValueTranscoder<Group> {
         this.nameRdnAttr = rdnAttr;
     }
 
-    private final String delimiter = ",";
-    private final String valueDelimiter = "=";
-
     @Override
     public Class<Group> getType() {
         return Group.class;
@@ -77,7 +77,8 @@ public class GroupValueTranscoder extends AbstractStringValueTranscoder<Group> {
 
     @Override
     public Group decodeStringValue(@Nonnull final String groupDn) {
-        if (baseDn.length() > 0 && !groupDn.toLowerCase().endsWith("," + baseDn.toLowerCase())) {
+        // make sure the group DN ends with the base DN (plus delimiter) if we have a base DN
+        if (baseDn.length() > 0 && !groupDn.toLowerCase().endsWith(delimiter + baseDn.toLowerCase())) {
             throw new IllegalArgumentException(groupDn);
         }
 
@@ -89,7 +90,7 @@ public class GroupValueTranscoder extends AbstractStringValueTranscoder<Group> {
         }
 
         List<String> path = Lists.newArrayList();
-        String name = "";
+        String name = null;
         for(String element : relative.split(delimiter))
         {
             if(element.toLowerCase().startsWith(pathRdnAttr + valueDelimiter))
@@ -100,6 +101,11 @@ public class GroupValueTranscoder extends AbstractStringValueTranscoder<Group> {
             {
                 name = element.split(valueDelimiter)[1];
             }
+        }
+
+        // throw an exception if we didn't find a name component
+        if (name == null) {
+            throw new IllegalArgumentException(groupDn);
         }
 
         Collections.reverse(path);

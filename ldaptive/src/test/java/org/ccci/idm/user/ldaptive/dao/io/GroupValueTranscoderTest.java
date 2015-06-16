@@ -2,6 +2,7 @@ package org.ccci.idm.user.ldaptive.dao.io;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 
 import com.google.common.base.Strings;
 import org.ccci.idm.user.Group;
@@ -66,5 +67,22 @@ public class GroupValueTranscoderTest {
 
         assertEquals(groupDn, groupDnResolver.encodeStringValue(group));
         assertEquals(groupDn, groupDnResolver.encodeStringValue(group));
+    }
+
+    @Test
+    public void testEdgeCases() throws Exception {
+        // test groupDn == baseDn
+        try {
+            groupDnResolver.decodeStringValue(groupDnResolver.getBaseDn());
+            fail("parsing the baseDn should have triggered an IllegalArgumentException");
+        } catch (final IllegalArgumentException expected) {
+        }
+
+        // test missing name component
+        try {
+            groupDnResolver.decodeStringValue("ou=test" + groupSuffix);
+            fail("parsing with no name component should fail");
+        } catch (final IllegalArgumentException expected) {
+        }
     }
 }
