@@ -95,11 +95,11 @@ public class GroupValueTranscoder extends AbstractStringValueTranscoder<Group> {
         {
             if(element.toLowerCase().startsWith(pathRdnAttr + valueDelimiter))
             {
-                path.add(element.split(valueDelimiter)[1]);
+                path.add(element.split(valueDelimiter, 2)[1]);
             }
             else if(element.toLowerCase().startsWith(nameRdnAttr + valueDelimiter))
             {
-                name = element.split(valueDelimiter)[1];
+                name = element.split(valueDelimiter, 2)[1];
             }
         }
 
