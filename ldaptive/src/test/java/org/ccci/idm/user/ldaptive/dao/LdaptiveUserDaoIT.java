@@ -396,8 +396,6 @@ public class LdaptiveUserDaoIT {
             this.dao.addToGroup(user, group1);
             final User foundUser = this.dao.findByEmail(user.getEmail(), false);
             assertEquals(ImmutableSet.of(group1), foundUser.getGroups());
-            foundUser.setGroups(null);
-            assertEquals(user, foundUser);
         }
 
         // test adding this user to group2
@@ -405,8 +403,6 @@ public class LdaptiveUserDaoIT {
             this.dao.addToGroup(user, group2);
             final User foundUser = this.dao.findByEmail(user.getEmail(), false);
             assertEquals(ImmutableSet.of(group1, group2), foundUser.getGroups());
-            foundUser.setGroups(null);
-            assertEquals(user, foundUser);
         }
 
         // test removing this user from group 1
@@ -414,8 +410,6 @@ public class LdaptiveUserDaoIT {
             this.dao.removeFromGroup(user, group1);
             final User foundUser = this.dao.findByEmail(user.getEmail(), false);
             assertEquals(ImmutableSet.of(group2), foundUser.getGroups());
-            foundUser.setGroups(null);
-            assertEquals(user, foundUser);
         }
 
         // test removing this user from group 2
@@ -423,7 +417,6 @@ public class LdaptiveUserDaoIT {
             this.dao.removeFromGroup(user, group2);
             final User foundUser = this.dao.findByEmail(user.getEmail(), false);
             assertEquals(ImmutableSet.of(), foundUser.getGroups());
-            assertEquals(user, foundUser);
         }
     }
 
