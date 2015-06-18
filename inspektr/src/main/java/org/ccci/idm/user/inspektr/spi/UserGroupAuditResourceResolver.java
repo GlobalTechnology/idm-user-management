@@ -13,7 +13,7 @@ public class UserGroupAuditResourceResolver extends AbstractAuditResourceResolve
         if (args.length >= 2 && args[0] instanceof User && args[1] instanceof Group) {
             final User user = (User) args[0];
             final Group group = (Group) args[1];
-            return new String[]{"User: {guid=" + user.getGuid() + ", email=" + user.getEmail() + "} " +
+            return new String[]{"User: {guid=" + user.getTheKeyGuid() + ", email=" + user.getEmail() + "} " +
                     "Group: {path=" + GROUP_JOINER.join(group.getPath()) + ", name=" + group.getName() + "}"};
         }
 
