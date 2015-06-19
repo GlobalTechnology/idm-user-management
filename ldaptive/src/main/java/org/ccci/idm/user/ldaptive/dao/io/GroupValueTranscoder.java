@@ -13,6 +13,9 @@ import java.util.Collections;
 import java.util.List;
 
 public class GroupValueTranscoder extends AbstractStringValueTranscoder<Group> {
+    private static final String delimiter = ",";
+    private static final String valueDelimiter = "=";
+
     private String baseDn = "";
     private String pathRdnAttr = "ou";
     private String nameRdnAttr = "cn";
@@ -45,9 +48,6 @@ public class GroupValueTranscoder extends AbstractStringValueTranscoder<Group> {
         this.nameRdnAttr = rdnAttr;
     }
 
-    private final String delimiter = ",";
-    private final String valueDelimiter = "=";
-
     @Override
     public Class<Group> getType() {
         return Group.class;
@@ -67,7 +67,9 @@ public class GroupValueTranscoder extends AbstractStringValueTranscoder<Group> {
             sb.append(this.pathRdnAttr).append(valueDelimiter).append(LdapAttribute.escapeValue(component));
         }
 
-        sb.append(delimiter).append(this.baseDn);
+        if (baseDn.length() > 0) {
+            sb.append(delimiter).append(this.baseDn);
+        }
 
         // return generated DN
         return sb.toString();
@@ -75,28 +77,56 @@ public class GroupValueTranscoder extends AbstractStringValueTranscoder<Group> {
 
     @Override
     public Group decodeStringValue(@Nonnull final String groupDn) {
-        if(!groupDn.toLowerCase().endsWith(baseDn.toLowerCase())) {
-            throw new IllegalArgumentException(groupDn);
+        // make sure the group DN ends with the base DN (plus delimiter) if we have a base DN
+        if (baseDn.length() > 0 && !groupDn.toLowerCase().endsWith(delimiter + baseDn.toLowerCase())) {
+            throw new IllegalGroupDnException(groupDn);
         }
 
-        String relative = groupDn.substring(0, groupDn.length() - baseDn.length() - 1);
+        final String relative;
+        if (baseDn.length() > 0) {
+            relative = groupDn.substring(0, groupDn.length() - baseDn.length() - 1);
+        } else {
+            relative = groupDn;
+        }
 
         List<String> path = Lists.newArrayList();
-        String name = "";
+        String name = null;
         for(String element : relative.split(delimiter))
         {
             if(element.toLowerCase().startsWith(pathRdnAttr + valueDelimiter))
             {
-                path.add(element.split(valueDelimiter)[1]);
+                path.add(element.split(valueDelimiter, 2)[1]);
             }
             else if(element.toLowerCase().startsWith(nameRdnAttr + valueDelimiter))
             {
-                name = element.split(valueDelimiter)[1];
+                name = element.split(valueDelimiter, 2)[1];
             }
+        }
+
+        // throw an exception if we didn't find a name component
+        if (name == null) {
+            throw new IllegalGroupDnException(groupDn);
         }
 
         Collections.reverse(path);
 
         return new Group(path.toArray(new String[path.size()]), name);
+    }
+
+    public static class IllegalGroupDnException extends IllegalArgumentException {
+        private static final long serialVersionUID = 3119012756644385809L;
+
+        @Nonnull
+        private final String groupDn;
+
+        public IllegalGroupDnException(@Nonnull final String groupDn) {
+            super("Group " + groupDn + " cannot be parsed");
+            this.groupDn = groupDn;
+        }
+
+        @Nonnull
+        public String getGroupDn() {
+            return groupDn;
+        }
     }
 }

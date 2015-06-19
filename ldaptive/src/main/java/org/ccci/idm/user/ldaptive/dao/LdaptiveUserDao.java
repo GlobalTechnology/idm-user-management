@@ -127,6 +127,7 @@ public class LdaptiveUserDao extends AbstractLdapUserDao {
      * @return
      * @throws ExceededMaximumAllowedResultsException exception thrown when there are more results than the maximum
      */
+    @Nonnull
     private List<User> findAllByFilter(@Nullable BaseFilter filter, final boolean includeDeactivated, final int limit,
                                        final boolean restrictMaxAllowedResults)
             throws ExceededMaximumAllowedResultsException {
@@ -268,6 +269,7 @@ public class LdaptiveUserDao extends AbstractLdapUserDao {
         return findAllByFilter(new LikeFilter(LDAP_ATTR_LASTNAME, pattern), includeDeactivated, SEARCH_NO_LIMIT, true);
     }
 
+    @Nonnull
     @Override
     public List<User> findAllByEmail(final String pattern, final boolean includeDeactivated) throws
             ExceededMaximumAllowedResultsException {
@@ -284,6 +286,20 @@ public class LdaptiveUserDao extends AbstractLdapUserDao {
 //
 //        // Execute search & return results
 //        return findAllByFilter(filter, includeDeactivated, SEARCH_NO_LIMIT, true);
+    }
+
+    @Nonnull
+    @Override
+    public List<User> findAllByGroup(@Nonnull final Group group, final boolean includeDeactivated) throws DaoException {
+        // short-circuit if we can't transcode the group
+        if (groupValueTranscoder == null) {
+            throw new UnsupportedOperationException("Searching by group membership requires a configured Group " +
+                    "ValueTranscoder");
+        }
+
+        // execute the search
+        return findAllByFilter(new EqualsFilter(LDAP_ATTR_GROUPS, groupValueTranscoder.encodeStringValue(group)),
+                includeDeactivated, SEARCH_NO_LIMIT, true);
     }
 
     @Override

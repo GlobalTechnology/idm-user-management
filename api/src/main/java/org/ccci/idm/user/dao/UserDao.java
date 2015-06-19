@@ -112,10 +112,23 @@ public interface UserDao {
      *
      * @param pattern            Pattern used for matching emails.
      * @param includeDeactivated If <tt>true</tt> then deactivated accounts are included.
-     * @return {@link List} of {@link User} objects, or <tt>null</tt> if none are found.
+     * @return {@link List} of {@link User} objects found.
      * @throws ExceededMaximumAllowedResultsException
      */
+    @Nonnull
     List<User> findAllByEmail(String pattern, boolean includeDeactivated) throws ExceededMaximumAllowedResultsException;
+
+    /**
+     * Find all users in the specified group
+     *
+     * @param group              The {@link Group} to return membership for.
+     * @param includeDeactivated If <tt>true</tt> then deactivated accounts are included.
+     * @return {@link List} of {@link User} objects found.
+     * @throws ExceededMaximumAllowedResultsException if there are too many users found
+     * @throws DaoException
+     */
+    @Nonnull
+    List<User> findAllByGroup(@Nonnull Group group, boolean includeDeactivated) throws DaoException;
 
     /**
      * Find the user with the specified employee id.

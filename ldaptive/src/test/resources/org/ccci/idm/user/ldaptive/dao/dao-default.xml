@@ -2,8 +2,10 @@
 <beans xmlns="http://www.springframework.org/schema/beans" xmlns:p="http://www.springframework.org/schema/p"
     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
     xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.2.xsd">
+
   <bean id="groupValueTranscoder" class="org.ccci.idm.user.ldaptive.dao.io.GroupValueTranscoder"
       p:baseDn="${ldap.dn.group}" />
+
   <bean class="org.ccci.idm.user.ldaptive.dao.LdaptiveUserDao"
       p:connectionFactory-ref="ldap.connection.factory.pooled.management"
       p:baseSearchDn="${ldap.base}"
@@ -18,5 +20,12 @@
         </property>
       </bean>
     </property>
+  </bean>
+
+  <bean id="group1" factory-bean="groupValueTranscoder" factory-method="decodeStringValue">
+    <constructor-arg value="${ldap.dn.group.group1:cn=default,${ldap.dn.group}}" />
+  </bean>
+  <bean id="group2" factory-bean="groupValueTranscoder" factory-method="decodeStringValue">
+    <constructor-arg value="${ldap.dn.group.group2:cn=default,${ldap.dn.group}}" />
   </bean>
 </beans>

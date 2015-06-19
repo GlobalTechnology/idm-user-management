@@ -6,9 +6,12 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
+import static org.junit.Assume.assumeFalse;
 import static org.junit.Assume.assumeNotNull;
 
-import com.google.common.collect.Lists;
+import com.google.common.base.Function;
+import com.google.common.collect.FluentIterable;
+import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Sets;
 import org.ccci.idm.user.Group;
 import org.ccci.idm.user.User;
@@ -21,9 +24,10 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
+import javax.annotation.Nullable;
 import javax.inject.Inject;
+import javax.inject.Named;
 import java.security.SecureRandom;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 import java.util.Random;
@@ -41,6 +45,13 @@ public class LdaptiveUserDaoIT {
     @Inject
     private LdaptiveUserDao dao;
 
+    @Inject
+    @Named("group1")
+    private Group group1;
+    @Inject
+    @Named("group2")
+    private Group group2;
+
     // required config values for tests to pass successfully
     @Value("${ldap.url:#{null}}")
     private String url = null;
@@ -52,10 +63,18 @@ public class LdaptiveUserDaoIT {
     private String password = null;
     @Value("${ldap.dn.user:#{null}}")
     private String dn = null;
+    @Value("${ldap.dn.group:#{null}}")
+    private String groupDn = null;
 
     private void assumeConfigured() throws Exception {
         assumeNotNull(url, base, username, password, dn);
         assumeNotNull(dao);
+    }
+
+    private void assumeGroupsConfigured() throws Exception {
+        assumeNotNull(groupDn);
+        assumeNotNull(group1, group2);
+        assumeFalse(group1.equals(group2));
     }
 
     @Test
@@ -364,78 +383,100 @@ public class LdaptiveUserDaoIT {
     }
 
     @Test
-    public void testAddToGroup() throws Exception {
+    public void testAddToGroupAndRemoveFromGroup() throws Exception {
         assumeConfigured();
+        assumeGroupsConfigured();
 
         final User user = getUser();
 
         this.dao.save(user);
 
-        List<String[]> paths = Arrays.asList(
-                new String[] {"GoogleApps", "Cru", "Cru"},
-                new String[] {"GoogleApps", "Cru", "AIA"}
-        );
-        String name = "Mail";
-
-        List<Group> groups = Lists.newArrayList();
-        for(String[] path : paths) {
-            Group group = new Group(path, name);
-            groups.add(group);
-            this.dao.addToGroup(user, group);
+        // test adding this user to group1
+        {
+            this.dao.addToGroup(user, group1);
+            final User foundUser = this.dao.findByEmail(user.getEmail(), false);
+            assertEquals(ImmutableSet.of(group1), foundUser.getGroups());
         }
 
-        final User foundUser = this.dao.findByEmail(user.getEmail(), false);
+        // test adding this user to group2
+        {
+            this.dao.addToGroup(user, group2);
+            final User foundUser = this.dao.findByEmail(user.getEmail(), false);
+            assertEquals(ImmutableSet.of(group1, group2), foundUser.getGroups());
+        }
 
-        final Set<Group> foundUserGroups = Sets.newHashSet(foundUser.getGroups());
+        // test removing this user from group 1
+        {
+            this.dao.removeFromGroup(user, group1);
+            final User foundUser = this.dao.findByEmail(user.getEmail(), false);
+            assertEquals(ImmutableSet.of(group2), foundUser.getGroups());
+        }
 
-        Collection<Group> empty = Sets.newHashSet();
-        foundUser.setGroups(empty);
-        Assert.assertEquals(user, foundUser);
-
-        Assert.assertTrue(foundUserGroups.size() == groups.size());
-
-        for(Group foundGroup : foundUserGroups) {
-            Boolean match = false;
-            for(Group group : groups) {
-                if(group.equals(foundGroup)) {
-                    match = true;
-                    break;
-                }
-            }
-            Assert.assertTrue(match);
+        // test removing this user from group 2
+        {
+            this.dao.removeFromGroup(user, group2);
+            final User foundUser = this.dao.findByEmail(user.getEmail(), false);
+            assertEquals(ImmutableSet.of(), foundUser.getGroups());
         }
     }
 
     @Test
-    public void testRemoveFromGroup() throws Exception {
+    public void testFindAllByGroup() throws Exception {
         assumeConfigured();
+        assumeGroupsConfigured();
 
-        final User user = getUser();
+        // create a couple users for testing
+        final User user1 = getUser();
+        final User user2 = getUser();
+        user2.setDeactivated(true);
+        this.dao.save(user1);
+        this.dao.save(user2);
 
-        this.dao.save(user);
+        final Function<User, String> FUNCTION_GUID = new Function<User, String>() {
+            @Nullable
+            @Override
+            public String apply(final User user) {
+                return user != null ? user.getGuid() : null;
+            }
+        };
 
-        List<String[]> paths = Arrays.asList(
-                new String[] {"GoogleApps", "Cru", "Cru"},
-                new String[] {"GoogleApps", "Cru", "AIA"}
-        );
-        String name = "Mail";
-
-        List<Group> groups = Lists.newArrayList();
-        for(String[] path : paths) {
-            Group group = new Group(path, name);
-            groups.add(group);
-            this.dao.addToGroup(user, group);
+        // assert the 2 users are not in the group
+        {
+            final Set<String> guids = FluentIterable.from(this.dao.findAllByGroup(group1, true)).transform
+                    (FUNCTION_GUID).toSet();
+            assertFalse(guids.contains(user1.getGuid()));
+            assertFalse(guids.contains(user2.getGuid()));
         }
 
-        for(Group group : groups) {
-            this.dao.removeFromGroup(user, group);
+        // add user1 to the group
+        {
+            this.dao.addToGroup(user1, group1);
+            final Set<String> guids = FluentIterable.from(this.dao.findAllByGroup(group1, true)).transform
+                    (FUNCTION_GUID).toSet();
+            assertTrue(guids.contains(user1.getGuid()));
+            assertFalse(guids.contains(user2.getGuid()));
         }
 
-        final User foundUser = this.dao.findByEmail(user.getEmail(), false);
+        // add user2 to the group
+        {
+            this.dao.addToGroup(user2, group1);
+            final Set<String> guids = FluentIterable.from(this.dao.findAllByGroup(group1, true)).transform
+                    (FUNCTION_GUID).toSet();
+            assertTrue(guids.contains(user1.getGuid()));
+            assertTrue(guids.contains(user2.getGuid()));
+        }
 
-        Assert.assertEquals(user, foundUser);
+        // test includeDeactivated flag
+        {
+            final Set<String> guids = FluentIterable.from(this.dao.findAllByGroup(group1, false)).transform
+                    (FUNCTION_GUID).toSet();
+            assertTrue(guids.contains(user1.getGuid()));
+            assertFalse(guids.contains(user2.getGuid()));
+        }
 
-        Assert.assertTrue(foundUser.getGroups().size() == 0);
+        // remove the users from the group
+        this.dao.removeFromGroup(user1, group1);
+        this.dao.removeFromGroup(user2, group1);
     }
 
     private User getUser() {
