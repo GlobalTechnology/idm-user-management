@@ -37,7 +37,7 @@ public class DefaultUserManager implements UserManager {
 
     @NotNull
     @Autowired(required = false)
-    private List<UserManagerListener> listeners = ImmutableList.of();
+    private List<? extends UserManagerListener> listeners = ImmutableList.of();
 
     @NotNull
     protected RandomPasswordGenerator randomPasswordGenerator = new DefaultRandomPasswordGenerator();
@@ -46,7 +46,7 @@ public class DefaultUserManager implements UserManager {
     @NotNull
     protected UserDao userDao;
 
-    public void setListeners(@Nonnull final List<UserManagerListener> listeners) {
+    public void setListeners(@Nonnull final List<? extends UserManagerListener> listeners) {
         this.listeners = listeners;
     }
 
