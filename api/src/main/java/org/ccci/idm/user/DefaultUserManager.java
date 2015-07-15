@@ -2,6 +2,7 @@ package org.ccci.idm.user;
 
 import com.github.inspektr.audit.annotation.Audit;
 import com.google.common.base.CharMatcher;
+import com.google.common.collect.ImmutableList;
 import org.apache.commons.validator.routines.EmailValidator;
 import org.ccci.idm.user.dao.UserDao;
 import org.ccci.idm.user.dao.exception.DaoException;
@@ -16,6 +17,7 @@ import org.ccci.idm.user.util.DefaultRandomPasswordGenerator;
 import org.ccci.idm.user.util.RandomPasswordGenerator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.util.StringUtils;
 
 import javax.annotation.Nonnull;
@@ -34,11 +36,19 @@ public class DefaultUserManager implements UserManager {
     private static final EmailValidator VALIDATOR_EMAIL = EmailValidator.getInstance();
 
     @NotNull
+    @Autowired(required = false)
+    private List<UserManagerListener> listeners = ImmutableList.of();
+
+    @NotNull
     protected RandomPasswordGenerator randomPasswordGenerator = new DefaultRandomPasswordGenerator();
 
     @Inject
     @NotNull
     protected UserDao userDao;
+
+    public void setListeners(@Nonnull final List<UserManagerListener> listeners) {
+        this.listeners = listeners;
+    }
 
     public void setRandomPasswordGenerator(final RandomPasswordGenerator randomPasswordGenerator) {
         this.randomPasswordGenerator = randomPasswordGenerator;
@@ -82,6 +92,11 @@ public class DefaultUserManager implements UserManager {
 
         // Save the user
         this.userDao.save(user);
+
+        // trigger any post create listeners
+        for (final UserManagerListener listener : listeners) {
+            listener.onPostCreateUser(user);
+        }
     }
 
     protected void validateNewUser(final User user) throws UserException {
@@ -134,6 +149,11 @@ public class DefaultUserManager implements UserManager {
         // update the user object
         final User original = this.getFreshUser(user);
         this.userDao.update(original, user, attrs);
+
+        // trigger any post update listeners
+        for (final UserManagerListener listener : listeners) {
+            listener.onPostUpdateUser(user, attrs);
+        }
     }
 
     protected void validateUpdateUser(final User user, final User.Attr... attrs) throws UserException {
@@ -157,6 +177,11 @@ public class DefaultUserManager implements UserManager {
 
         // update the user object
         this.userDao.update(original, user, User.Attr.EMAIL, User.Attr.FLAGS, User.Attr.FACEBOOK);
+
+        // trigger any post-deactivate listeners
+        for (final UserManagerListener listener : listeners) {
+            listener.onPostDeactivateUser(user);
+        }
     }
 
     @Override
@@ -181,6 +206,11 @@ public class DefaultUserManager implements UserManager {
 
         // update the user object
         this.userDao.update(original, user, User.Attr.EMAIL, User.Attr.FLAGS);
+
+        // trigger any post reactivate listeners
+        for (final UserManagerListener listener : listeners) {
+            listener.onPostReactivateUser(user);
+        }
     }
 
     @Override
@@ -306,5 +336,29 @@ public class DefaultUserManager implements UserManager {
         if (!VALIDATOR_EMAIL.isValid(user.getEmail()) || CharMatcher.WHITESPACE.matchesAnyOf(user.getEmail())) {
             throw new InvalidEmailUserException("Invalid email specified for user");
         }
+    }
+
+    public interface UserManagerListener {
+        void onPostCreateUser(@Nonnull User user);
+
+        void onPostUpdateUser(@Nonnull User user, @Nonnull User.Attr... attrs);
+
+        void onPostDeactivateUser(@Nonnull User user);
+
+        void onPostReactivateUser(@Nonnull User user);
+    }
+
+    public abstract static class SimpleUserManagerListener implements UserManagerListener {
+        @Override
+        public void onPostCreateUser(@Nonnull final User user) {}
+
+        @Override
+        public void onPostUpdateUser(@Nonnull final User user, @Nonnull final User.Attr... attrs) {}
+
+        @Override
+        public void onPostDeactivateUser(@Nonnull final User user) {}
+
+        @Override
+        public void onPostReactivateUser(@Nonnull final User user) {}
     }
 }
