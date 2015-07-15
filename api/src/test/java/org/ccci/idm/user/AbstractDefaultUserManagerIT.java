@@ -85,7 +85,7 @@ public abstract class AbstractDefaultUserManagerIT {
             final User user = newUser();
             listener.user = user.clone();
             assertFalse(listener.postCreateCalled);
-            userManager.createUser(listener.user);
+            userManager.createUser(user);
             assertTrue(listener.postCreateCalled);
 
             // test user update
