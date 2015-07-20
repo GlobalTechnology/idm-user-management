@@ -152,7 +152,7 @@ public class DefaultUserManager implements UserManager {
 
         // trigger any post update listeners
         for (final UserManagerListener listener : listeners) {
-            listener.onPostUpdateUser(user, attrs);
+            listener.onPostUpdateUser(original, user, attrs);
         }
     }
 
@@ -341,7 +341,7 @@ public class DefaultUserManager implements UserManager {
     public interface UserManagerListener {
         void onPostCreateUser(@Nonnull User user);
 
-        void onPostUpdateUser(@Nonnull User user, @Nonnull User.Attr... attrs);
+        void onPostUpdateUser(@Nonnull User original, @Nonnull User user, @Nonnull User.Attr... attrs);
 
         void onPostDeactivateUser(@Nonnull User user);
 
@@ -353,7 +353,7 @@ public class DefaultUserManager implements UserManager {
         public void onPostCreateUser(@Nonnull final User user) {}
 
         @Override
-        public void onPostUpdateUser(@Nonnull final User user, @Nonnull final User.Attr... attrs) {}
+        public void onPostUpdateUser(@Nonnull User original, @Nonnull final User user, @Nonnull final User.Attr... attrs) {}
 
         @Override
         public void onPostDeactivateUser(@Nonnull final User user) {}

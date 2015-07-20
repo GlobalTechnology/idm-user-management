@@ -134,8 +134,9 @@ public abstract class AbstractDefaultUserManagerIT {
         }
 
         @Override
-        public void onPostUpdateUser(@Nonnull final User user, @Nonnull final User.Attr... attrs) {
-            super.onPostUpdateUser(user, attrs);
+        public void onPostUpdateUser(@Nonnull final User original, @Nonnull final User user,
+                                     @Nonnull final User.Attr... attrs) {
+            super.onPostUpdateUser(original, user, attrs);
 
             assertEquals(this.user.getEmail(), user.getEmail());
             assertEquals(this.user.getFirstName(), user.getFirstName());
