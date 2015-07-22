@@ -1,5 +1,7 @@
 package org.ccci.idm.user.ldaptive.dao;
 
+import static org.ccci.idm.user.TestUtil.guid;
+import static org.ccci.idm.user.TestUtil.randomEmail;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
@@ -32,7 +34,6 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Random;
 import java.util.Set;
-import java.util.UUID;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -481,8 +482,8 @@ public class LdaptiveUserDaoIT {
 
     private User getUser() {
         final User user = new User();
-        user.setEmail("test.user." + RAND.nextInt(Integer.MAX_VALUE) + "@example.com");
-        user.setGuid(UUID.randomUUID().toString().toUpperCase());
+        user.setEmail(randomEmail());
+        user.setGuid(guid());
         user.setFirstName("Test");
         user.setLastName("User");
 
