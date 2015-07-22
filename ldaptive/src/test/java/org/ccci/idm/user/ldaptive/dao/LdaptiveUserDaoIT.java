@@ -148,6 +148,7 @@ public class LdaptiveUserDaoIT {
 
         // create user
         final User user = getUser();
+        user.setPassword(guid());
         final String guid = user.getGuid();
         this.dao.save(user);
 
