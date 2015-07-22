@@ -9,6 +9,7 @@ import static org.ccci.idm.user.dao.ldap.Constants.LDAP_ATTR_GUID;
 import static org.ccci.idm.user.dao.ldap.Constants.LDAP_ATTR_LASTNAME;
 import static org.ccci.idm.user.dao.ldap.Constants.LDAP_ATTR_MEMBER;
 import static org.ccci.idm.user.dao.ldap.Constants.LDAP_ATTR_OBJECTCLASS;
+import static org.ccci.idm.user.dao.ldap.Constants.LDAP_ATTR_PASSWORDCHANGEDTIME;
 import static org.ccci.idm.user.dao.ldap.Constants.LDAP_ATTR_RELAY_GUID;
 import static org.ccci.idm.user.dao.ldap.Constants.LDAP_ATTR_THEKEY_GUID;
 import static org.ccci.idm.user.dao.ldap.Constants.LDAP_ATTR_USERID;
@@ -170,6 +171,7 @@ public class LdaptiveUserDao extends AbstractLdapUserDao {
             conn.open();
             SearchOperation search = new SearchOperation(conn);
             final SearchRequest request = new SearchRequest(this.baseSearchDn, filter);
+            request.setReturnAttributes("*", LDAP_ATTR_PASSWORDCHANGEDTIME);
 
             // calculate the page size based on the provided limit & maxPageSize
             int pageSize = maxPageSize;
