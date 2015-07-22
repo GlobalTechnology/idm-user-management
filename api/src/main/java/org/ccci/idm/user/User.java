@@ -619,7 +619,7 @@ public class User implements Cloneable, Serializable {
                 domainsVisited, groups, signupKey, changeEmailKey, resetPasswordKey, proposedEmail, facebookId,
                 facebookIdStrength, employeeId, departmentNumber, cruDesignation, cruEmployeeStatus, cruGender,
                 cruHrStatusCode, cruJobCode, cruManagerID, cruMinistryCode, cruPayGroup, cruPreferredName,
-                cruSubMinistryCode, cruProxyAddresses, city, state, postal, country, telephoneNumber, pwdChangedTime);
+                cruSubMinistryCode, cruProxyAddresses, city, state, postal, country, telephoneNumber);
     }
 
     @Override
@@ -665,7 +665,6 @@ public class User implements Cloneable, Serializable {
                 Objects.equal(this.state, other.state) &&
                 Objects.equal(this.postal, other.postal) &&
                 Objects.equal(this.country, other.country) &&
-                Objects.equal(this.telephoneNumber, other.telephoneNumber) &&
-                Objects.equal(this.pwdChangedTime, other.pwdChangedTime);
+                Objects.equal(this.telephoneNumber, other.telephoneNumber);
     }
 }
