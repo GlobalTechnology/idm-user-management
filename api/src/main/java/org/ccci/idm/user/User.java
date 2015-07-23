@@ -39,6 +39,7 @@ public class User implements Cloneable, Serializable {
     private String lastName;
 
     private ReadableInstant loginTime;
+    private ReadableInstant pwdChangedTime;
 
     // account flags
     private boolean emailVerified = false;
@@ -139,6 +140,8 @@ public class User implements Cloneable, Serializable {
         this.telephoneNumber = source.telephoneNumber;
 
         this.implMeta.putAll(source.implMeta);
+
+        this.pwdChangedTime = source.pwdChangedTime;
     }
 
     @Nullable
@@ -228,6 +231,15 @@ public class User implements Cloneable, Serializable {
     public void setLoginTime(final ReadableInstant loginTime)
     {
         this.loginTime = loginTime;
+    }
+
+    @Nullable
+    public ReadableInstant getPasswordChangedTime() {
+        return pwdChangedTime;
+    }
+
+    public void setPasswordChangedTime(@Nullable final ReadableInstant time) {
+        this.pwdChangedTime = time;
     }
 
     public boolean isEmailVerified() {
@@ -596,6 +608,7 @@ public class User implements Cloneable, Serializable {
                 .add("postal", postal)
                 .add("country", country)
                 .add("telephoneNumber", telephoneNumber)
+                .add("pwdChangedTime", pwdChangedTime)
                 .toString();
     }
 

@@ -4,6 +4,7 @@ import static org.ccci.idm.user.TestUtil.guid;
 import static org.ccci.idm.user.TestUtil.randomEmail;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
@@ -19,6 +20,7 @@ import org.ccci.idm.user.Group;
 import org.ccci.idm.user.User;
 import org.ccci.idm.user.dao.exception.ExceededMaximumAllowedResultsException;
 import org.joda.time.DateTime;
+import org.joda.time.ReadableInstant;
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -138,6 +140,34 @@ public class LdaptiveUserDaoIT {
         final User saved2 = this.dao.findByGuid(guid, true);
         assertTrue(saved2.getLoginTime().isEqual(saved1.getLoginTime()));
         assertFalse(saved2.getLoginTime().isEqual(user.getLoginTime()));
+    }
+
+    @Test
+    public void testPasswordChangedTime() throws Exception {
+        assumeConfigured();
+
+        // create user
+        final User user = getUser();
+        user.setPassword(guid());
+        final String guid = user.getGuid();
+        this.dao.save(user);
+
+        // check for an initial password changeTime
+        final User user1 = this.dao.findByGuid(guid, true);
+        assertNotNull(user1);
+        final ReadableInstant changeTime = user1.getPasswordChangedTime();
+        assertNotNull(changeTime);
+
+        // change password
+        Thread.sleep(1000); // sleep for a second to make sure the new change time is different
+        user1.setPassword(guid());
+        this.dao.update(user1, User.Attr.PASSWORD);
+
+        // check pwdChangedTime
+        final User user2 = this.dao.findByGuid(guid, true);
+        assertNotNull(user2);
+        assertNotNull(user2.getPasswordChangedTime());
+        assertNotEquals(changeTime, user2.getPasswordChangedTime());
     }
 
     @Test
