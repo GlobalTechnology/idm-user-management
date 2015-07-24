@@ -13,6 +13,7 @@ import static org.ccci.idm.user.dao.ldap.Constants.LDAP_ATTR_CRU_MINISTRY_CODE;
 import static org.ccci.idm.user.dao.ldap.Constants.LDAP_ATTR_CRU_PAY_GROUP;
 import static org.ccci.idm.user.dao.ldap.Constants.LDAP_ATTR_CRU_PREFERRED_NAME;
 import static org.ccci.idm.user.dao.ldap.Constants.LDAP_ATTR_CRU_PROXY_ADDRESSES;
+import static org.ccci.idm.user.dao.ldap.Constants.LDAP_ATTR_CRU_PASSWORD_HISTORY;
 import static org.ccci.idm.user.dao.ldap.Constants.LDAP_ATTR_CRU_SUB_MINISTRY_CODE;
 import static org.ccci.idm.user.dao.ldap.Constants.LDAP_ATTR_DEPARTMENT_NUMBER;
 import static org.ccci.idm.user.dao.ldap.Constants.LDAP_ATTR_DOMAINSVISITED;
@@ -71,6 +72,7 @@ public abstract class AbstractLdapUserDao extends AbstractUserDao {
             .put(Attr.CONTACT, ImmutableSet.of(LDAP_ATTR_TELEPHONE, LDAP_ATTR_OBJECTCLASS))
             .put(Attr.CRU_PREFERRED_NAME, ImmutableSet.of(LDAP_ATTR_CRU_PREFERRED_NAME, LDAP_ATTR_OBJECTCLASS))
             .put(Attr.CRU_PROXY_ADDRESSES, ImmutableSet.of(LDAP_ATTR_CRU_PROXY_ADDRESSES, LDAP_ATTR_OBJECTCLASS))
+            .put(Attr.CRU_PASSWORD_HISTORY, ImmutableSet.of(LDAP_ATTR_CRU_PASSWORD_HISTORY, LDAP_ATTR_OBJECTCLASS))
             .put(Attr.HUMAN_RESOURCE, ImmutableSet.of(
                     LDAP_ATTR_DEPARTMENT_NUMBER,
                     LDAP_ATTR_CRU_EMPLOYEE_STATUS,
