@@ -155,12 +155,14 @@ public class LdaptiveUserDaoIT {
         // check for an initial password changeTime
         final User user1 = this.dao.findByGuid(guid, true);
         assertNotNull(user1);
-        final ReadableInstant changeTime = user1.getPasswordChangedTime();
+        ReadableInstant changeTime = user1.getPasswordChangedTime();
         assertNotNull(changeTime);
+
+        String password = guid();
 
         // change password
         Thread.sleep(1000); // sleep for a second to make sure the new change time is different
-        user1.setPassword(guid());
+        user1.setPassword(password);
         this.dao.update(user1, User.Attr.PASSWORD);
 
         // check pwdChangedTime
@@ -168,6 +170,19 @@ public class LdaptiveUserDaoIT {
         assertNotNull(user2);
         assertNotNull(user2.getPasswordChangedTime());
         assertNotEquals(changeTime, user2.getPasswordChangedTime());
+
+        changeTime = user2.getPasswordChangedTime();
+
+        // attempt update with same password to verify that pwdChangedTime does, in fact, still change
+        Thread.sleep(1000); // sleep for a second to make sure the new change time is different
+        user2.setPassword(password);
+        this.dao.update(user2, User.Attr.PASSWORD);
+
+        // check pwdChangedTime
+        final User user3 = this.dao.findByGuid(guid, true);
+        assertNotNull(user3);
+        assertNotNull(user3.getPasswordChangedTime());
+        assertNotEquals(changeTime, user3.getPasswordChangedTime());
     }
 
     @Test
