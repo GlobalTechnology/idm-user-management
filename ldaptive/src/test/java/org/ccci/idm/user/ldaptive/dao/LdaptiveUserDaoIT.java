@@ -390,11 +390,7 @@ public class LdaptiveUserDaoIT {
 
         this.dao.save(user);
 
-        List<User> users = this.dao.findAllByEmail(user.getEmail(), Boolean.FALSE);
-
-        Assert.assertNotNull(users);
-        Assert.assertEquals(users.size(), 1);
-        User found = users.get(0);
+        final User found = this.dao.findByEmail(user.getEmail(), Boolean.FALSE);
         Assert.assertNotNull(found);
         Assert.assertTrue(user.equals(found));
     }
