@@ -374,6 +374,14 @@ public class LdaptiveUserDaoIT {
         final User user = getStaffUser();
 
         this.dao.save(user);
+
+        List<User> users = this.dao.findAllByEmail(user.getEmail(), Boolean.FALSE);
+
+        Assert.assertNotNull(users);
+        Assert.assertEquals(users.size(), 1);
+        User found = users.get(0);
+        Assert.assertNotNull(found);
+        Assert.assertTrue(user.equals(found));
     }
 
     @Test
@@ -530,8 +538,10 @@ public class LdaptiveUserDaoIT {
         user.setCity("Orlando");
         user.setState("FL");
         user.setPostal("32832");
-        Collection<String> collection = Sets.newHashSet("smtp:test.user@cru.org", "smtp:test.user@ccci.org");
-        user.setCruProxyAddresses(collection);
+        Collection<String> cruProxyAddresses = Sets.newHashSet("smtp:test.user@cru.org", "smtp:test.user@ccci.org");
+        user.setCruProxyAddresses(cruProxyAddresses);
+        Collection<String> cruPasswordHistory = Sets.newHashSet("09a87fa0987sdf7sdf", "897asdf987asdf789asfd");
+        user.setCruPasswordHistory(cruPasswordHistory);
 
         return user;
     }
