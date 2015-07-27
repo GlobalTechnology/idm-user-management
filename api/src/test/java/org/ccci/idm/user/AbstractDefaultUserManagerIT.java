@@ -114,7 +114,7 @@ public abstract class AbstractDefaultUserManagerIT {
                 userManager.updateUser(user, User.Attr.PASSWORD);
 
                 fail("onPreUpdateUser hook should have thrown an exception");
-            } catch (final UserException expected) {
+            } catch (final ListenerTestUserManagerListener.PreUpdateUserException expected) {
                 // do nothing
             }
             assertTrue(listener.preUpdateCalled);
@@ -156,6 +156,10 @@ public abstract class AbstractDefaultUserManagerIT {
             postCreateCalled = true;
         }
 
+        private static final class PreUpdateUserException extends UserException {
+            private static final long serialVersionUID = -2115012231212277028L;
+        }
+
         @Override
         public void onPreUpdateUser(@Nonnull final User original, @Nonnull final User user,
                                     @Nonnull final User.Attr... attrs) throws UserException {
@@ -171,7 +175,7 @@ public abstract class AbstractDefaultUserManagerIT {
                         // do nothing
                         break;
                     case PASSWORD:
-                        throw new UserException();
+                        throw new PreUpdateUserException();
                     default:
                         fail("unexpected attribute update!");
                 }
