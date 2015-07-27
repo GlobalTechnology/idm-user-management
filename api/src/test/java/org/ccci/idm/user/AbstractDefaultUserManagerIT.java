@@ -13,6 +13,7 @@ import com.google.common.collect.ImmutableList;
 import org.ccci.idm.user.DefaultUserManager.SimpleUserManagerListener;
 import org.ccci.idm.user.DefaultUserManager.UserManagerListener;
 import org.ccci.idm.user.exception.InvalidEmailUserException;
+import org.ccci.idm.user.exception.UserException;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Value;
 
@@ -92,12 +93,33 @@ public abstract class AbstractDefaultUserManagerIT {
             user.setFirstName("abcdefghijklmnopqrstuvwxyzabcdef");
             user.setLastName(guid());
             listener.user = user.clone();
+            assertFalse(listener.preUpdateCalled);
             assertFalse(listener.postUpdateCalled);
             assertFalse(listener.nameUpdated);
             assertFalse(listener.passwordUpdated);
             userManager.updateUser(user, User.Attr.NAME);
+            assertTrue(listener.preUpdateCalled);
             assertTrue(listener.postUpdateCalled);
             assertTrue(listener.nameUpdated);
+            assertFalse(listener.passwordUpdated);
+
+            // test prevented user update
+            user.setPassword(guid());
+            listener.user = user.clone();
+            listener.preUpdateCalled = false;
+            listener.postUpdateCalled = false;
+            listener.nameUpdated = false;
+            listener.passwordUpdated = false;
+            try {
+                userManager.updateUser(user, User.Attr.PASSWORD);
+
+                fail("onPreUpdateUser hook should have thrown an exception");
+            } catch (final UserException expected) {
+                // do nothing
+            }
+            assertTrue(listener.preUpdateCalled);
+            assertFalse(listener.postUpdateCalled);
+            assertFalse(listener.nameUpdated);
             assertFalse(listener.passwordUpdated);
 
             // test deactivation
@@ -119,6 +141,7 @@ public abstract class AbstractDefaultUserManagerIT {
     private static class ListenerTestUserManagerListener extends SimpleUserManagerListener {
         private User user;
         private boolean postCreateCalled = false;
+        private boolean preUpdateCalled = false;
         private boolean postUpdateCalled = false;
         private boolean postDeactivatedCalled = false;
         private boolean postReactivatedCalled = false;
@@ -131,6 +154,28 @@ public abstract class AbstractDefaultUserManagerIT {
 
             assertEquals(this.user.getEmail(), user.getEmail());
             postCreateCalled = true;
+        }
+
+        @Override
+        public void onPreUpdateUser(@Nonnull final User original, @Nonnull final User user,
+                                    @Nonnull final User.Attr... attrs) throws UserException {
+            super.onPreUpdateUser(original, user, attrs);
+
+            assertEquals(this.user.getEmail(), user.getEmail());
+            assertEquals(this.user.getFirstName(), user.getFirstName());
+            assertEquals(this.user.getLastName(), user.getLastName());
+            preUpdateCalled = true;
+            for (final User.Attr attr : attrs) {
+                switch (attr) {
+                    case NAME:
+                        // do nothing
+                        break;
+                    case PASSWORD:
+                        throw new UserException();
+                    default:
+                        fail("unexpected attribute update!");
+                }
+            }
         }
 
         @Override
