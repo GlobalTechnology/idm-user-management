@@ -146,8 +146,13 @@ public class DefaultUserManager implements UserManager {
         // validate user object before trying to update it
         this.validateUpdateUser(user, attrs);
 
-        // update the user object
+        // trigger any pre update listeners
         final User original = this.getFreshUser(user);
+        for (final UserManagerListener listener : listeners) {
+            listener.onPreUpdateUser(original, user, attrs);
+        }
+
+        // update the user object
         this.userDao.update(original, user, attrs);
 
         // trigger any post update listeners
@@ -341,6 +346,9 @@ public class DefaultUserManager implements UserManager {
     public interface UserManagerListener {
         void onPostCreateUser(@Nonnull User user);
 
+        void onPreUpdateUser(@Nonnull User original, @Nonnull User user, @Nonnull User.Attr... attrs)
+                throws UserException;
+
         void onPostUpdateUser(@Nonnull User original, @Nonnull User user, @Nonnull User.Attr... attrs);
 
         void onPostDeactivateUser(@Nonnull User user);
@@ -353,7 +361,12 @@ public class DefaultUserManager implements UserManager {
         public void onPostCreateUser(@Nonnull final User user) {}
 
         @Override
-        public void onPostUpdateUser(@Nonnull User original, @Nonnull final User user, @Nonnull final User.Attr... attrs) {}
+        public void onPreUpdateUser(@Nonnull final User original, @Nonnull final User user,
+                                    @Nonnull final User.Attr... attrs) throws UserException {}
+
+        @Override
+        public void onPostUpdateUser(@Nonnull User original, @Nonnull final User user,
+                                     @Nonnull final User.Attr... attrs) {}
 
         @Override
         public void onPostDeactivateUser(@Nonnull final User user) {}
