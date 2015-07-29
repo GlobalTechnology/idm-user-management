@@ -53,7 +53,7 @@ public abstract class AbstractLdapUserDao extends AbstractUserDao {
             .put(Attr.EMAIL, ImmutableSet.of(LDAP_ATTR_USERID, LDAP_FLAG_EMAILVERIFIED, LDAP_ATTR_OBJECTCLASS))
             .put(Attr.NAME, ImmutableSet.of(LDAP_ATTR_FIRSTNAME, LDAP_ATTR_LASTNAME))
             .put(Attr.PASSWORD, ImmutableSet.of(LDAP_ATTR_PASSWORD, LDAP_FLAG_FORCEPASSWORDCHANGE,
-                    LDAP_ATTR_OBJECTCLASS))
+                    LDAP_ATTR_CRU_PASSWORD_HISTORY, LDAP_ATTR_OBJECTCLASS))
             .put(Attr.LOGINTIME, ImmutableSet.of(LDAP_ATTR_LOGINTIME))
             .put(Attr.FLAGS, ImmutableSet.of(LDAP_FLAG_ALLOWPASSWORDCHANGE, LDAP_FLAG_EMAILVERIFIED,
                     LDAP_FLAG_LOGINDISABLED, LDAP_FLAG_FORCEPASSWORDCHANGE, LDAP_FLAG_LOCKED, LDAP_ATTR_OBJECTCLASS))
@@ -72,7 +72,6 @@ public abstract class AbstractLdapUserDao extends AbstractUserDao {
             .put(Attr.CONTACT, ImmutableSet.of(LDAP_ATTR_TELEPHONE, LDAP_ATTR_OBJECTCLASS))
             .put(Attr.CRU_PREFERRED_NAME, ImmutableSet.of(LDAP_ATTR_CRU_PREFERRED_NAME, LDAP_ATTR_OBJECTCLASS))
             .put(Attr.CRU_PROXY_ADDRESSES, ImmutableSet.of(LDAP_ATTR_CRU_PROXY_ADDRESSES, LDAP_ATTR_OBJECTCLASS))
-            .put(Attr.CRU_PASSWORD_HISTORY, ImmutableSet.of(LDAP_ATTR_CRU_PASSWORD_HISTORY, LDAP_ATTR_OBJECTCLASS))
             .put(Attr.HUMAN_RESOURCE, ImmutableSet.of(
                     LDAP_ATTR_DEPARTMENT_NUMBER,
                     LDAP_ATTR_CRU_EMPLOYEE_STATUS,
