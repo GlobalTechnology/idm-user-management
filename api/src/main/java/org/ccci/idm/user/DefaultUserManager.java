@@ -3,6 +3,7 @@ package org.ccci.idm.user;
 import com.github.inspektr.audit.annotation.Audit;
 import com.google.common.base.CharMatcher;
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.Iterables;
 import org.apache.commons.validator.routines.EmailValidator;
 import org.ccci.idm.user.dao.UserDao;
 import org.ccci.idm.user.dao.exception.DaoException;
@@ -14,6 +15,7 @@ import org.ccci.idm.user.exception.TheKeyGuidAlreadyExistsException;
 import org.ccci.idm.user.exception.UserException;
 import org.ccci.idm.user.exception.UserNotFoundException;
 import org.ccci.idm.user.util.DefaultRandomPasswordGenerator;
+import org.ccci.idm.user.util.PasswordHistoryManager;
 import org.ccci.idm.user.util.RandomPasswordGenerator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -23,6 +25,7 @@ import org.springframework.util.StringUtils;
 import javax.annotation.Nonnull;
 import javax.inject.Inject;
 import javax.validation.constraints.NotNull;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Locale;
 import java.util.UUID;
@@ -41,6 +44,9 @@ public class DefaultUserManager implements UserManager {
 
     @NotNull
     protected RandomPasswordGenerator randomPasswordGenerator = new DefaultRandomPasswordGenerator();
+
+    @NotNull
+    private PasswordHistoryManager passwordHistoryManager = new PasswordHistoryManager();
 
     @Inject
     @NotNull
@@ -92,6 +98,9 @@ public class DefaultUserManager implements UserManager {
 
         // Save the user
         this.userDao.save(user);
+
+        // add password to history
+        passwordHistoryManager.add(user.getPassword(), user.getCruPasswordHistory());
 
         // trigger any post create listeners
         for (final UserManagerListener listener : listeners) {
@@ -154,6 +163,11 @@ public class DefaultUserManager implements UserManager {
 
         // update the user object
         this.userDao.update(original, user, attrs);
+
+        // add password to history (if you have password and caller intends to set)
+        if(StringUtils.hasText(user.getPassword()) && Iterables.contains(Arrays.asList(attrs), User.Attr.PASSWORD)) {
+            passwordHistoryManager.add(user.getPassword(), user.getCruPasswordHistory());
+        }
 
         // trigger any post update listeners
         for (final UserManagerListener listener : listeners) {
