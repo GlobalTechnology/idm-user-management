@@ -27,13 +27,17 @@ public class PasswordHistoryManager {
     private Ordering<String> reverseChronologicalOrdering = new Ordering<String>() {
         @Override
         public int compare(String first, String second) {
-            DateTime firstDateTime = new DateTime(Iterables.getLast(Splitter.on(DELIMITER).split(first)));
-            DateTime secondDateTime = new DateTime(Iterables.getLast(Splitter.on(DELIMITER).split(second)));
+            try {
+                DateTime firstDateTime = new DateTime(Iterables.getLast(Splitter.on(DELIMITER).split(first)));
+                DateTime secondDateTime = new DateTime(Iterables.getLast(Splitter.on(DELIMITER).split(second)));
 
-            if(firstDateTime.isBefore(secondDateTime)) {
-                return 1;
-            } else if(firstDateTime.isAfter(secondDateTime)) {
-                return -1;
+                if (firstDateTime.isBefore(secondDateTime)) {
+                    return 1;
+                } else if (firstDateTime.isAfter(secondDateTime)) {
+                    return -1;
+                }
+            } catch (Exception e) {
+                // do nothing
             }
 
             return 0;
