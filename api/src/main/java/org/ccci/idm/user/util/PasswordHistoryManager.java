@@ -21,16 +21,18 @@ public class PasswordHistoryManager {
     private static final Integer BCRYPT_WORK_FACTOR = 12;
 
     // arbitrary delimiter which should never match any part of a password hash or timestamp
-    private static final String DELIMITER = "-----";
+    private static final String HASH_TIME_STAMP_DELIMITER = "-----";
 
     public static final Integer MAX_HISTORY = 8;
 
-    private Ordering<String> reverseChronologicalOrdering = new Ordering<String>() {
+    private static final Splitter HASH_TIME_STAMP_SPLITTER = Splitter.on(HASH_TIME_STAMP_DELIMITER);
+
+    private static final Ordering<String> REVERSE_CHRONOLOGICAL_ORDERING = new Ordering<String>() {
         @Override
         public int compare(String first, String second) {
             try {
-                DateTime firstDateTime = new DateTime(Iterables.getLast(Splitter.on(DELIMITER).split(first)));
-                DateTime secondDateTime = new DateTime(Iterables.getLast(Splitter.on(DELIMITER).split(second)));
+                DateTime firstDateTime = new DateTime(Iterables.getLast(HASH_TIME_STAMP_SPLITTER.split(first)));
+                DateTime secondDateTime = new DateTime(Iterables.getLast(HASH_TIME_STAMP_SPLITTER.split(second)));
 
                 if (firstDateTime.isBefore(secondDateTime)) {
                     return 1;
@@ -47,12 +49,12 @@ public class PasswordHistoryManager {
 
     public void add(String password, Collection<String> history) {
         if (history.size() >= MAX_HISTORY) {
-            List<String> list = sort(history, reverseChronologicalOrdering);
+            List<String> list = sort(history, REVERSE_CHRONOLOGICAL_ORDERING);
             history.clear();
             history.addAll(list.subList(0, MAX_HISTORY - 1));
         }
 
-        history.add(BCrypt.hashpw(password, BCrypt.gensalt(BCRYPT_WORK_FACTOR)) + DELIMITER + new DateTime());
+        history.add(BCrypt.hashpw(password, BCrypt.gensalt(BCRYPT_WORK_FACTOR)) + HASH_TIME_STAMP_DELIMITER + new DateTime());
     }
 
     private List<String> sort(Collection<String> collection, Comparator<String> comparator) {
@@ -61,18 +63,14 @@ public class PasswordHistoryManager {
         return list;
     }
 
-    private Function<String, String> before(final String word) {
-        return new Function<String, String>()
-        {
-            public String apply(String from)
-            {
-                return Iterables.getFirst(Splitter.on(word).split(from), from);
-            }
-        };
-    }
+    private static Function<String, String> RAW_HASH_FUNCTION = new Function<String, String>() {
+        public String apply(String from) {
+            return Iterables.getFirst(HASH_TIME_STAMP_SPLITTER.split(from), from);
+        }
+    };
 
     public Boolean isPasswordHistorical(String password, Collection<String> history) {
-        return isHashed(password, Lists.transform(Lists.newArrayList(history), before(DELIMITER)));
+        return isHashed(password, Lists.transform(Lists.newArrayList(history), RAW_HASH_FUNCTION));
     }
 
     private boolean isHashed(String string, List<String> hashes)
