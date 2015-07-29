@@ -10,6 +10,7 @@ import org.springframework.security.crypto.bcrypt.BCrypt;
 
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 
 /**
@@ -54,9 +55,9 @@ public class PasswordHistoryManager {
         history.add(BCrypt.hashpw(password, BCrypt.gensalt(BCRYPT_WORK_FACTOR)) + DELIMITER + new DateTime());
     }
 
-    private List<String> sort(Collection<String> collection, Ordering<String> ordering) {
+    private List<String> sort(Collection<String> collection, Comparator<String> comparator) {
         List<String> list = Lists.newArrayList(collection);
-        Collections.sort(list, this.reverseChronologicalOrdering);
+        Collections.sort(list, comparator);
         return list;
     }
 
@@ -82,5 +83,4 @@ public class PasswordHistoryManager {
 
         return false;
     }
-
 }
