@@ -26,6 +26,7 @@ import static org.ccci.idm.user.dao.ldap.Constants.LDAP_ATTR_LASTNAME;
 import static org.ccci.idm.user.dao.ldap.Constants.LDAP_ATTR_LOGINTIME;
 import static org.ccci.idm.user.dao.ldap.Constants.LDAP_ATTR_OBJECTCLASS;
 import static org.ccci.idm.user.dao.ldap.Constants.LDAP_ATTR_PASSWORD;
+import static org.ccci.idm.user.dao.ldap.Constants.LDAP_ATTR_PASSWORDCHANGEDTIME;
 import static org.ccci.idm.user.dao.ldap.Constants.LDAP_ATTR_POSTAL_CODE;
 import static org.ccci.idm.user.dao.ldap.Constants.LDAP_ATTR_PROPOSEDEMAIL;
 import static org.ccci.idm.user.dao.ldap.Constants.LDAP_ATTR_RELAY_GUID;
@@ -212,6 +213,7 @@ public abstract class AbstractUserLdapEntryMapper<O extends User> implements Lda
 
         // Meta-data
         user.setLoginTime(this.getTimeValue(entry, LDAP_ATTR_LOGINTIME));
+        user.setPasswordChangedTime(this.getTimeValue(entry, LDAP_ATTR_PASSWORDCHANGEDTIME));
 
         // federated identities
         final Map<String, Double> facebookIdStrengths = this.getStrengthValues(entry, LDAP_ATTR_FACEBOOKIDSTRENGTH);
