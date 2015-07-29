@@ -27,7 +27,7 @@ public class PasswordHistoryManager {
 
     private static final Splitter HASH_TIME_STAMP_SPLITTER = Splitter.on(HASH_TIME_STAMP_DELIMITER);
 
-    private static final Ordering<String> REVERSE_CHRONOLOGICAL_ORDERING = new Ordering<String>() {
+    private static final Ordering<String> CHRONOLOGICAL_ORDERING = new Ordering<String>() {
         @Override
         public int compare(String first, String second) {
             try {
@@ -49,7 +49,7 @@ public class PasswordHistoryManager {
 
     public void add(String password, Collection<String> history) {
         if (history.size() >= MAX_HISTORY) {
-            List<String> list = sort(history, REVERSE_CHRONOLOGICAL_ORDERING);
+            List<String> list = sort(history, CHRONOLOGICAL_ORDERING);
             history.clear();
             history.addAll(list.subList(0, MAX_HISTORY - 1));
         }
