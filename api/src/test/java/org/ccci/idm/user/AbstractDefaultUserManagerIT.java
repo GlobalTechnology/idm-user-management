@@ -245,13 +245,35 @@ public abstract class AbstractDefaultUserManagerIT {
             assertTrue(this.userManager.doesEmailExist(user.getEmail()));
         }
 
-        // update password
+        // check password history
         {
-            for(int i=0; i< PasswordHistoryManager.MAX_HISTORY+20; i++) {
+            PasswordHistoryManager passwordHistoryManager = new PasswordHistoryManager();
+
+            String password = guid();
+
+            // assert password is not in history
+            assertFalse(passwordHistoryManager.isPasswordHistorical(password, user.getCruPasswordHistory()));
+
+            user.setPassword(password);
+            this.userManager.updateUser(user, User.Attr.PASSWORD);
+
+            // assert password is in history
+            assertTrue(passwordHistoryManager.isPasswordHistorical(password, user.getCruPasswordHistory()));
+
+            for(int i=0; i<PasswordHistoryManager.MAX_HISTORY+2; i++) {
+                // assert password is still in history
+                if(i == PasswordHistoryManager.MAX_HISTORY-1) {
+                    assertTrue(passwordHistoryManager.isPasswordHistorical(password, user.getCruPasswordHistory()));
+                }
+
                 user.setPassword(guid());
                 this.userManager.updateUser(user, User.Attr.PASSWORD);
             }
 
+            // assert password is not in history anymore (as it should have been replaced by more recent passwords)
+            assertFalse(passwordHistoryManager.isPasswordHistorical(password, user.getCruPasswordHistory()));
+
+            // assert the password history size has grown to its maximum
             assertTrue(user.getCruPasswordHistory().size() == PasswordHistoryManager.MAX_HISTORY);
         }
 
