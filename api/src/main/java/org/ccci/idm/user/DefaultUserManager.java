@@ -95,11 +95,11 @@ public class DefaultUserManager implements UserManager {
         // initialize some default attributes
         this.setNewUserDefaults(user);
 
-        // Save the user
-        this.userDao.save(user);
-
         // add password to history
         passwordHistoryManager.add(user.getPassword(), user.getCruPasswordHistory());
+
+        // Save the user
+        this.userDao.save(user);
 
         // trigger any post create listeners
         for (final UserManagerListener listener : listeners) {
@@ -160,13 +160,13 @@ public class DefaultUserManager implements UserManager {
             listener.onPreUpdateUser(original, user, attrs);
         }
 
-        // update the user object
-        this.userDao.update(original, user, attrs);
-
         // add password to history (if you have password and caller intends to set)
         if(StringUtils.hasText(user.getPassword()) && FluentIterable.of(attrs).contains(User.Attr.PASSWORD)) {
             passwordHistoryManager.add(user.getPassword(), user.getCruPasswordHistory());
         }
+
+        // update the user object
+        this.userDao.update(original, user, attrs);
 
         // trigger any post update listeners
         for (final UserManagerListener listener : listeners) {
