@@ -230,10 +230,16 @@ public abstract class AbstractDefaultUserManagerIT {
     public void testUpdateUser() throws Exception {
         assumeConfigured();
 
+        PasswordHistoryManager passwordHistoryManager = new PasswordHistoryManager();
+
         // create base user
         final User user = newUser();
         this.userManager.createUser(user);
         assertTrue(this.userManager.doesEmailExist(user.getEmail()));
+
+        User foundUser = this.userManager.findUserByEmail(user.getEmail());
+        assertTrue(foundUser.getCruPasswordHistory().size() == 1);
+        assertTrue(passwordHistoryManager.isPasswordHistorical(user.getPassword(), foundUser.getCruPasswordHistory()));
 
         // update email of user
         {
@@ -247,34 +253,36 @@ public abstract class AbstractDefaultUserManagerIT {
 
         // check password history
         {
-            PasswordHistoryManager passwordHistoryManager = new PasswordHistoryManager();
-
             String password = guid();
 
             // assert password is not in history
-            assertFalse(passwordHistoryManager.isPasswordHistorical(password, user.getCruPasswordHistory()));
+            foundUser = this.userManager.findUserByEmail(user.getEmail());
+            assertFalse(passwordHistoryManager.isPasswordHistorical(password, foundUser.getCruPasswordHistory()));
 
             user.setPassword(password);
             this.userManager.updateUser(user, User.Attr.PASSWORD);
 
             // assert password is in history
-            assertTrue(passwordHistoryManager.isPasswordHistorical(password, user.getCruPasswordHistory()));
+            foundUser = this.userManager.findUserByEmail(user.getEmail());
+            assertTrue(passwordHistoryManager.isPasswordHistorical(password, foundUser.getCruPasswordHistory()));
 
-            for(int i=0; i<PasswordHistoryManager.MAX_HISTORY+2; i++) {
-                // assert password is still in history
-                if(i == PasswordHistoryManager.MAX_HISTORY-1) {
-                    assertTrue(passwordHistoryManager.isPasswordHistorical(password, user.getCruPasswordHistory()));
-                }
-
+            for(int i=0; i<PasswordHistoryManager.MAX_HISTORY; i++) {
                 user.setPassword(guid());
                 this.userManager.updateUser(user, User.Attr.PASSWORD);
+
+                // assert password is still in history
+                if(i == PasswordHistoryManager.MAX_HISTORY-2) {
+                    foundUser = this.userManager.findUserByEmail(user.getEmail());
+                    assertTrue(passwordHistoryManager.isPasswordHistorical(password, foundUser.getCruPasswordHistory()));
+                }
             }
 
             // assert password is not in history anymore (as it should have been replaced by more recent passwords)
-            assertFalse(passwordHistoryManager.isPasswordHistorical(password, user.getCruPasswordHistory()));
+            foundUser = this.userManager.findUserByEmail(user.getEmail());
+            assertFalse(passwordHistoryManager.isPasswordHistorical(password, foundUser.getCruPasswordHistory()));
 
             // assert the password history size has grown to its maximum
-            assertTrue(user.getCruPasswordHistory().size() == PasswordHistoryManager.MAX_HISTORY);
+            assertTrue(foundUser.getCruPasswordHistory().size() == PasswordHistoryManager.MAX_HISTORY);
         }
 
         // update to invalid email
