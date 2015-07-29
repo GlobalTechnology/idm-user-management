@@ -31,19 +31,11 @@ public class PasswordHistoryManager {
         @Override
         public int compare(String first, String second) {
             try {
-                DateTime firstDateTime = new DateTime(Iterables.getLast(HASH_TIME_STAMP_SPLITTER.split(first)));
-                DateTime secondDateTime = new DateTime(Iterables.getLast(HASH_TIME_STAMP_SPLITTER.split(second)));
-
-                if (firstDateTime.isBefore(secondDateTime)) {
-                    return 1;
-                } else if (firstDateTime.isAfter(secondDateTime)) {
-                    return -1;
-                }
+                return new DateTime(Iterables.getLast(HASH_TIME_STAMP_SPLITTER.split(second))).
+                        compareTo(new DateTime(Iterables.getLast(HASH_TIME_STAMP_SPLITTER.split(first))));
             } catch (Exception e) {
-                // do nothing
+                return 0;
             }
-
-            return 0;
         }
     };
 
