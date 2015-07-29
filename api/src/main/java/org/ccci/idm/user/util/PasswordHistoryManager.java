@@ -69,7 +69,7 @@ public class PasswordHistoryManager {
         }
     };
 
-    public Boolean isPasswordHistorical(String password, Collection<String> history) {
+    public boolean isPasswordHistorical(String password, Collection<String> history) {
         return isHashed(password, Lists.transform(Lists.newArrayList(history), RAW_HASH_FUNCTION));
     }
 
