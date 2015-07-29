@@ -14,6 +14,7 @@ import org.ccci.idm.user.DefaultUserManager.SimpleUserManagerListener;
 import org.ccci.idm.user.DefaultUserManager.UserManagerListener;
 import org.ccci.idm.user.exception.InvalidEmailUserException;
 import org.ccci.idm.user.exception.UserException;
+import org.ccci.idm.user.util.PasswordHistoryManager;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Value;
 
@@ -56,6 +57,7 @@ public abstract class AbstractDefaultUserManagerIT {
             final User user = newUser();
             this.userManager.createUser(user);
             assertTrue(this.userManager.doesEmailExist(user.getEmail()));
+            assertTrue(user.getCruPasswordHistory().size() == 1);
         }
 
         // test various invalid email addresses
@@ -241,6 +243,16 @@ public abstract class AbstractDefaultUserManagerIT {
 
             assertFalse(this.userManager.doesEmailExist(oldEmail));
             assertTrue(this.userManager.doesEmailExist(user.getEmail()));
+        }
+
+        // update password
+        {
+            for(int i=0; i< PasswordHistoryManager.MAX_HISTORY+20; i++) {
+                user.setPassword(guid());
+                this.userManager.updateUser(user, User.Attr.PASSWORD);
+            }
+
+            assertTrue(user.getCruPasswordHistory().size() == PasswordHistoryManager.MAX_HISTORY);
         }
 
         // update to invalid email
