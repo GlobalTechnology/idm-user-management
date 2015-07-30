@@ -1,6 +1,7 @@
 package org.ccci.idm.user.ldaptive.dao;
 
 import static org.ccci.idm.user.TestUtil.guid;
+import static org.ccci.idm.user.TestUtil.newUser;
 import static org.ccci.idm.user.TestUtil.randomEmail;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
@@ -90,16 +91,19 @@ public class LdaptiveUserDaoIT {
     }
 
     @Test
-    public void testFindUser() throws Exception {
+    public void testFindByEmail() throws Exception {
         assumeConfigured();
 
-        final User user = getUser();
-
+        // create a new user
+        final User user = newUser();
         this.dao.save(user);
 
+        // fetch the user using findByEmail
         final User foundUser = this.dao.findByEmail(user.getEmail(), false);
 
-        Assert.assertTrue(user.equals(foundUser));
+        assertNotNull(foundUser);
+        assertEquals(user.getGuid(), foundUser.getGuid());
+        assertEquals(user.getEmail(), foundUser.getEmail());
     }
 
     @Test
