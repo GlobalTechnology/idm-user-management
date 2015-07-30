@@ -110,17 +110,24 @@ public class LdaptiveUserDaoIT {
     public void testUpdateUser() throws Exception {
         assumeConfigured();
 
-        User user = getUser();
-
+        // create user
+        User user = newUser();
         this.dao.save(user);
 
-        user.setFirstName(user.getFirstName() + "modified");
-
+        // update user's name
+        user.setFirstName(user.getFirstName() + " modified");
+        user.setLastName(user.getLastName() + " modified");
         this.dao.update(user, User.Attr.NAME);
 
-        final User foundUser = this.dao.findByEmail(user.getEmail(), false);
+        // load user from database
+        final User foundUser = this.dao.findByGuid(user.getGuid(), false);
 
-        Assert.assertTrue(user.equals(foundUser));
+        // make sure the updates persisted correctly
+        assertNotNull(foundUser);
+        assertEquals(user.getGuid(), foundUser.getGuid());
+        assertEquals(user.getEmail(), foundUser.getEmail());
+        assertEquals(user.getFirstName(), foundUser.getFirstName());
+        assertEquals(user.getLastName(), foundUser.getLastName());
     }
 
     @Test
