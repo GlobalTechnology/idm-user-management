@@ -2,7 +2,6 @@ package org.ccci.idm.user.ldaptive.dao;
 
 import static org.ccci.idm.user.TestUtil.guid;
 import static org.ccci.idm.user.TestUtil.newUser;
-import static org.ccci.idm.user.TestUtil.randomEmail;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotEquals;
@@ -92,7 +91,7 @@ public class LdaptiveUserDaoIT {
     public void testCreateUser() throws Exception {
         assumeConfigured();
 
-        final User user = getUser();
+        final User user = newUser();
 
         this.dao.save(user);
     }
@@ -141,7 +140,7 @@ public class LdaptiveUserDaoIT {
     public void testLoginDate() throws Exception {
         assumeConfigured();
 
-        final User user = getUser();
+        final User user = newUser();
         final String guid = user.getGuid();
         user.setLoginTime(new DateTime().minusDays(30).secondOfMinute().roundFloorCopy());
         this.dao.save(user);
@@ -165,7 +164,7 @@ public class LdaptiveUserDaoIT {
         assumeConfigured();
 
         // create user
-        final User user = getUser();
+        final User user = newUser();
         user.setPassword(guid());
         final String guid = user.getGuid();
         this.dao.save(user);
@@ -472,7 +471,7 @@ public class LdaptiveUserDaoIT {
         assumeConfigured();
         assumeGroupsConfigured();
 
-        final User user = getUser();
+        final User user = newUser();
 
         this.dao.save(user);
 
@@ -511,8 +510,8 @@ public class LdaptiveUserDaoIT {
         assumeGroupsConfigured();
 
         // create a couple users for testing
-        final User user1 = getUser();
-        final User user2 = getUser();
+        final User user1 = newUser();
+        final User user2 = newUser();
         user2.setDeactivated(true);
         this.dao.save(user1);
         this.dao.save(user2);
@@ -556,18 +555,8 @@ public class LdaptiveUserDaoIT {
         this.dao.removeFromGroup(user2, group1);
     }
 
-    private User getUser() {
-        final User user = new User();
-        user.setEmail(randomEmail());
-        user.setGuid(guid());
-        user.setFirstName("Test");
-        user.setLastName("User");
-
-        return user;
-    }
-
     private User getStaffUser() {
-        final User user = getUser();
+        final User user = newUser();
 
         user.setEmployeeId("000123457");
         user.setDepartmentNumber("USDSABC");
