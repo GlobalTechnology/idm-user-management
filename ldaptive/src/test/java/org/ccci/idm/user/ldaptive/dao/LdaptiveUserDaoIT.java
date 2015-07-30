@@ -419,6 +419,8 @@ public class LdaptiveUserDaoIT {
         assertEquals(user.getGuid(), found.getGuid());
         assertEquals(user.getEmail(), found.getEmail());
         assertEquals(user.getEmployeeId(), found.getEmployeeId());
+        assertEquals(user.getCity(), found.getCity());
+        assertEquals(user.getCruDesignation(), found.getCruDesignation());
     }
 
     @Test
