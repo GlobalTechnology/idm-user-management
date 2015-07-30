@@ -1,7 +1,7 @@
 package org.ccci.idm.user.ldaptive.dao;
 
 import static org.ccci.idm.user.TestUtil.guid;
-import static org.ccci.idm.user.TestUtil.randomEmail;
+import static org.ccci.idm.user.TestUtil.newUser;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotEquals;
@@ -21,7 +21,6 @@ import org.ccci.idm.user.User;
 import org.ccci.idm.user.dao.exception.ExceededMaximumAllowedResultsException;
 import org.joda.time.DateTime;
 import org.joda.time.ReadableInstant;
-import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Value;
@@ -44,6 +43,14 @@ import java.util.concurrent.atomic.AtomicInteger;
 @ContextConfiguration(locations = {"ldap.xml", "config.xml", "dao-default.xml"})
 public class LdaptiveUserDaoIT {
     private static final Random RAND = new SecureRandom();
+
+    private static final Function<User, String> FUNCTION_GUID = new Function<User, String>() {
+        @Nullable
+        @Override
+        public String apply(final User user) {
+            return user != null ? user.getGuid() : null;
+        }
+    };
 
     @Inject
     private LdaptiveUserDao dao;
@@ -84,46 +91,56 @@ public class LdaptiveUserDaoIT {
     public void testCreateUser() throws Exception {
         assumeConfigured();
 
-        final User user = getUser();
+        final User user = newUser();
 
         this.dao.save(user);
     }
 
     @Test
-    public void testFindUser() throws Exception {
+    public void testFindByEmail() throws Exception {
         assumeConfigured();
 
-        final User user = getUser();
-
+        // create a new user
+        final User user = newUser();
         this.dao.save(user);
 
+        // fetch the user using findByEmail
         final User foundUser = this.dao.findByEmail(user.getEmail(), false);
 
-        Assert.assertTrue(user.equals(foundUser));
+        assertNotNull(foundUser);
+        assertEquals(user.getGuid(), foundUser.getGuid());
+        assertEquals(user.getEmail(), foundUser.getEmail());
     }
 
     @Test
     public void testUpdateUser() throws Exception {
         assumeConfigured();
 
-        User user = getUser();
-
+        // create user
+        User user = newUser();
         this.dao.save(user);
 
-        user.setFirstName(user.getFirstName() + "modified");
-
+        // update user's name
+        user.setFirstName(user.getFirstName() + " modified");
+        user.setLastName(user.getLastName() + " modified");
         this.dao.update(user, User.Attr.NAME);
 
-        final User foundUser = this.dao.findByEmail(user.getEmail(), false);
+        // load user from database
+        final User foundUser = this.dao.findByGuid(user.getGuid(), false);
 
-        Assert.assertTrue(user.equals(foundUser));
+        // make sure the updates persisted correctly
+        assertNotNull(foundUser);
+        assertEquals(user.getGuid(), foundUser.getGuid());
+        assertEquals(user.getEmail(), foundUser.getEmail());
+        assertEquals(user.getFirstName(), foundUser.getFirstName());
+        assertEquals(user.getLastName(), foundUser.getLastName());
     }
 
     @Test
     public void testLoginDate() throws Exception {
         assumeConfigured();
 
-        final User user = getUser();
+        final User user = newUser();
         final String guid = user.getGuid();
         user.setLoginTime(new DateTime().minusDays(30).secondOfMinute().roundFloorCopy());
         this.dao.save(user);
@@ -147,7 +164,7 @@ public class LdaptiveUserDaoIT {
         assumeConfigured();
 
         // create user
-        final User user = getUser();
+        final User user = newUser();
         user.setPassword(guid());
         final String guid = user.getGuid();
         this.dao.save(user);
@@ -207,44 +224,50 @@ public class LdaptiveUserDaoIT {
 
         // test findAllByFirstName
         {
-            final List<User> active = this.dao.findAllByFirstName(user1.getFirstName(), false);
-            final List<User> all = this.dao.findAllByFirstName(user1.getFirstName(), true);
+            final Set<String> active = FluentIterable.from(this.dao.findAllByFirstName(user1.getFirstName(), false))
+                    .transform(FUNCTION_GUID).toSet();
+            final Set<String> all = FluentIterable.from(this.dao.findAllByFirstName(user1.getFirstName(), true))
+                    .transform(FUNCTION_GUID).toSet();
 
             assertEquals(1, active.size());
             assertEquals(2, all.size());
 
-            assertTrue(active.contains(user1));
-            assertFalse(active.contains(user2));
-            assertTrue(all.contains(user1));
-            assertTrue(all.contains(user2));
+            assertTrue(active.contains(user1.getGuid()));
+            assertFalse(active.contains(user2.getGuid()));
+            assertTrue(all.contains(user1.getGuid()));
+            assertTrue(all.contains(user2.getGuid()));
         }
 
         // test findAllByLastName
         {
-            final List<User> active = this.dao.findAllByLastName(user1.getLastName(), false);
-            final List<User> all = this.dao.findAllByLastName(user1.getLastName(), true);
+            final Set<String> active = FluentIterable.from(this.dao.findAllByLastName(user1.getLastName(), false))
+                    .transform(FUNCTION_GUID).toSet();
+            final Set<String> all = FluentIterable.from(this.dao.findAllByLastName(user1.getLastName(), true))
+                    .transform(FUNCTION_GUID).toSet();
 
             assertEquals(1, active.size());
             assertEquals(2, all.size());
 
-            assertTrue(active.contains(user1));
-            assertFalse(active.contains(user2));
-            assertTrue(all.contains(user1));
-            assertTrue(all.contains(user2));
+            assertTrue(active.contains(user1.getGuid()));
+            assertFalse(active.contains(user2.getGuid()));
+            assertTrue(all.contains(user1.getGuid()));
+            assertTrue(all.contains(user2.getGuid()));
         }
 
         // test findAllByEmail
         {
-            final List<User> active = this.dao.findAllByEmail(user1.getEmail(), false);
-            final List<User> all = this.dao.findAllByEmail(user1.getEmail(), true);
+            final Set<String> active = FluentIterable.from(this.dao.findAllByEmail(user1.getEmail(), false))
+                    .transform(FUNCTION_GUID).toSet();
+            final Set<String> all = FluentIterable.from(this.dao.findAllByEmail(user1.getEmail(), true)).transform
+                    (FUNCTION_GUID).toSet();
 
             assertEquals(1, active.size());
             assertEquals(2, all.size());
 
-            assertTrue(active.contains(user1));
-            assertFalse(active.contains(user2));
-            assertTrue(all.contains(user1));
-            assertTrue(all.contains(user2));
+            assertTrue(active.contains(user1.getGuid()));
+            assertFalse(active.contains(user2.getGuid()));
+            assertTrue(all.contains(user1.getGuid()));
+            assertTrue(all.contains(user2.getGuid()));
         }
 
         // create a deactivated user with unique attributes to test individual findBy* support
@@ -264,7 +287,7 @@ public class LdaptiveUserDaoIT {
             assertNull(activeUser);
             assertNotNull(anyUser);
 
-            assertEquals(user3, anyUser);
+            assertEquals(user3.getGuid(), anyUser.getGuid());
         }
     }
 
@@ -386,50 +409,63 @@ public class LdaptiveUserDaoIT {
     public void testCreateStaffUser() throws Exception {
         assumeConfigured();
 
+        // create a new user
         final User user = getStaffUser();
-
         this.dao.save(user);
 
-        final User found = this.dao.findByEmail(user.getEmail(), Boolean.FALSE);
-        Assert.assertNotNull(found);
-        Assert.assertTrue(user.equals(found));
+        // make sure we can find it and it's valid
+        final User found = this.dao.findByGuid(user.getGuid(), false);
+        assertNotNull(found);
+        assertEquals(user.getGuid(), found.getGuid());
+        assertEquals(user.getEmail(), found.getEmail());
+        assertEquals(user.getEmployeeId(), found.getEmployeeId());
+        assertEquals(user.getCity(), found.getCity());
+        assertEquals(user.getCruDesignation(), found.getCruDesignation());
     }
 
     @Test
     public void testUpdateStaffUser() throws Exception {
         assumeConfigured();
 
+        // create a new user
         final User user = getStaffUser();
-
         this.dao.save(user);
 
-        User foundUser = this.dao.findByEmail(user.getEmail(), false);
+        // check that it saved correctly
+        User foundUser = this.dao.findByGuid(user.getGuid(), false);
+        assertNotNull(foundUser);
+        assertEquals(user.getGuid(), foundUser.getGuid());
+        assertEquals(user.getEmail(), foundUser.getEmail());
+        assertEquals(user.getCity(), foundUser.getCity());
+        assertEquals(user.getEmployeeId(), foundUser.getEmployeeId());
 
-        Assert.assertTrue(user.equals(foundUser));
-
-        user.setCity(user.getCity() + "modified");
-        user.setEmployeeId(user.getEmployeeId() + "modified");
-
+        // update city & employee id
+        user.setCity(user.getCity() + " modified");
+        user.setEmployeeId(user.getEmployeeId() + " modified");
         this.dao.update(user, User.Attr.LOCATION, User.Attr.EMPLOYEE_NUMBER);
 
-        foundUser = this.dao.findByEmail(user.getEmail(), false);
-
-        Assert.assertTrue(user.equals(foundUser));
+        // check for valid update
+        foundUser = this.dao.findByGuid(user.getGuid(), false);
+        assertNotNull(foundUser);
+        assertEquals(user.getGuid(), foundUser.getGuid());
+        assertEquals(user.getEmail(), foundUser.getEmail());
+        assertEquals(user.getCity(), foundUser.getCity());
+        assertEquals(user.getEmployeeId(), foundUser.getEmployeeId());
     }
 
     @Test
-    public void testFindUserByEmployeeId() throws Exception {
+    public void testFindByEmployeeId() throws Exception {
         assumeConfigured();
 
+        // create staff user
         final User user = getStaffUser();
-
         this.dao.save(user);
 
+        // find staff user using employee id
         final User foundUser = this.dao.findByEmployeeId(user.getEmployeeId(), false);
-
-        Assert.assertNotNull(foundUser);
-
-        Assert.assertTrue(user.equals(foundUser));
+        assertNotNull(foundUser);
+        assertEquals(user.getGuid(), foundUser.getGuid());
+        assertEquals(user.getEmployeeId(), foundUser.getEmployeeId());
     }
 
     @Test
@@ -437,7 +473,7 @@ public class LdaptiveUserDaoIT {
         assumeConfigured();
         assumeGroupsConfigured();
 
-        final User user = getUser();
+        final User user = newUser();
 
         this.dao.save(user);
 
@@ -476,19 +512,11 @@ public class LdaptiveUserDaoIT {
         assumeGroupsConfigured();
 
         // create a couple users for testing
-        final User user1 = getUser();
-        final User user2 = getUser();
+        final User user1 = newUser();
+        final User user2 = newUser();
         user2.setDeactivated(true);
         this.dao.save(user1);
         this.dao.save(user2);
-
-        final Function<User, String> FUNCTION_GUID = new Function<User, String>() {
-            @Nullable
-            @Override
-            public String apply(final User user) {
-                return user != null ? user.getGuid() : null;
-            }
-        };
 
         // assert the 2 users are not in the group
         {
@@ -529,20 +557,10 @@ public class LdaptiveUserDaoIT {
         this.dao.removeFromGroup(user2, group1);
     }
 
-    private User getUser() {
-        final User user = new User();
-        user.setEmail(randomEmail());
-        user.setGuid(guid());
-        user.setFirstName("Test");
-        user.setLastName("User");
-
-        return user;
-    }
-
     private User getStaffUser() {
-        final User user = getUser();
+        final User user = newUser();
 
-        user.setEmployeeId("000123457");
+        user.setEmployeeId(guid());
         user.setDepartmentNumber("USDSABC");
         user.setCruDesignation("123457");
         user.setCruGender("M");
