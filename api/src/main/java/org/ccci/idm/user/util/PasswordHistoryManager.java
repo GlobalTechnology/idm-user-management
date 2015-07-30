@@ -41,12 +41,16 @@ public class PasswordHistoryManager {
 
     public void add(String password, Collection<String> history) {
         if (history.size() >= MAX_HISTORY) {
-            List<String> list = sort(history, CHRONOLOGICAL_ORDERING);
-            history.clear();
-            history.addAll(list.subList(0, MAX_HISTORY - 1));
+            trimHistory(history, MAX_HISTORY);
         }
 
         history.add(BCrypt.hashpw(password, BCrypt.gensalt(BCRYPT_WORK_FACTOR)) + HASH_TIME_STAMP_DELIMITER + new DateTime());
+    }
+
+    private void trimHistory(Collection<String> history, int size) {
+        List<String> list = sort(history, CHRONOLOGICAL_ORDERING);
+        history.clear();
+        history.addAll(list.subList(0, size - 1));
     }
 
     private List<String> sort(Collection<String> collection, Comparator<String> comparator) {
