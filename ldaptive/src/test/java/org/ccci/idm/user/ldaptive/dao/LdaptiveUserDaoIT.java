@@ -22,7 +22,6 @@ import org.ccci.idm.user.User;
 import org.ccci.idm.user.dao.exception.ExceededMaximumAllowedResultsException;
 import org.joda.time.DateTime;
 import org.joda.time.ReadableInstant;
-import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Value;
@@ -454,18 +453,18 @@ public class LdaptiveUserDaoIT {
     }
 
     @Test
-    public void testFindUserByEmployeeId() throws Exception {
+    public void testFindByEmployeeId() throws Exception {
         assumeConfigured();
 
+        // create staff user
         final User user = getStaffUser();
-
         this.dao.save(user);
 
+        // find staff user using employee id
         final User foundUser = this.dao.findByEmployeeId(user.getEmployeeId(), false);
-
-        Assert.assertNotNull(foundUser);
-
-        Assert.assertTrue(user.equals(foundUser));
+        assertNotNull(foundUser);
+        assertEquals(user.getGuid(), foundUser.getGuid());
+        assertEquals(user.getEmployeeId(), foundUser.getEmployeeId());
     }
 
     @Test
