@@ -60,6 +60,7 @@ public class Constants {
     public static final String LDAP_ATTR_CRU_PREFERRED_NAME = "cruPreferredName";
     public static final String LDAP_ATTR_CRU_SUB_MINISTRY_CODE = "cruSubMinistryCode";
     public static final String LDAP_ATTR_CRU_PROXY_ADDRESSES = "cruProxyAddresses";
+    public static final String LDAP_ATTR_CRU_PASSWORD_HISTORY = "cruPasswordHistory";
 
     // relayAttributes
     public static final String LDAP_ATTR_RELAY_GUID = "relayGuid";
