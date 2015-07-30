@@ -22,6 +22,8 @@ import javax.annotation.Nonnull;
 import javax.inject.Inject;
 import javax.validation.constraints.NotNull;
 import java.security.SecureRandom;
+import java.util.Collection;
+import java.util.Collections;
 import java.util.Random;
 
 public abstract class AbstractDefaultUserManagerIT {
@@ -227,32 +229,32 @@ public abstract class AbstractDefaultUserManagerIT {
     }
 
     @Test
-    public void testUpdateUser() throws Exception {
-        assumeConfigured();
-
+    public void testPasswordHistory() throws Exception {
         PasswordHistoryManager passwordHistoryManager = new PasswordHistoryManager();
 
-        // create base user
-        final User user = newUser();
-        this.userManager.createUser(user);
-        assertTrue(this.userManager.doesEmailExist(user.getEmail()));
-
-        User foundUser = this.userManager.findUserByEmail(user.getEmail());
-        assertTrue(foundUser.getCruPasswordHistory().size() == 1);
-        assertTrue(passwordHistoryManager.isPasswordHistorical(user.getPassword(), foundUser.getCruPasswordHistory()));
-
-        // update email of user
+        // test with unmodifiable collection
         {
-            final String oldEmail = user.getEmail();
-            user.setEmail(randomEmail());
-            this.userManager.updateUser(user, User.Attr.EMAIL);
+            Collection<String> emptyHistory = Collections.emptyList();
 
-            assertFalse(this.userManager.doesEmailExist(oldEmail));
-            assertTrue(this.userManager.doesEmailExist(user.getEmail()));
+            final User user = newUser();
+            user.setCruPasswordHistory(emptyHistory);
+            this.userManager.createUser(user);
+
+            user.setPassword(guid());
+            user.setCruPasswordHistory(emptyHistory);
+            this.userManager.updateUser(user, User.Attr.PASSWORD);
         }
 
         // check password history
         {
+            // create base user
+            final User user = newUser();
+            this.userManager.createUser(user);
+
+            User foundUser = this.userManager.findUserByEmail(user.getEmail());
+            assertTrue(foundUser.getCruPasswordHistory().size() == 1);
+            assertTrue(passwordHistoryManager.isPasswordHistorical(user.getPassword(), foundUser.getCruPasswordHistory()));
+
             String password = guid();
 
             // assert password is not in history
@@ -283,6 +285,26 @@ public abstract class AbstractDefaultUserManagerIT {
 
             // assert the password history size has grown to its maximum
             assertTrue(foundUser.getCruPasswordHistory().size() == PasswordHistoryManager.MAX_HISTORY);
+        }
+    }
+
+    @Test
+    public void testUpdateUser() throws Exception {
+        assumeConfigured();
+
+        // create base user
+        final User user = newUser();
+        this.userManager.createUser(user);
+        assertTrue(this.userManager.doesEmailExist(user.getEmail()));
+
+        // update email of user
+        {
+            final String oldEmail = user.getEmail();
+            user.setEmail(randomEmail());
+            this.userManager.updateUser(user, User.Attr.EMAIL);
+
+            assertFalse(this.userManager.doesEmailExist(oldEmail));
+            assertTrue(this.userManager.doesEmailExist(user.getEmail()));
         }
 
         // update to invalid email
