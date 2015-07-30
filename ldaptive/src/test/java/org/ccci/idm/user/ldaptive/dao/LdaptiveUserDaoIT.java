@@ -410,22 +410,30 @@ public class LdaptiveUserDaoIT {
     public void testUpdateStaffUser() throws Exception {
         assumeConfigured();
 
+        // create a new user
         final User user = getStaffUser();
-
         this.dao.save(user);
 
-        User foundUser = this.dao.findByEmail(user.getEmail(), false);
+        // check that it saved correctly
+        User foundUser = this.dao.findByGuid(user.getGuid(), false);
+        assertNotNull(foundUser);
+        assertEquals(user.getGuid(), foundUser.getGuid());
+        assertEquals(user.getEmail(), foundUser.getEmail());
+        assertEquals(user.getCity(), foundUser.getCity());
+        assertEquals(user.getEmployeeId(), foundUser.getEmployeeId());
 
-        Assert.assertTrue(user.equals(foundUser));
-
-        user.setCity(user.getCity() + "modified");
-        user.setEmployeeId(user.getEmployeeId() + "modified");
-
+        // update city & employee id
+        user.setCity(user.getCity() + " modified");
+        user.setEmployeeId(user.getEmployeeId() + " modified");
         this.dao.update(user, User.Attr.LOCATION, User.Attr.EMPLOYEE_NUMBER);
 
-        foundUser = this.dao.findByEmail(user.getEmail(), false);
-
-        Assert.assertTrue(user.equals(foundUser));
+        // check for valid update
+        foundUser = this.dao.findByGuid(user.getGuid(), false);
+        assertNotNull(foundUser);
+        assertEquals(user.getGuid(), foundUser.getGuid());
+        assertEquals(user.getEmail(), foundUser.getEmail());
+        assertEquals(user.getCity(), foundUser.getCity());
+        assertEquals(user.getEmployeeId(), foundUser.getEmployeeId());
     }
 
     @Test
