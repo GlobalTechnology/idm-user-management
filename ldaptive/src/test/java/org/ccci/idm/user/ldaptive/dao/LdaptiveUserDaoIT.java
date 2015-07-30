@@ -558,7 +558,7 @@ public class LdaptiveUserDaoIT {
     private User getStaffUser() {
         final User user = newUser();
 
-        user.setEmployeeId("000123457");
+        user.setEmployeeId(guid());
         user.setDepartmentNumber("USDSABC");
         user.setCruDesignation("123457");
         user.setCruGender("M");
