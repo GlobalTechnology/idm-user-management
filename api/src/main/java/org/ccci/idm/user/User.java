@@ -640,8 +640,8 @@ public class User implements Cloneable, Serializable {
                 Objects.equal(this.deactivated, other.deactivated) &&
                 Objects.equal(this.loginDisabled, other.loginDisabled) &&
                 Objects.equal(this.locked, other.locked) &&
-                this.domainsVisited.size() == other.domainsVisited.size() && this.domainsVisited.containsAll(other.domainsVisited) &&
-                this.groups.size() == other.groups.size() && this.groups.containsAll(other.groups) &&
+                Objects.equal(this.domainsVisited, other.domainsVisited) &&
+                Objects.equal(this.groups, other.groups) &&
                 Objects.equal(this.signupKey, other.signupKey) &&
                 Objects.equal(this.changeEmailKey, other.changeEmailKey) &&
                 Objects.equal(this.resetPasswordKey, other.resetPasswordKey) &&
