@@ -46,6 +46,14 @@ import java.util.concurrent.atomic.AtomicInteger;
 public class LdaptiveUserDaoIT {
     private static final Random RAND = new SecureRandom();
 
+    private static final Function<User, String> FUNCTION_GUID = new Function<User, String>() {
+        @Nullable
+        @Override
+        public String apply(final User user) {
+            return user != null ? user.getGuid() : null;
+        }
+    };
+
     @Inject
     private LdaptiveUserDao dao;
 
@@ -218,44 +226,50 @@ public class LdaptiveUserDaoIT {
 
         // test findAllByFirstName
         {
-            final List<User> active = this.dao.findAllByFirstName(user1.getFirstName(), false);
-            final List<User> all = this.dao.findAllByFirstName(user1.getFirstName(), true);
+            final Set<String> active = FluentIterable.from(this.dao.findAllByFirstName(user1.getFirstName(), false))
+                    .transform(FUNCTION_GUID).toSet();
+            final Set<String> all = FluentIterable.from(this.dao.findAllByFirstName(user1.getFirstName(), true))
+                    .transform(FUNCTION_GUID).toSet();
 
             assertEquals(1, active.size());
             assertEquals(2, all.size());
 
-            assertTrue(active.contains(user1));
-            assertFalse(active.contains(user2));
-            assertTrue(all.contains(user1));
-            assertTrue(all.contains(user2));
+            assertTrue(active.contains(user1.getGuid()));
+            assertFalse(active.contains(user2.getGuid()));
+            assertTrue(all.contains(user1.getGuid()));
+            assertTrue(all.contains(user2.getGuid()));
         }
 
         // test findAllByLastName
         {
-            final List<User> active = this.dao.findAllByLastName(user1.getLastName(), false);
-            final List<User> all = this.dao.findAllByLastName(user1.getLastName(), true);
+            final Set<String> active = FluentIterable.from(this.dao.findAllByLastName(user1.getLastName(), false))
+                    .transform(FUNCTION_GUID).toSet();
+            final Set<String> all = FluentIterable.from(this.dao.findAllByLastName(user1.getLastName(), true))
+                    .transform(FUNCTION_GUID).toSet();
 
             assertEquals(1, active.size());
             assertEquals(2, all.size());
 
-            assertTrue(active.contains(user1));
-            assertFalse(active.contains(user2));
-            assertTrue(all.contains(user1));
-            assertTrue(all.contains(user2));
+            assertTrue(active.contains(user1.getGuid()));
+            assertFalse(active.contains(user2.getGuid()));
+            assertTrue(all.contains(user1.getGuid()));
+            assertTrue(all.contains(user2.getGuid()));
         }
 
         // test findAllByEmail
         {
-            final List<User> active = this.dao.findAllByEmail(user1.getEmail(), false);
-            final List<User> all = this.dao.findAllByEmail(user1.getEmail(), true);
+            final Set<String> active = FluentIterable.from(this.dao.findAllByEmail(user1.getEmail(), false))
+                    .transform(FUNCTION_GUID).toSet();
+            final Set<String> all = FluentIterable.from(this.dao.findAllByEmail(user1.getEmail(), true)).transform
+                    (FUNCTION_GUID).toSet();
 
             assertEquals(1, active.size());
             assertEquals(2, all.size());
 
-            assertTrue(active.contains(user1));
-            assertFalse(active.contains(user2));
-            assertTrue(all.contains(user1));
-            assertTrue(all.contains(user2));
+            assertTrue(active.contains(user1.getGuid()));
+            assertFalse(active.contains(user2.getGuid()));
+            assertTrue(all.contains(user1.getGuid()));
+            assertTrue(all.contains(user2.getGuid()));
         }
 
         // create a deactivated user with unique attributes to test individual findBy* support
@@ -275,7 +289,7 @@ public class LdaptiveUserDaoIT {
             assertNull(activeUser);
             assertNotNull(anyUser);
 
-            assertEquals(user3, anyUser);
+            assertEquals(user3.getGuid(), anyUser.getGuid());
         }
     }
 
@@ -500,14 +514,6 @@ public class LdaptiveUserDaoIT {
         user2.setDeactivated(true);
         this.dao.save(user1);
         this.dao.save(user2);
-
-        final Function<User, String> FUNCTION_GUID = new Function<User, String>() {
-            @Nullable
-            @Override
-            public String apply(final User user) {
-                return user != null ? user.getGuid() : null;
-            }
-        };
 
         // assert the 2 users are not in the group
         {
