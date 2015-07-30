@@ -411,13 +411,16 @@ public class LdaptiveUserDaoIT {
     public void testCreateStaffUser() throws Exception {
         assumeConfigured();
 
+        // create a new user
         final User user = getStaffUser();
-
         this.dao.save(user);
 
-        final User found = this.dao.findByEmail(user.getEmail(), Boolean.FALSE);
-        Assert.assertNotNull(found);
-        Assert.assertTrue(user.equals(found));
+        // make sure we can find it and it's valid
+        final User found = this.dao.findByGuid(user.getGuid(), false);
+        assertNotNull(found);
+        assertEquals(user.getGuid(), found.getGuid());
+        assertEquals(user.getEmail(), found.getEmail());
+        assertEquals(user.getEmployeeId(), found.getEmployeeId());
     }
 
     @Test
