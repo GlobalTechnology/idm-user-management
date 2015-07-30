@@ -10,7 +10,6 @@ import org.springframework.security.crypto.bcrypt.BCrypt;
 
 import java.util.Collection;
 import java.util.Collections;
-import java.util.Comparator;
 import java.util.List;
 
 /**
@@ -39,24 +38,23 @@ public class PasswordHistoryManager {
         }
     };
 
-    public void add(String password, Collection<String> history) {
+    public List<String> add(String password, Collection<String> history) {
+        return add(password, Lists.newArrayList(history));
+    }
+
+    public boolean isPasswordHistorical(String password, Collection<String> history) {
+        return isHashed(password, Lists.transform(Lists.newArrayList(history), RAW_HASH_FUNCTION));
+    }
+
+    private List<String> add(String password, List<String> history) {
         if (history.size() >= MAX_HISTORY) {
-            trimHistory(history, MAX_HISTORY);
+            Collections.sort(history, CHRONOLOGICAL_ORDERING);
+            history = history.subList(0, MAX_HISTORY - 1);
         }
 
         history.add(BCrypt.hashpw(password, BCrypt.gensalt(BCRYPT_WORK_FACTOR)) + HASH_TIME_STAMP_DELIMITER + new DateTime());
-    }
 
-    private void trimHistory(Collection<String> history, int size) {
-        List<String> list = sort(history, CHRONOLOGICAL_ORDERING);
-        history.clear();
-        history.addAll(list.subList(0, size - 1));
-    }
-
-    private List<String> sort(Collection<String> collection, Comparator<String> comparator) {
-        List<String> list = Lists.newArrayList(collection);
-        Collections.sort(list, comparator);
-        return list;
+        return history;
     }
 
     private static Function<String, String> RAW_HASH_FUNCTION = new Function<String, String>() {
@@ -64,10 +62,6 @@ public class PasswordHistoryManager {
             return Iterables.getFirst(HASH_TIME_STAMP_SPLITTER.split(from), from);
         }
     };
-
-    public boolean isPasswordHistorical(String password, Collection<String> history) {
-        return isHashed(password, Lists.transform(Lists.newArrayList(history), RAW_HASH_FUNCTION));
-    }
 
     private boolean isHashed(String string, List<String> hashes)
     {
