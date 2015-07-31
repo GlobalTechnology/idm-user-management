@@ -20,7 +20,7 @@ public class TestUtil {
         user.setEmail(randomEmail());
 //        user.setGuid(guid());
         user.setRelayGuid(guid());
-        user.setPassword("testPassword");
+        user.setPassword(guid());
         user.setFirstName("Test");
         user.setLastName("User");
         return user;
