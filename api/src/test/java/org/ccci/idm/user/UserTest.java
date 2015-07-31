@@ -179,4 +179,8 @@ public class UserTest {
             assertFalse(user.isEmailVerified());
         }
     }
+
+    private String randomEmail() {
+        return "test.user." + RAND.nextInt(Integer.MAX_VALUE) + "@example.com";
+    }
 }
