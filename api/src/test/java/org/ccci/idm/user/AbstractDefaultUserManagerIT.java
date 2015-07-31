@@ -14,6 +14,7 @@ import org.ccci.idm.user.DefaultUserManager.SimpleUserManagerListener;
 import org.ccci.idm.user.DefaultUserManager.UserManagerListener;
 import org.ccci.idm.user.exception.InvalidEmailUserException;
 import org.ccci.idm.user.exception.UserException;
+import org.ccci.idm.user.util.PasswordHistoryManager;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Value;
 
@@ -21,6 +22,8 @@ import javax.annotation.Nonnull;
 import javax.inject.Inject;
 import javax.validation.constraints.NotNull;
 import java.security.SecureRandom;
+import java.util.Collection;
+import java.util.Collections;
 import java.util.Random;
 
 public abstract class AbstractDefaultUserManagerIT {
@@ -56,6 +59,7 @@ public abstract class AbstractDefaultUserManagerIT {
             final User user = newUser();
             this.userManager.createUser(user);
             assertTrue(this.userManager.doesEmailExist(user.getEmail()));
+            assertTrue(user.getCruPasswordHistory().size() == 1);
         }
 
         // test various invalid email addresses
@@ -221,6 +225,66 @@ public abstract class AbstractDefaultUserManagerIT {
             assertEquals(this.user.getEmail(), user.getEmail());
             assertFalse(user.isDeactivated());
             postReactivatedCalled = true;
+        }
+    }
+
+    @Test
+    public void testPasswordHistory() throws Exception {
+        PasswordHistoryManager passwordHistoryManager = new PasswordHistoryManager();
+
+        // test with unmodifiable collection
+        {
+            Collection<String> emptyHistory = Collections.emptyList();
+
+            final User user = newUser();
+            user.setCruPasswordHistory(emptyHistory);
+            this.userManager.createUser(user);
+
+            user.setPassword(guid());
+            user.setCruPasswordHistory(emptyHistory);
+            this.userManager.updateUser(user, User.Attr.PASSWORD);
+        }
+
+        // check password history
+        {
+            // create base user
+            final User user = newUser();
+            this.userManager.createUser(user);
+
+            User foundUser = this.userManager.findUserByEmail(user.getEmail());
+            assertTrue(foundUser.getCruPasswordHistory().size() == 1);
+            assertTrue(passwordHistoryManager.isPasswordHistorical(user.getPassword(), foundUser.getCruPasswordHistory()));
+
+            String password = guid();
+
+            // assert password is not in history
+            foundUser = this.userManager.findUserByEmail(user.getEmail());
+            assertFalse(passwordHistoryManager.isPasswordHistorical(password, foundUser.getCruPasswordHistory()));
+
+            user.setPassword(password);
+            this.userManager.updateUser(user, User.Attr.PASSWORD);
+
+            // assert password is in history
+            foundUser = this.userManager.findUserByEmail(user.getEmail());
+            assertTrue(passwordHistoryManager.isPasswordHistorical(password, foundUser.getCruPasswordHistory()));
+
+            for(int i=0; i<PasswordHistoryManager.MAX_HISTORY; i++) {
+                user.setPassword(guid());
+                this.userManager.updateUser(user, User.Attr.PASSWORD);
+
+                // assert password is still in history
+                if(i == PasswordHistoryManager.MAX_HISTORY-2) {
+                    foundUser = this.userManager.findUserByEmail(user.getEmail());
+                    assertTrue(passwordHistoryManager.isPasswordHistorical(password, foundUser.getCruPasswordHistory()));
+                }
+            }
+
+            // assert password is not in history anymore (as it should have been replaced by more recent passwords)
+            foundUser = this.userManager.findUserByEmail(user.getEmail());
+            assertFalse(passwordHistoryManager.isPasswordHistorical(password, foundUser.getCruPasswordHistory()));
+
+            // assert the password history size has grown to its maximum
+            assertTrue(foundUser.getCruPasswordHistory().size() == PasswordHistoryManager.MAX_HISTORY);
         }
     }
 

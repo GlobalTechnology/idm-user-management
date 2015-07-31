@@ -24,8 +24,10 @@ import java.util.Set;
 public class User implements Cloneable, Serializable {
     private static final long serialVersionUID = -1174980195690210236L;
 
-    public enum Attr {EMAIL, PASSWORD, NAME, LOGINTIME, FLAGS, SELFSERVICEKEYS, DOMAINSVISITED, FACEBOOK, RELAY_GUID,
-       LOCATION, EMPLOYEE_NUMBER, CRU_DESIGNATION, CONTACT, CRU_PREFERRED_NAME, CRU_PROXY_ADDRESSES, HUMAN_RESOURCE }
+    public enum Attr {
+        EMAIL, PASSWORD, NAME, LOGINTIME, FLAGS, SELFSERVICEKEYS, DOMAINSVISITED, FACEBOOK, RELAY_GUID,
+        LOCATION, EMPLOYEE_NUMBER, CRU_DESIGNATION, CONTACT, CRU_PREFERRED_NAME, CRU_PROXY_ADDRESSES, HUMAN_RESOURCE
+    }
 
     @Nullable
     private String email;
@@ -81,6 +83,7 @@ public class User implements Cloneable, Serializable {
     private String cruPreferredName;
     private String cruSubMinistryCode;
     private Collection<String> cruProxyAddresses = Sets.newHashSet();
+    private Collection<String> cruPasswordHistory = Sets.newHashSet();
 
     // other attributes (used by relay)
     private String city;
@@ -132,6 +135,7 @@ public class User implements Cloneable, Serializable {
         this.cruPreferredName = source.cruPreferredName;
         this.cruSubMinistryCode = source.cruSubMinistryCode;
         this.cruProxyAddresses.addAll(source.cruProxyAddresses);
+        this.cruPasswordHistory.addAll(source.cruPasswordHistory);
         this.country = source.country;
 
         this.city = source.city;
@@ -397,6 +401,14 @@ public class User implements Cloneable, Serializable {
         this.cruProxyAddresses = cruProxyAddresses;
     }
 
+    public Collection<String> getCruPasswordHistory() {
+        return cruPasswordHistory;
+    }
+
+    public void setCruPasswordHistory(final Collection<String> cruPasswordHistory) {
+        this.cruPasswordHistory = cruPasswordHistory;
+    }
+
     public String getCity() {
         return city;
     }
@@ -605,6 +617,7 @@ public class User implements Cloneable, Serializable {
                 .add("cruPreferredName", cruPreferredName)
                 .add("cruSubMinistryCode", cruSubMinistryCode)
                 .add("cruProxyAddresses", cruProxyAddresses)
+                .add("cruPasswordHistory", cruPasswordHistory)
                 .add("city", city)
                 .add("state", state)
                 .add("postal", postal)
@@ -621,7 +634,8 @@ public class User implements Cloneable, Serializable {
                 domainsVisited, groups, signupKey, changeEmailKey, resetPasswordKey, proposedEmail, facebookId,
                 facebookIdStrength, employeeId, departmentNumber, cruDesignation, cruEmployeeStatus, cruGender,
                 cruHrStatusCode, cruJobCode, cruManagerID, cruMinistryCode, cruPayGroup, cruPreferredName,
-                cruSubMinistryCode, cruProxyAddresses, city, state, postal, country, telephoneNumber);
+                cruSubMinistryCode, cruProxyAddresses, cruPasswordHistory, city, state, postal, country,
+                telephoneNumber);
     }
 
     @Override
@@ -642,8 +656,8 @@ public class User implements Cloneable, Serializable {
                 Objects.equal(this.deactivated, other.deactivated) &&
                 Objects.equal(this.loginDisabled, other.loginDisabled) &&
                 Objects.equal(this.locked, other.locked) &&
-                this.domainsVisited.size() == other.domainsVisited.size() && this.domainsVisited.containsAll(other.domainsVisited) &&
-                this.groups.size() == other.groups.size() && this.groups.containsAll(other.groups) &&
+                Objects.equal(this.domainsVisited, other.domainsVisited) &&
+                Objects.equal(this.groups, other.groups) &&
                 Objects.equal(this.signupKey, other.signupKey) &&
                 Objects.equal(this.changeEmailKey, other.changeEmailKey) &&
                 Objects.equal(this.resetPasswordKey, other.resetPasswordKey) &&
@@ -663,6 +677,8 @@ public class User implements Cloneable, Serializable {
                 Objects.equal(this.cruPreferredName, other.cruPreferredName) &&
                 Objects.equal(this.cruSubMinistryCode, other.cruSubMinistryCode) &&
                 this.cruProxyAddresses.size() == other.cruProxyAddresses.size() && this.cruProxyAddresses.containsAll(other.cruProxyAddresses) &&
+                this.cruPasswordHistory.size() == other.cruPasswordHistory.size() &&
+                this.cruPasswordHistory.containsAll(other.cruPasswordHistory) &&
                 Objects.equal(this.city, other.city) &&
                 Objects.equal(this.state, other.state) &&
                 Objects.equal(this.postal, other.postal) &&

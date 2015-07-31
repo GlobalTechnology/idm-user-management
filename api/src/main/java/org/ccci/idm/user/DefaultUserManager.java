@@ -2,6 +2,7 @@ package org.ccci.idm.user;
 
 import com.github.inspektr.audit.annotation.Audit;
 import com.google.common.base.CharMatcher;
+import com.google.common.collect.FluentIterable;
 import com.google.common.collect.ImmutableList;
 import org.apache.commons.validator.routines.EmailValidator;
 import org.ccci.idm.user.dao.UserDao;
@@ -15,6 +16,7 @@ import org.ccci.idm.user.exception.UserAlreadyExistsException;
 import org.ccci.idm.user.exception.UserException;
 import org.ccci.idm.user.exception.UserNotFoundException;
 import org.ccci.idm.user.util.DefaultRandomPasswordGenerator;
+import org.ccci.idm.user.util.PasswordHistoryManager;
 import org.ccci.idm.user.util.RandomPasswordGenerator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -42,6 +44,9 @@ public class DefaultUserManager implements UserManager {
 
     @NotNull
     protected RandomPasswordGenerator randomPasswordGenerator = new DefaultRandomPasswordGenerator();
+
+    @NotNull
+    private PasswordHistoryManager passwordHistoryManager = new PasswordHistoryManager();
 
     @Inject
     @NotNull
@@ -92,6 +97,9 @@ public class DefaultUserManager implements UserManager {
 
         // initialize some default attributes
         this.setNewUserDefaults(user);
+
+        // add password to history
+        user.setCruPasswordHistory(passwordHistoryManager.add(user.getPassword(), user.getCruPasswordHistory()));
 
         // Save the user
         this.userDao.save(user);
@@ -144,6 +152,11 @@ public class DefaultUserManager implements UserManager {
         final User original = this.getFreshUser(user);
         for (final UserManagerListener listener : listeners) {
             listener.onPreUpdateUser(original, user, attrs);
+        }
+
+        // add password to history (if you have password and caller intends to set)
+        if(StringUtils.hasText(user.getPassword()) && FluentIterable.of(attrs).contains(User.Attr.PASSWORD)) {
+            user.setCruPasswordHistory(passwordHistoryManager.add(user.getPassword(), user.getCruPasswordHistory()));
         }
 
         // update the user object
