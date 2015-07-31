@@ -14,7 +14,6 @@ import static org.ccci.idm.user.dao.ldap.Constants.LDAP_ATTR_CRU_MINISTRY_CODE;
 import static org.ccci.idm.user.dao.ldap.Constants.LDAP_ATTR_CRU_PAY_GROUP;
 import static org.ccci.idm.user.dao.ldap.Constants.LDAP_ATTR_CRU_PREFERRED_NAME;
 import static org.ccci.idm.user.dao.ldap.Constants.LDAP_ATTR_CRU_PROXY_ADDRESSES;
-import static org.ccci.idm.user.dao.ldap.Constants.LDAP_ATTR_CRU_PASSWORD_HISTORY;
 import static org.ccci.idm.user.dao.ldap.Constants.LDAP_ATTR_CRU_SUB_MINISTRY_CODE;
 import static org.ccci.idm.user.dao.ldap.Constants.LDAP_ATTR_DEPARTMENT_NUMBER;
 import static org.ccci.idm.user.dao.ldap.Constants.LDAP_ATTR_DOMAINSVISITED;
@@ -176,7 +175,7 @@ public abstract class AbstractUserLdapEntryMapper<O extends User> implements Lda
         entry.addAttribute(this.attr(LDAP_ATTR_CRU_PREFERRED_NAME, user.getCruPreferredName()));
         entry.addAttribute(this.attr(LDAP_ATTR_CRU_SUB_MINISTRY_CODE, user.getCruSubMinistryCode()));
         entry.addAttribute(this.attr(LDAP_ATTR_CRU_PROXY_ADDRESSES, user.getCruProxyAddresses()));
-        entry.addAttribute(this.attr(LDAP_ATTR_CRU_PASSWORD_HISTORY, user.getCruPasswordHistory()));
+//        entry.addAttribute(this.attr(LDAP_ATTR_CRU_PASSWORD_HISTORY, user.getCruPasswordHistory()));
 
         entry.addAttribute(this.attr(LDAP_ATTR_EMPLOYEE_NUMBER, user.getEmployeeId()));
         entry.addAttribute(this.attr(LDAP_ATTR_DEPARTMENT_NUMBER, user.getDepartmentNumber()));
@@ -252,7 +251,7 @@ public abstract class AbstractUserLdapEntryMapper<O extends User> implements Lda
         user.setCruPreferredName(this.getStringValue(entry, LDAP_ATTR_CRU_PREFERRED_NAME));
         user.setCruSubMinistryCode(this.getStringValue(entry, LDAP_ATTR_CRU_SUB_MINISTRY_CODE));
         user.setCruProxyAddresses(this.getStringValues(entry, LDAP_ATTR_CRU_PROXY_ADDRESSES));
-        user.setCruPasswordHistory(this.getStringValues(entry, LDAP_ATTR_CRU_PASSWORD_HISTORY));
+//        user.setCruPasswordHistory(this.getStringValues(entry, LDAP_ATTR_CRU_PASSWORD_HISTORY));
 
         user.setEmployeeId(this.getStringValue(entry, LDAP_ATTR_EMPLOYEE_NUMBER));
         user.setDepartmentNumber(this.getStringValue(entry, LDAP_ATTR_DEPARTMENT_NUMBER));

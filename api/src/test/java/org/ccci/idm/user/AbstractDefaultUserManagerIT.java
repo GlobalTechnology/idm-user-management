@@ -15,6 +15,7 @@ import org.ccci.idm.user.DefaultUserManager.UserManagerListener;
 import org.ccci.idm.user.exception.InvalidEmailUserException;
 import org.ccci.idm.user.exception.UserException;
 import org.ccci.idm.user.util.PasswordHistoryManager;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Value;
 
@@ -229,6 +230,7 @@ public abstract class AbstractDefaultUserManagerIT {
     }
 
     @Test
+    @Ignore
     public void testPasswordHistory() throws Exception {
         PasswordHistoryManager passwordHistoryManager = new PasswordHistoryManager();
 
