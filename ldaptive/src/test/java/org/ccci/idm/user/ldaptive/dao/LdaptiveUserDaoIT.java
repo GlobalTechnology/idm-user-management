@@ -421,6 +421,8 @@ public class LdaptiveUserDaoIT {
         assertEquals(user.getEmployeeId(), found.getEmployeeId());
         assertEquals(user.getCity(), found.getCity());
         assertEquals(user.getCruDesignation(), found.getCruDesignation());
+        assertEquals(user.getSecurityQuestion(), found.getSecurityQuestion());
+        assertEquals(user.getSecurityAnswer(), found.getSecurityAnswer());
     }
 
     @Test
@@ -442,6 +444,8 @@ public class LdaptiveUserDaoIT {
         // update city & employee id
         user.setCity(user.getCity() + " modified");
         user.setEmployeeId(user.getEmployeeId() + " modified");
+        user.setSecurityQuestion(user.getSecurityQuestion() + "modified");
+        user.setSecurityAnswer(user.getSecurityAnswer() + "modified");
         this.dao.update(user, User.Attr.LOCATION, User.Attr.EMPLOYEE_NUMBER);
 
         // check for valid update
@@ -451,6 +455,17 @@ public class LdaptiveUserDaoIT {
         assertEquals(user.getEmail(), foundUser.getEmail());
         assertEquals(user.getCity(), foundUser.getCity());
         assertEquals(user.getEmployeeId(), foundUser.getEmployeeId());
+
+        assertNotEquals(user.getSecurityQuestion(), foundUser.getSecurityQuestion());
+        assertNotEquals(user.getSecurityAnswer(), foundUser.getSecurityAnswer());
+
+        this.dao.update(user, User.Attr.SECURITYQA);
+
+        // check for valid update
+        foundUser = this.dao.findByGuid(user.getGuid(), false);
+        assertEquals(user.getSecurityQuestion(), foundUser.getSecurityQuestion());
+        assertEquals(user.getSecurityAnswer(), foundUser.getSecurityAnswer());
+
     }
 
     @Test
@@ -571,6 +586,9 @@ public class LdaptiveUserDaoIT {
         user.setCruProxyAddresses(cruProxyAddresses);
         Collection<String> cruPasswordHistory = Sets.newHashSet("09a87fa0987sdf7sdf", "897asdf987asdf789asfd");
         user.setCruPasswordHistory(cruPasswordHistory);
+
+        user.setSecurityQuestion(guid());
+        user.setSecurityAnswer(guid());
 
         return user;
     }

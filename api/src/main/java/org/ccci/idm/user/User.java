@@ -26,7 +26,8 @@ public class User implements Cloneable, Serializable {
 
     public enum Attr {
         EMAIL, PASSWORD, NAME, LOGINTIME, FLAGS, SELFSERVICEKEYS, DOMAINSVISITED, FACEBOOK, RELAY_GUID,
-        LOCATION, EMPLOYEE_NUMBER, CRU_DESIGNATION, CONTACT, CRU_PREFERRED_NAME, CRU_PROXY_ADDRESSES, HUMAN_RESOURCE
+        LOCATION, EMPLOYEE_NUMBER, CRU_DESIGNATION, CONTACT, CRU_PREFERRED_NAME, CRU_PROXY_ADDRESSES, HUMAN_RESOURCE,
+        SECURITYQA
     }
 
     @Nullable
@@ -93,6 +94,9 @@ public class User implements Cloneable, Serializable {
 
     private String telephoneNumber;
 
+    private String securityQuestion;
+    private String securityAnswer;
+
     public User() {
     }
 
@@ -146,6 +150,9 @@ public class User implements Cloneable, Serializable {
         this.implMeta.putAll(source.implMeta);
 
         this.pwdChangedTime = source.pwdChangedTime;
+
+        this.securityQuestion = source.securityQuestion;
+        this.securityAnswer = source.securityAnswer;
     }
 
     @Nullable
@@ -447,6 +454,22 @@ public class User implements Cloneable, Serializable {
         this.telephoneNumber = telephoneNumber;
     }
 
+    public String getSecurityQuestion() {
+        return securityQuestion;
+    }
+
+    public void setSecurityQuestion(final String securityQuestion) {
+        this.securityQuestion = securityQuestion;
+    }
+
+    public String getSecurityAnswer() {
+        return securityAnswer;
+    }
+
+    public void setSecurityAnswer(final String securityAnswer) {
+        this.securityAnswer = securityAnswer;
+    }
+
     /**
      * @return the domainsVisited
      */
@@ -622,6 +645,8 @@ public class User implements Cloneable, Serializable {
                 .add("country", country)
                 .add("telephoneNumber", telephoneNumber)
                 .add("pwdChangedTime", pwdChangedTime)
+                .add("securityQuestion", securityQuestion)
+                .add("securityAnswer", securityAnswer)
                 .toString();
     }
 
@@ -633,7 +658,7 @@ public class User implements Cloneable, Serializable {
                 facebookIdStrength, employeeId, departmentNumber, cruDesignation, cruEmployeeStatus, cruGender,
                 cruHrStatusCode, cruJobCode, cruManagerID, cruMinistryCode, cruPayGroup, cruPreferredName,
                 cruSubMinistryCode, cruProxyAddresses, cruPasswordHistory, city, state, postal, country,
-                telephoneNumber);
+                telephoneNumber, securityQuestion, securityAnswer);
     }
 
     @Override
@@ -681,6 +706,8 @@ public class User implements Cloneable, Serializable {
                 Objects.equal(this.state, other.state) &&
                 Objects.equal(this.postal, other.postal) &&
                 Objects.equal(this.country, other.country) &&
-                Objects.equal(this.telephoneNumber, other.telephoneNumber);
+                Objects.equal(this.telephoneNumber, other.telephoneNumber) &&
+                Objects.equal(this.securityQuestion, other.securityQuestion) &&
+                Objects.equal(this.securityAnswer, other.securityAnswer);
     }
 }
