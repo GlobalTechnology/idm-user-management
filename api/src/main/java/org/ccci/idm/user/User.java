@@ -166,6 +166,9 @@ public class User implements Cloneable, Serializable {
         this.emailVerified = verified;
     }
 
+    /**
+     * This method is for use by UserDao &amp; UserManager implementations only and is not meant for public use.
+     */
     public String getPassword() {
         return this.password;
     }
