@@ -501,7 +501,8 @@ public class User implements Cloneable, Serializable {
     }
 
     private String normalize(final String string) {
-        return CharMatcher.WHITESPACE.trimAndCollapseFrom(string, ' ').toLowerCase();
+        return Strings.isNullOrEmpty(string) ? string :
+                CharMatcher.WHITESPACE.trimAndCollapseFrom(string, ' ').toLowerCase();
     }
 
     /**
