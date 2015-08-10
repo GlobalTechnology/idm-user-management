@@ -465,12 +465,10 @@ public class User implements Cloneable, Serializable {
     }
 
     /**
-     * Store the hashed value of the plain text security answer
-     *
-     * @param securityAnswer plain text security answer
+     * Not meant for public use.
      */
-    public void setSecurityAnswer(final String securityAnswer) {
-        this.setSecurityAnswer(securityAnswer, true);
+    public String getSecurityAnswer() {
+        return securityAnswer;
     }
 
     /**
@@ -486,10 +484,12 @@ public class User implements Cloneable, Serializable {
     }
 
     /**
-     * Not meant for public use.
+     * Store the hashed value of the plain text security answer
+     *
+     * @param securityAnswer plain text security answer
      */
-    public String getSecurityAnswer() {
-        return securityAnswer;
+    public void setSecurityAnswer(final String securityAnswer) {
+        this.setSecurityAnswer(securityAnswer, true);
     }
 
     /**
