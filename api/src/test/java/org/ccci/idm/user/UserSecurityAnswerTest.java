@@ -16,6 +16,7 @@ public class UserSecurityAnswerTest {
     public static Collection<Object[]> data() {
         final ImmutableList.Builder<Object[]> data = ImmutableList.builder();
         data.add(new Object[]{null, new String[0], new String[]{null, "null", "", " "}});
+        data.add(new Object[]{"null", new String[]{" null ", "null"}, new String[]{null, "", " "}});
         data.add(new Object[]{"", new String[0], new String[]{null, "null", "", " "}});
         data.add(new Object[]{" ", new String[0], new String[]{null, "null", "", " "}});
         data.add(new Object[]{" A   b C ", new String[]{"a b c", " A   b C ", "A    B       c   "}, new
