@@ -176,4 +176,14 @@ public class UserTest {
             assertFalse(user.isEmailVerified());
         }
     }
+
+    @Test
+    public void testSetSecurityAnswer() throws Exception {
+        // test potential security vulnerability
+        {
+            final User user = new User();
+            user.setSecurityAnswer(null);
+            assertFalse(user.checkSecurityAnswer("null"));
+        }
+    }
 }
