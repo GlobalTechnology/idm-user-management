@@ -6,9 +6,11 @@ import static org.ccci.idm.user.Constants.STRENGTH_NONE;
 import com.google.common.base.MoreObjects;
 import com.google.common.base.Objects;
 import com.google.common.base.Predicates;
+import com.google.common.base.Strings;
 import com.google.common.collect.Collections2;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
+import org.ccci.idm.user.util.HashUtility;
 import org.joda.time.ReadableInstant;
 import org.springframework.util.StringUtils;
 
@@ -462,12 +464,39 @@ public class User implements Cloneable, Serializable {
         this.securityQuestion = securityQuestion;
     }
 
+    /**
+     * Store the hashed value of the plain text security answer
+     *
+     * @param securityAnswer plain text security answer
+     */
+    public void setSecurityAnswer(final String securityAnswer) {
+        this.setSecurityAnswer(securityAnswer, true);
+    }
+
+    /**
+     * Check the plain text security answer against this security answer, which is already hashed
+     *
+     * @param securityAnswer plain text security answer
+     *
+     * @return true if provided security answer matches this object's
+     */
+    public boolean checkSecurityAnswer(final String securityAnswer) {
+        return !Strings.isNullOrEmpty(this.securityAnswer) &&
+                HashUtility.checkHash(securityAnswer, this.securityAnswer);
+    }
+
+    /**
+     * Not meant for public use.
+     */
     public String getSecurityAnswer() {
         return securityAnswer;
     }
 
-    public void setSecurityAnswer(final String securityAnswer) {
-        this.securityAnswer = securityAnswer;
+    /**
+     * Not meant for public use.
+     */
+    public void setSecurityAnswer(final String securityAnswer, boolean hash) {
+        this.securityAnswer = hash ? HashUtility.getHash(securityAnswer) : securityAnswer;
     }
 
     /**

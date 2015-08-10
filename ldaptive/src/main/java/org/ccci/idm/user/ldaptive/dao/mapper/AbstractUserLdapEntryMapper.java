@@ -270,7 +270,7 @@ public abstract class AbstractUserLdapEntryMapper<O extends User> implements Lda
         user.setCountry(this.getStringValue(entry, LDAP_ATTR_COUNTRY));
 
         user.setSecurityQuestion(this.getStringValue(entry, LDAP_ATTR_SECURITY_QUESTION));
-        user.setSecurityAnswer(this.getStringValue(entry, LDAP_ATTR_SECURITY_ANSWER));
+        user.setSecurityAnswer(this.getStringValue(entry, LDAP_ATTR_SECURITY_ANSWER), false);
 
         // return the loaded User object
         LOG.debug("User loaded from LdapEntry: {}", user.getGuid());
