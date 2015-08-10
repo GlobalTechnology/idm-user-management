@@ -679,8 +679,8 @@ public class User implements Cloneable, Serializable {
                 .add("country", country)
                 .add("telephoneNumber", telephoneNumber)
                 .add("pwdChangedTime", pwdChangedTime)
-                .add("securityQuestion", securityQuestion)
-                .add("securityAnswer", securityAnswer)
+                .add("cruSecurityQuestion", securityQuestion)
+                .add("cruSecurityAnswer", securityAnswer)
                 .toString();
     }
 
