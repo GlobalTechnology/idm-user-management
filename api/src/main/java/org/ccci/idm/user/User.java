@@ -473,6 +473,15 @@ public class User implements Cloneable, Serializable {
     }
 
     /**
+     * Return whether or not this user has a Security Answer set
+     *
+     * @return boolean indicating if the user has a security answer set
+     */
+    public boolean hasSecurityAnswer() {
+        return !Strings.isNullOrEmpty(securityAnswer);
+    }
+
+    /**
      * Check the plain text security answer against this security answer, which is already hashed
      *
      * @param securityAnswer plain text security answer
