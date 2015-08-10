@@ -3,6 +3,7 @@ package org.ccci.idm.user;
 import static org.ccci.idm.user.Constants.STRENGTH_FULL;
 import static org.ccci.idm.user.Constants.STRENGTH_NONE;
 
+import com.google.common.base.CharMatcher;
 import com.google.common.base.MoreObjects;
 import com.google.common.base.Objects;
 import com.google.common.base.Predicates;
@@ -480,7 +481,7 @@ public class User implements Cloneable, Serializable {
      */
     public boolean checkSecurityAnswer(final String securityAnswer) {
         return !Strings.isNullOrEmpty(this.securityAnswer) &&
-                HashUtility.checkHash(securityAnswer, this.securityAnswer);
+                HashUtility.checkHash(normalize(securityAnswer), this.securityAnswer);
     }
 
     /**
@@ -496,7 +497,11 @@ public class User implements Cloneable, Serializable {
      * Not meant for public use.
      */
     public void setSecurityAnswer(final String securityAnswer, boolean hash) {
-        this.securityAnswer = hash ? HashUtility.getHash(securityAnswer) : securityAnswer;
+        this.securityAnswer = hash ? HashUtility.getHash(normalize(securityAnswer)) : securityAnswer;
+    }
+
+    private String normalize(final String string) {
+        return CharMatcher.WHITESPACE.trimAndCollapseFrom(string, ' ').toLowerCase();
     }
 
     /**
