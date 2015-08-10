@@ -480,7 +480,7 @@ public class LdaptiveUserDaoIT {
 
         User foundUser = this.dao.findByGuid(user.getGuid(), false);
         assertEquals(user.getSecurityQuestion(), foundUser.getSecurityQuestion());
-        assertTrue(foundUser.checkSecurityAnswer(securityAnswer));
+        assertFalse(foundUser.checkSecurityAnswer(securityAnswer));
 
         user.setSecurityQuestion(null);
         user.setSecurityAnswer(null);
@@ -488,7 +488,8 @@ public class LdaptiveUserDaoIT {
 
         foundUser = this.dao.findByGuid(user.getGuid(), false);
         assertEquals(user.getSecurityQuestion(), foundUser.getSecurityQuestion());
-        assertTrue(foundUser.checkSecurityAnswer(null));
+        assertFalse(foundUser.checkSecurityAnswer(null));
+        assertFalse(foundUser.checkSecurityAnswer("null"));
 
         securityAnswer = guid();
         user.setSecurityQuestion(guid());
