@@ -480,8 +480,9 @@ public class User implements Cloneable, Serializable {
      * @return true if provided security answer matches this object's
      */
     public boolean checkSecurityAnswer(final String securityAnswer) {
-        return !Strings.isNullOrEmpty(this.securityAnswer) &&
-                HashUtility.checkHash(normalize(securityAnswer), this.securityAnswer);
+        final String normalized = normalize(securityAnswer);
+        return !Strings.isNullOrEmpty(this.securityAnswer) && !Strings.isNullOrEmpty(normalized) &&
+                HashUtility.checkHash(normalized, this.securityAnswer);
     }
 
     /**
@@ -497,7 +498,12 @@ public class User implements Cloneable, Serializable {
      * Not meant for public use.
      */
     public void setSecurityAnswer(final String securityAnswer, boolean hash) {
-        this.securityAnswer = hash ? HashUtility.getHash(normalize(securityAnswer)) : securityAnswer;
+        if (hash) {
+            final String normalized = normalize(securityAnswer);
+            this.securityAnswer = Strings.isNullOrEmpty(normalized) ? null : HashUtility.getHash(normalized);
+        } else {
+            this.securityAnswer = securityAnswer;
+        }
     }
 
     private String normalize(final String string) {
