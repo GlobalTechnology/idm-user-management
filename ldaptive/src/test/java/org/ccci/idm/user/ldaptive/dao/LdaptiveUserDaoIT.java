@@ -411,16 +411,25 @@ public class LdaptiveUserDaoIT {
 
         // create a new user
         final User user = getStaffUser();
+
+        final String securityAnswer = guid();
+        user.setSecurityQuestion(guid());
+        user.setSecurityAnswer(securityAnswer);
+
         this.dao.save(user);
 
         // make sure we can find it and it's valid
-        final User found = this.dao.findByGuid(user.getGuid(), false);
-        assertNotNull(found);
-        assertEquals(user.getGuid(), found.getGuid());
-        assertEquals(user.getEmail(), found.getEmail());
-        assertEquals(user.getEmployeeId(), found.getEmployeeId());
-        assertEquals(user.getCity(), found.getCity());
-        assertEquals(user.getCruDesignation(), found.getCruDesignation());
+        final User foundUser = this.dao.findByGuid(user.getGuid(), false);
+        assertNotNull(foundUser);
+        assertEquals(user.getGuid(), foundUser.getGuid());
+        assertEquals(user.getEmail(), foundUser.getEmail());
+        assertEquals(user.getEmployeeId(), foundUser.getEmployeeId());
+        assertEquals(user.getCity(), foundUser.getCity());
+        assertEquals(user.getCruDesignation(), foundUser.getCruDesignation());
+
+        assertEquals(user.getSecurityQuestion(), foundUser.getSecurityQuestion());
+
+        assertTrue(foundUser.checkSecurityAnswer(securityAnswer));
     }
 
     @Test
@@ -442,6 +451,7 @@ public class LdaptiveUserDaoIT {
         // update city & employee id
         user.setCity(user.getCity() + " modified");
         user.setEmployeeId(user.getEmployeeId() + " modified");
+
         this.dao.update(user, User.Attr.LOCATION, User.Attr.EMPLOYEE_NUMBER);
 
         // check for valid update
@@ -451,6 +461,51 @@ public class LdaptiveUserDaoIT {
         assertEquals(user.getEmail(), foundUser.getEmail());
         assertEquals(user.getCity(), foundUser.getCity());
         assertEquals(user.getEmployeeId(), foundUser.getEmployeeId());
+    }
+
+    @Test
+    public void testSecurityQuestionAnswer() throws Exception {
+        assumeConfigured();
+
+        // create a new user
+        final User user = getStaffUser();
+        this.dao.save(user);
+
+        String securityAnswer = "";
+
+        user.setSecurityQuestion("");
+        user.setSecurityAnswer(securityAnswer);
+
+        this.dao.update(user, User.Attr.SECURITYQA);
+
+        User foundUser = this.dao.findByGuid(user.getGuid(), false);
+        assertEquals(user.getSecurityQuestion(), foundUser.getSecurityQuestion());
+        assertFalse(foundUser.checkSecurityAnswer(securityAnswer));
+
+        user.setSecurityQuestion(null);
+        user.setSecurityAnswer(null);
+        this.dao.update(user, User.Attr.SECURITYQA);
+
+        foundUser = this.dao.findByGuid(user.getGuid(), false);
+        assertEquals(user.getSecurityQuestion(), foundUser.getSecurityQuestion());
+        assertFalse(foundUser.checkSecurityAnswer(null));
+        assertFalse(foundUser.checkSecurityAnswer("null"));
+
+        securityAnswer = guid();
+        user.setSecurityQuestion(guid());
+        user.setSecurityAnswer(securityAnswer);
+
+        this.dao.update(user, User.Attr.LOCATION);
+
+        assertNotEquals(user.getSecurityQuestion(), foundUser.getSecurityQuestion());
+        assertFalse(foundUser.checkSecurityAnswer(securityAnswer));
+
+        this.dao.update(user, User.Attr.SECURITYQA);
+
+        // check for valid update
+        foundUser = this.dao.findByGuid(user.getGuid(), false);
+        assertEquals(user.getSecurityQuestion(), foundUser.getSecurityQuestion());
+        assertTrue(foundUser.checkSecurityAnswer(securityAnswer));
     }
 
     @Test
