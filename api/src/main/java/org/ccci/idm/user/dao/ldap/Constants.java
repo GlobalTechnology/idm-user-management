@@ -36,6 +36,9 @@ public class Constants {
     public static final String LDAP_FLAG_LOCKED = "lockedByIntruder";
     public static final String LDAP_FLAG_EMAILVERIFIED = "thekeyAccountVerified";
 
+    public static final String LDAP_ATTR_SECURITY_QUESTION = "cruSecurityQuestion";
+    public static final String LDAP_ATTR_SECURITY_ANSWER = "cruSecurityAnswer";
+
     // LDAP objectClass values
     public static final String LDAP_OBJECTCLASS_TOP = "Top";
     public static final String LDAP_OBJECTCLASS_PERSON = "Person";

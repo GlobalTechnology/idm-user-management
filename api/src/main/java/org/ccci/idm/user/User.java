@@ -3,12 +3,15 @@ package org.ccci.idm.user;
 import static org.ccci.idm.user.Constants.STRENGTH_FULL;
 import static org.ccci.idm.user.Constants.STRENGTH_NONE;
 
+import com.google.common.base.CharMatcher;
 import com.google.common.base.MoreObjects;
 import com.google.common.base.Objects;
 import com.google.common.base.Predicates;
+import com.google.common.base.Strings;
 import com.google.common.collect.Collections2;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
+import org.ccci.idm.user.util.HashUtility;
 import org.joda.time.ReadableInstant;
 import org.springframework.util.StringUtils;
 
@@ -26,7 +29,8 @@ public class User implements Cloneable, Serializable {
 
     public enum Attr {
         EMAIL, PASSWORD, NAME, LOGINTIME, FLAGS, SELFSERVICEKEYS, DOMAINSVISITED, FACEBOOK, RELAY_GUID,
-        LOCATION, EMPLOYEE_NUMBER, CRU_DESIGNATION, CONTACT, CRU_PREFERRED_NAME, CRU_PROXY_ADDRESSES, HUMAN_RESOURCE
+        LOCATION, EMPLOYEE_NUMBER, CRU_DESIGNATION, CONTACT, CRU_PREFERRED_NAME, CRU_PROXY_ADDRESSES, HUMAN_RESOURCE,
+        SECURITYQA
     }
 
     @Nullable
@@ -93,6 +97,9 @@ public class User implements Cloneable, Serializable {
 
     private String telephoneNumber;
 
+    private String securityQuestion;
+    private String securityAnswer;
+
     public User() {
     }
 
@@ -146,6 +153,9 @@ public class User implements Cloneable, Serializable {
         this.implMeta.putAll(source.implMeta);
 
         this.pwdChangedTime = source.pwdChangedTime;
+
+        this.securityQuestion = source.securityQuestion;
+        this.securityAnswer = source.securityAnswer;
     }
 
     @Nullable
@@ -450,6 +460,69 @@ public class User implements Cloneable, Serializable {
         this.telephoneNumber = telephoneNumber;
     }
 
+    public String getSecurityQuestion() {
+        return securityQuestion;
+    }
+
+    public void setSecurityQuestion(final String securityQuestion) {
+        this.securityQuestion = securityQuestion;
+    }
+
+    /**
+     * Not meant for public use.
+     */
+    public String getSecurityAnswer() {
+        return securityAnswer;
+    }
+
+    /**
+     * Return whether or not this user has a Security Answer set
+     *
+     * @return boolean indicating if the user has a security answer set
+     */
+    public boolean hasSecurityAnswer() {
+        return !Strings.isNullOrEmpty(securityAnswer);
+    }
+
+    /**
+     * Check the plain text security answer against this security answer, which is already hashed
+     *
+     * @param securityAnswer plain text security answer
+     *
+     * @return true if provided security answer matches this object's
+     */
+    public boolean checkSecurityAnswer(final String securityAnswer) {
+        final String normalized = normalize(securityAnswer);
+        return !Strings.isNullOrEmpty(this.securityAnswer) && !Strings.isNullOrEmpty(normalized) &&
+                HashUtility.checkHash(normalized, this.securityAnswer);
+    }
+
+    /**
+     * Store the hashed value of the plain text security answer
+     *
+     * @param securityAnswer plain text security answer
+     */
+    public void setSecurityAnswer(final String securityAnswer) {
+        this.setSecurityAnswer(securityAnswer, true);
+    }
+
+    /**
+     * Not meant for public use.
+     */
+    public void setSecurityAnswer(final String securityAnswer, boolean hash) {
+        if (hash) {
+            final String normalized = normalize(securityAnswer);
+            this.securityAnswer = Strings.isNullOrEmpty(normalized) ? null : HashUtility.getHash(normalized);
+        } else {
+            this.securityAnswer = securityAnswer;
+        }
+    }
+
+    private String normalize(final String string) {
+        return Strings.isNullOrEmpty(string) ? string :
+                CharMatcher.WHITESPACE.trimAndCollapseFrom(string, ' ').toLowerCase();
+    }
+
     /**
      * @return the domainsVisited
      */
@@ -625,6 +698,8 @@ public class User implements Cloneable, Serializable {
                 .add("country", country)
                 .add("telephoneNumber", telephoneNumber)
                 .add("pwdChangedTime", pwdChangedTime)
+                .add("cruSecurityQuestion", securityQuestion)
+                .add("cruSecurityAnswer", securityAnswer)
                 .toString();
     }
 
@@ -636,7 +711,7 @@ public class User implements Cloneable, Serializable {
                 facebookIdStrength, employeeId, departmentNumber, cruDesignation, cruEmployeeStatus, cruGender,
                 cruHrStatusCode, cruJobCode, cruManagerID, cruMinistryCode, cruPayGroup, cruPreferredName,
                 cruSubMinistryCode, cruProxyAddresses, cruPasswordHistory, city, state, postal, country,
-                telephoneNumber);
+                telephoneNumber, securityQuestion, securityAnswer);
     }
 
     @Override
@@ -684,6 +759,8 @@ public class User implements Cloneable, Serializable {
                 Objects.equal(this.state, other.state) &&
                 Objects.equal(this.postal, other.postal) &&
                 Objects.equal(this.country, other.country) &&
-                Objects.equal(this.telephoneNumber, other.telephoneNumber);
+                Objects.equal(this.telephoneNumber, other.telephoneNumber) &&
+                Objects.equal(this.securityQuestion, other.securityQuestion) &&
+                Objects.equal(this.securityAnswer, other.securityAnswer);
     }
 }
