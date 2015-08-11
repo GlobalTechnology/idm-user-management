@@ -33,6 +33,8 @@ import static org.ccci.idm.user.dao.ldap.Constants.LDAP_ATTR_POSTAL_CODE;
 import static org.ccci.idm.user.dao.ldap.Constants.LDAP_ATTR_PROPOSEDEMAIL;
 import static org.ccci.idm.user.dao.ldap.Constants.LDAP_ATTR_RELAY_GUID;
 import static org.ccci.idm.user.dao.ldap.Constants.LDAP_ATTR_RESETPASSWORDKEY;
+import static org.ccci.idm.user.dao.ldap.Constants.LDAP_ATTR_SECURITY_ANSWER;
+import static org.ccci.idm.user.dao.ldap.Constants.LDAP_ATTR_SECURITY_QUESTION;
 import static org.ccci.idm.user.dao.ldap.Constants.LDAP_ATTR_SIGNUPKEY;
 import static org.ccci.idm.user.dao.ldap.Constants.LDAP_ATTR_STATE;
 import static org.ccci.idm.user.dao.ldap.Constants.LDAP_ATTR_TELEPHONE;
@@ -128,7 +130,7 @@ public abstract class AbstractUserLdapEntryMapper<O extends User> implements Lda
 
         // set the simple attributes for this user
         entry.addAttribute(this.attr(LDAP_ATTR_GUID, user.getGuid()));
-        entry.addAttribute(this.attr(LDAP_ATTR_RELAY_GUID, user.getRawRelayGuid()));
+        entry.addAttribute(this.attr(LDAP_ATTR_RELAY_GUID, user.getRelayGuid()));
         entry.addAttribute(this.attr(LDAP_ATTR_THEKEY_GUID, user.getRawTheKeyGuid()));
         entry.addAttribute(this.attr(LDAP_ATTR_FIRSTNAME, user.getFirstName()));
         entry.addAttribute(this.attr(LDAP_ATTR_LASTNAME, user.getLastName()));
@@ -187,6 +189,9 @@ public abstract class AbstractUserLdapEntryMapper<O extends User> implements Lda
         entry.addAttribute(this.attr(LDAP_ATTR_STATE, user.getState()));
         entry.addAttribute(this.attr(LDAP_ATTR_POSTAL_CODE, user.getPostal()));
         entry.addAttribute(this.attr(LDAP_ATTR_COUNTRY, user.getCountry()));
+
+        entry.addAttribute(this.attr(LDAP_ATTR_SECURITY_QUESTION, user.getSecurityQuestion()));
+        entry.addAttribute(this.attr(LDAP_ATTR_SECURITY_ANSWER, user.getSecurityAnswer()));
     }
 
     @Override
@@ -263,6 +268,9 @@ public abstract class AbstractUserLdapEntryMapper<O extends User> implements Lda
         user.setState(this.getStringValue(entry, LDAP_ATTR_STATE));
         user.setPostal(this.getStringValue(entry, LDAP_ATTR_POSTAL_CODE));
         user.setCountry(this.getStringValue(entry, LDAP_ATTR_COUNTRY));
+
+        user.setSecurityQuestion(this.getStringValue(entry, LDAP_ATTR_SECURITY_QUESTION));
+        user.setSecurityAnswer(this.getStringValue(entry, LDAP_ATTR_SECURITY_ANSWER), false);
 
         // return the loaded User object
         LOG.debug("User loaded from LdapEntry: {}", user.getGuid());
