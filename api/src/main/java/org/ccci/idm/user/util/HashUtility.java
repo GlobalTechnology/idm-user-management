@@ -1,6 +1,6 @@
 package org.ccci.idm.user.util;
 
-import org.springframework.security.crypto.bcrypt.BCrypt;
+import org.jasypt.util.password.StrongPasswordEncryptor;
 
 /**
  * Utility class encapsulating a particular hashing algorithm.
@@ -9,13 +9,13 @@ import org.springframework.security.crypto.bcrypt.BCrypt;
  */
 public class HashUtility {
 
-    private static final Integer BCRYPT_WORK_FACTOR = 12;
+    private static StrongPasswordEncryptor passwordEncryptor = new StrongPasswordEncryptor();
 
     public static String getHash(final String string) {
-        return BCrypt.hashpw(string, BCrypt.gensalt(BCRYPT_WORK_FACTOR));
+        return passwordEncryptor.encryptPassword(string);
     }
 
     public static boolean checkHash(final String string, final String hash) {
-        return BCrypt.checkpw(string, hash);
+        return passwordEncryptor.checkPassword(string, hash);
     }
 }
