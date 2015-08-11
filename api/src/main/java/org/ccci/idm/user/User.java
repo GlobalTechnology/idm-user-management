@@ -494,7 +494,8 @@ public class User implements Cloneable, Serializable {
     public boolean checkSecurityAnswer(final String securityAnswer) {
         final String normalized = normalize(securityAnswer);
         return !Strings.isNullOrEmpty(this.securityAnswer) && !Strings.isNullOrEmpty(normalized) &&
-                HashUtility.checkHash(normalized, this.securityAnswer);
+                (HashUtility.checkHash(normalized, this.securityAnswer) ||
+                        HashUtility.checkHash(securityAnswer, this.securityAnswer));
     }
 
     /**

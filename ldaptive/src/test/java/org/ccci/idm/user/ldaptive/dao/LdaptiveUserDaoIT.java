@@ -19,6 +19,7 @@ import com.google.common.collect.Sets;
 import org.ccci.idm.user.Group;
 import org.ccci.idm.user.User;
 import org.ccci.idm.user.dao.exception.ExceededMaximumAllowedResultsException;
+import org.ccci.idm.user.util.HashUtility;
 import org.joda.time.DateTime;
 import org.joda.time.ReadableInstant;
 import org.junit.Test;
@@ -505,6 +506,11 @@ public class LdaptiveUserDaoIT {
         // check for valid update
         foundUser = this.dao.findByGuid(user.getGuid(), false);
         assertEquals(user.getSecurityQuestion(), foundUser.getSecurityQuestion());
+        assertTrue(foundUser.checkSecurityAnswer(securityAnswer));
+
+        // ensure valid check of (non-normalized) literal string hash
+        securityAnswer = "   A  b   C    d   E  f       G   h   I   j   K   l   M n O p Q r S t U v W x Y z    ";
+        foundUser.setSecurityAnswer(HashUtility.getHash(securityAnswer), false);
         assertTrue(foundUser.checkSecurityAnswer(securityAnswer));
     }
 
