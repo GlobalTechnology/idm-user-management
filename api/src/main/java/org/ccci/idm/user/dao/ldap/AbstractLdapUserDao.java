@@ -29,6 +29,8 @@ import static org.ccci.idm.user.dao.ldap.Constants.LDAP_ATTR_POSTAL_CODE;
 import static org.ccci.idm.user.dao.ldap.Constants.LDAP_ATTR_PROPOSEDEMAIL;
 import static org.ccci.idm.user.dao.ldap.Constants.LDAP_ATTR_RELAY_GUID;
 import static org.ccci.idm.user.dao.ldap.Constants.LDAP_ATTR_RESETPASSWORDKEY;
+import static org.ccci.idm.user.dao.ldap.Constants.LDAP_ATTR_SECURITY_ANSWER;
+import static org.ccci.idm.user.dao.ldap.Constants.LDAP_ATTR_SECURITY_QUESTION;
 import static org.ccci.idm.user.dao.ldap.Constants.LDAP_ATTR_SIGNUPKEY;
 import static org.ccci.idm.user.dao.ldap.Constants.LDAP_ATTR_STATE;
 import static org.ccci.idm.user.dao.ldap.Constants.LDAP_ATTR_TELEPHONE;
@@ -66,7 +68,7 @@ public abstract class AbstractLdapUserDao extends AbstractUserDao {
             .put(Attr.LOCATION, ImmutableSet.of(LDAP_ATTR_CITY, LDAP_ATTR_STATE, LDAP_ATTR_POSTAL_CODE,
                     LDAP_ATTR_COUNTRY, LDAP_ATTR_OBJECTCLASS))
 
-            // Cru Relay Attributes
+                    // Cru Relay Attributes
             .put(Attr.EMPLOYEE_NUMBER, ImmutableSet.of(LDAP_ATTR_EMPLOYEE_NUMBER, LDAP_ATTR_OBJECTCLASS))
             .put(Attr.CRU_DESIGNATION, ImmutableSet.of(LDAP_ATTR_CRU_DESIGNATION, LDAP_ATTR_OBJECTCLASS))
             .put(Attr.CONTACT, ImmutableSet.of(LDAP_ATTR_TELEPHONE, LDAP_ATTR_OBJECTCLASS))
@@ -83,6 +85,8 @@ public abstract class AbstractLdapUserDao extends AbstractUserDao {
                     LDAP_ATTR_CRU_PAY_GROUP,
                     LDAP_ATTR_CRU_SUB_MINISTRY_CODE,
                     LDAP_ATTR_OBJECTCLASS))
+            .put(Attr.SECURITYQA,
+                    ImmutableSet.of(LDAP_ATTR_SECURITY_QUESTION, LDAP_ATTR_SECURITY_ANSWER, LDAP_ATTR_OBJECTCLASS))
             .build();
 
     private Set<String> MASK_DEFAULT = ImmutableSet.<String>builder().addAll(MASK.get(Attr.EMAIL)).addAll(MASK.get
