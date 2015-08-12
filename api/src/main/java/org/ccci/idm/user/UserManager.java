@@ -65,7 +65,8 @@ public interface UserManager {
      * @return a fresh copy of the {@link User} object
      * @throws UserNotFoundException if the user can't be found
      */
-    User getFreshUser(User user) throws UserException;
+    @Nonnull
+    User getFreshUser(@Nonnull User user) throws UserException;
 
     /**
      * Locate the user with the specified e-mail address. Does not return deactivated accounts.
