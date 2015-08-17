@@ -162,7 +162,7 @@ public class DefaultUserManager implements UserManager {
 
         // add password to history (if you have password and caller intends to set)
         if(StringUtils.hasText(user.getPassword()) && FluentIterable.of(attrs).contains(User.Attr.PASSWORD)) {
-            user.setCruPasswordHistory(passwordHistoryManager.add(user.getPassword(), user.getCruPasswordHistory()));
+            user.setCruPasswordHistory(passwordHistoryManager.add(user.getPassword(), original.getCruPasswordHistory()));
         }
 
         // update the user object
