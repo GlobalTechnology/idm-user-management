@@ -152,7 +152,7 @@ public class DefaultUserManager implements UserManager {
             "IDM_USER_MANAGER_UPDATE_USER_RESOURCE_RESOLVER")
     public void updateUser(final User user, final User.Attr... attrs) throws DaoException, UserException {
         // validate user object before trying to update it
-        this.validateUpdateUser(user, attrs);
+        this.validateUpdateUser(user);
 
         // trigger any pre update listeners
         final User original = this.getFreshUser(user);
@@ -174,7 +174,7 @@ public class DefaultUserManager implements UserManager {
         }
     }
 
-    protected void validateUpdateUser(final User user, final User.Attr... attrs) throws UserException {
+    protected void validateUpdateUser(final User user) throws UserException {
         // perform base user validation
         this.validateUser(user);
     }
