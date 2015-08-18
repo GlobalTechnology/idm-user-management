@@ -22,9 +22,8 @@ public class HashUtility {
         try {
             return passwordEncryptor.checkPassword(string, hash);
         } catch (final Exception e) {
-            // log exception, only include value and hash at high log levels
-            LOG.trace("value '{}' hash '{}'", string, hash);
-            LOG.error("error checking value against hash", e);
+            // log exception, only include hash at high log levels
+            LOG.error("error checking value against hash '{}'", (LOG.isDebugEnabled() ? hash : "**hidden**"), e);
 
             // fail if there was an exception
             return false;
