@@ -1,5 +1,6 @@
 package org.ccci.idm.user;
 
+import com.google.common.base.Joiner;
 import com.google.common.base.MoreObjects;
 import com.google.common.base.Objects;
 
@@ -52,8 +53,10 @@ public final class Group implements Serializable {
         return Arrays.deepHashCode(new Object[]{this.path, this.name});
     }
 
+    private static final Joiner PATH_JOINER = Joiner.on(".").skipNulls();
+
     @Override
     public String toString() {
-        return MoreObjects.toStringHelper(this).add("path", this.path).add("name", this.name).toString();
+        return MoreObjects.toStringHelper(this).add("path", PATH_JOINER.join(path)).add("name", name).toString();
     }
 }
