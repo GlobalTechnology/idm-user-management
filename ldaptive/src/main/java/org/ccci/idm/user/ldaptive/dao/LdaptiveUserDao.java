@@ -368,8 +368,7 @@ public class LdaptiveUserDao extends AbstractLdapUserDao {
             add.execute(new AddRequest(this.userMapper.mapDn(user), Collections2.filter(entry.getAttributes(),
                     Predicates.not(PREDICATE_EMPTY_ATTRIBUTE))));
         } catch (final LdapException e) {
-            // XXX: for now just propagate any exceptions as RuntimeExceptions
-            throw Throwables.propagate(e);
+            throw convertLdapException(e);
         } finally {
             LdapUtils.closeConnection(conn);
         }
@@ -386,8 +385,7 @@ public class LdaptiveUserDao extends AbstractLdapUserDao {
             conn.open();
             this.updateInternal(conn, this.userMapper.mapDn(user), user, attrs);
         } catch (final LdapException e) {
-            // XXX: for now just propagate any exceptions as RuntimeExceptions
-            throw Throwables.propagate(e);
+            throw convertLdapException(e);
         } finally {
             LdapUtils.closeConnection(conn);
         }
@@ -414,8 +412,7 @@ public class LdaptiveUserDao extends AbstractLdapUserDao {
             // update the actual user account
             this.updateInternal(conn, dn, user, attrs);
         } catch (final LdapException e) {
-            // XXX: for now just propagate any exceptions as RuntimeExceptions
-            throw Throwables.propagate(e);
+            throw convertLdapException(e);
         } finally {
             LdapUtils.closeConnection(conn);
         }
@@ -437,7 +434,8 @@ public class LdaptiveUserDao extends AbstractLdapUserDao {
         modifyGroupMembership(user, group, AttributeModificationType.REMOVE);
     }
 
-    private void modifyGroupMembership(User user, Group group, AttributeModificationType attributeModificationType) {
+    private void modifyGroupMembership(User user, Group group, AttributeModificationType attributeModificationType)
+            throws DaoException {
         if (this.groupValueTranscoder == null) {
             throw new UnsupportedOperationException("Modifying group membership requires a configured Group ValueTranscoder");
         }
@@ -457,7 +455,7 @@ public class LdaptiveUserDao extends AbstractLdapUserDao {
             modifyEntry(conn, groupDn, attributeModificationType, userDn, LDAP_ATTR_MEMBER);
 
         } catch (final LdapException e) {
-            throw Throwables.propagate(e);
+            throw convertLdapException(e);
         } finally {
             LdapUtils.closeConnection(conn);
         }
@@ -498,5 +496,9 @@ public class LdaptiveUserDao extends AbstractLdapUserDao {
 
         new ModifyOperation(conn).execute(new ModifyRequest(dn,
                 modifications.toArray(new AttributeModification[modifications.size()])));
+    }
+
+    private DaoException convertLdapException(@Nonnull final LdapException e) {
+        return new LdaptiveDaoException(e);
     }
 }
