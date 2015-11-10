@@ -230,6 +230,8 @@ public abstract class AbstractDefaultUserManagerIT {
 
     @Test
     public void testPasswordHistory() throws Exception {
+        assumeConfigured();
+
         PasswordHistoryManager passwordHistoryManager = new PasswordHistoryManager();
 
         // test with unmodifiable collection
