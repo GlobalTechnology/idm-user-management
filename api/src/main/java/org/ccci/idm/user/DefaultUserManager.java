@@ -113,12 +113,13 @@ public class DefaultUserManager implements UserManager {
         }
 
         // throw an error if the raw Relay or The Key guid exists already
-        if (user.getRawRelayGuid() != null && this.doesRelayGuidExist(user.getRawRelayGuid())) {
-            throw new RelayGuidAlreadyExistsException("Relay guid '" + user.getRawRelayGuid() + "' already exists");
-        }
-        if (user.getRawTheKeyGuid() != null && this.doesTheKeyGuidExist(user.getRawTheKeyGuid())) {
-            throw new TheKeyGuidAlreadyExistsException("The Key guid '" + user.getRawTheKeyGuid() + "' already exists");
-        }
+        // don't check during migration in order not to prevent account creation
+//        if (user.getRawRelayGuid() != null && this.doesRelayGuidExist(user.getRawRelayGuid())) {
+//            throw new RelayGuidAlreadyExistsException("Relay guid '" + user.getRawRelayGuid() + "' already exists");
+//        }
+//        if (user.getRawTheKeyGuid() != null && this.doesTheKeyGuidExist(user.getRawTheKeyGuid())) {
+//            throw new TheKeyGuidAlreadyExistsException("The Key guid '" + user.getRawTheKeyGuid() + "' already exists");
+//        }
     }
 
     protected void setNewUserDefaults(final User user) throws UserException {
