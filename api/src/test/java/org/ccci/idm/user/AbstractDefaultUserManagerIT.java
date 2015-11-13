@@ -12,6 +12,7 @@ import static org.junit.Assume.assumeNotNull;
 import com.google.common.collect.ImmutableList;
 import org.ccci.idm.user.DefaultUserManager.SimpleUserManagerListener;
 import org.ccci.idm.user.DefaultUserManager.UserManagerListener;
+import org.ccci.idm.user.exception.EmailAlreadyExistsException;
 import org.ccci.idm.user.exception.InvalidEmailUserException;
 import org.ccci.idm.user.exception.UserException;
 import org.ccci.idm.user.util.PasswordHistoryManager;
@@ -74,6 +75,29 @@ public abstract class AbstractDefaultUserManagerIT {
                 // This exception is expected
             }
             assertFalse(this.userManager.doesEmailExist(user.getEmail()));
+        }
+
+        // test conflicting email address
+        {
+            final User user1 = newUser();
+            final User user2 = newUser();
+            user2.setEmail(user1.getEmail());
+
+            // create user1
+            this.userManager.createUser(user1);
+            assertTrue(this.userManager.doesEmailExist(user1.getEmail()));
+
+            // attempt creating user2
+            try {
+                this.userManager.createUser(user2);
+                fail();
+            } catch (final EmailAlreadyExistsException expected) {
+            }
+
+            // let's create it as a deactivated account
+            user2.setDeactivated(true);
+            this.userManager.createUser(user2);
+            assertTrue(userManager.doesGuidExist(user2.getGuid()));
         }
     }
 
