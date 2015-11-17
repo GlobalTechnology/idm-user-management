@@ -111,8 +111,8 @@ public class DefaultUserManager implements UserManager {
         // perform base user validation
         this.validateUser(user);
 
-        // throw an error if a user already exists for this email
-        if (this.doesEmailExist(user.getEmail())) {
+        // throw an error if a user already exists for this email (unless the user is deactivated)
+        if (!user.isDeactivated() && this.doesEmailExist(user.getEmail())) {
             LOG.debug("The specified email '{}' already exists.", user.getEmail());
             throw new EmailAlreadyExistsException();
         }
