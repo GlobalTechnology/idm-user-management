@@ -111,6 +111,9 @@ public class DefaultUserManager implements UserManager {
         // perform base user validation
         this.validateUser(user);
 
+        // validate user email
+        validateEmail(user);
+
         // throw an error if a user already exists for this email
         if (this.doesEmailExist(user.getEmail())) {
             LOG.debug("The specified email '{}' already exists.", user.getEmail());
@@ -177,6 +180,12 @@ public class DefaultUserManager implements UserManager {
     protected void validateUpdateUser(final User user, final User.Attr... attrs) throws UserException {
         // perform base user validation
         this.validateUser(user);
+
+        // validate user based on attributes being updated
+        final FluentIterable<User.Attr> fluentAttrs = FluentIterable.of(attrs);
+        if (fluentAttrs.contains(User.Attr.EMAIL)) {
+            validateEmail(user);
+        }
     }
 
     @Override
@@ -350,11 +359,16 @@ public class DefaultUserManager implements UserManager {
         this.userDao.removeFromGroup(user, group);
     }
 
-    protected void validateUser(final User user) throws UserException {
+    protected void validateEmail(@Nonnull final User user) throws UserException {
         // throw an error if we don't have a valid email
-        if (!VALIDATOR_EMAIL.isValid(user.getEmail()) || CharMatcher.WHITESPACE.matchesAnyOf(user.getEmail())) {
-            throw new InvalidEmailUserException("Invalid email specified for user");
+        final String email = user.getEmail();
+        if (email == null || !VALIDATOR_EMAIL.isValid(email) || CharMatcher.WHITESPACE.matchesAnyOf(email)) {
+            throw new InvalidEmailUserException("Invalid email '" + email + "' specified for user");
         }
+    }
+
+    protected void validateUser(@Nonnull final User user) throws UserException {
+        // keep as extension point
     }
 
     public interface UserManagerListener {
