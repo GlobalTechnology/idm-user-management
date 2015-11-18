@@ -8,6 +8,7 @@ import org.ccci.idm.user.exception.UserException;
 import org.ccci.idm.user.exception.UserNotFoundException;
 
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import java.util.List;
 import java.util.concurrent.BlockingQueue;
 
@@ -152,6 +153,25 @@ public interface UserManager {
      * @return {@link User} with the specified facebook id, or <tt>null</tt> if not found.
      */
     User findUserByFacebookId(String id, boolean includeDeactivated);
+
+    /**
+     * Locate the user with the specified designation. Does not return deactivated accounts.
+     *
+     * @param designation designation of user to find.
+     * @return {@link User} with the specified e-mail address, or <tt>null</tt> if not found.
+     */
+    @Nullable
+    User findUserByDesignation(@Nullable String designation);
+
+    /**
+     * Locate the user with the specified employee id.
+     *
+     * @param designation        designation of user to find.
+     * @param includeDeactivated If <tt>true</tt> then deactivated accounts are included.
+     * @return {@link User} with the specified e-mail address, or <tt>null</tt> if not found.
+     */
+    @Nullable
+    User findUserByDesignation(@Nullable String designation, boolean includeDeactivated);
 
     /**
      * Locate the user with the specified employee id. Does not return deactivated accounts.

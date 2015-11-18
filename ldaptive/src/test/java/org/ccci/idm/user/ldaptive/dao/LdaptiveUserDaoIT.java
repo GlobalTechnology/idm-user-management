@@ -515,6 +515,21 @@ public class LdaptiveUserDaoIT {
     }
 
     @Test
+    public void testFindByDesignation() throws Exception {
+        assumeConfigured();
+
+        // create test user
+        final User user = getStaffUser();
+        dao.save(user);
+
+        // find user using designation
+        final User foundUser = dao.findByDesignation(user.getCruDesignation(), false);
+        assertNotNull(foundUser);
+        assertEquals(user.getGuid(), foundUser.getGuid());
+        assertEquals(user.getCruDesignation(), foundUser.getCruDesignation());
+    }
+
+    @Test
     public void testFindByEmployeeId() throws Exception {
         assumeConfigured();
 
@@ -623,7 +638,7 @@ public class LdaptiveUserDaoIT {
 
         user.setEmployeeId(guid());
         user.setDepartmentNumber("USDSABC");
-        user.setCruDesignation("123457");
+        user.setCruDesignation(guid());
         user.setCruGender("M");
         user.setCity("Orlando");
         user.setState("FL");

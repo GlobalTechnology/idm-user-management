@@ -23,6 +23,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.util.StringUtils;
 
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import javax.inject.Inject;
 import javax.validation.constraints.NotNull;
 import java.util.List;
@@ -303,6 +304,18 @@ public class DefaultUserManager implements UserManager {
     @Override
     public User findUserByFacebookId(final String id, final boolean includeDeactivated) {
         return this.userDao.findByFacebookId(id, includeDeactivated);
+    }
+
+    @Nullable
+    @Override
+    public final User findUserByDesignation(@Nullable final String designation) {
+        return findUserByDesignation(designation, false);
+    }
+
+    @Nullable
+    @Override
+    public User findUserByDesignation(@Nullable final String designation, final boolean includeDeactivated) {
+        return userDao.findByDesignation(designation, includeDeactivated);
     }
 
     @Override

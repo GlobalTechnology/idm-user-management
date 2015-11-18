@@ -1,6 +1,7 @@
 package org.ccci.idm.user.ldaptive.dao;
 
 import static org.ccci.idm.user.dao.ldap.Constants.LDAP_ATTR_CN;
+import static org.ccci.idm.user.dao.ldap.Constants.LDAP_ATTR_CRU_DESIGNATION;
 import static org.ccci.idm.user.dao.ldap.Constants.LDAP_ATTR_EMPLOYEE_NUMBER;
 import static org.ccci.idm.user.dao.ldap.Constants.LDAP_ATTR_FACEBOOKID;
 import static org.ccci.idm.user.dao.ldap.Constants.LDAP_ATTR_FIRSTNAME;
@@ -340,6 +341,12 @@ public class LdaptiveUserDao extends AbstractLdapUserDao {
 
         // Execute search & return results
         return this.findByFilter(filter, includeDeactivated);
+    }
+
+    @Nullable
+    @Override
+    public User findByDesignation(@Nullable final String designation, final boolean includeDeactivated) {
+        return findByFilter(new EqualsFilter(LDAP_ATTR_CRU_DESIGNATION, designation), includeDeactivated);
     }
 
     @Override

@@ -6,6 +6,7 @@ import org.ccci.idm.user.dao.exception.DaoException;
 import org.ccci.idm.user.dao.exception.ExceededMaximumAllowedResultsException;
 
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import java.util.List;
 import java.util.concurrent.BlockingQueue;
 
@@ -127,6 +128,16 @@ public interface UserDao {
      */
     @Nonnull
     List<User> findAllByGroup(@Nonnull Group group, boolean includeDeactivated) throws DaoException;
+
+    /**
+     * Find the user with the specified Designation
+     *
+     * @param designation        designation being searched for.
+     * @param includeDeactivated If <tt>true</tt> then deactivated accounts are included.
+     * @return Requested {@link User} or <tt>null</tt> if not found.
+     */
+    @Nullable
+    User findByDesignation(@Nullable String designation, boolean includeDeactivated);
 
     /**
      * Find the user with the specified employee id.
