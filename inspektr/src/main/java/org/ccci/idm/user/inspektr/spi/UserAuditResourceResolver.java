@@ -1,9 +1,9 @@
 package org.ccci.idm.user.inspektr.spi;
 
-import com.github.inspektr.audit.spi.support.AbstractAuditResourceResolver;
 import com.google.common.base.MoreObjects;
 import com.google.common.base.MoreObjects.ToStringHelper;
 import org.ccci.idm.user.User;
+import org.jasig.inspektr.audit.spi.support.AbstractAuditResourceResolver;
 
 import javax.annotation.Nonnull;
 
