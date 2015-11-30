@@ -120,7 +120,8 @@ public class LdaptiveUserDao extends AbstractLdapUserDao {
     }
 
     /**
-     * find {@link User} objects that match the provided filter.
+     * find {@link User} objects that match the provided filter. This method should not be considered part of the public
+     * API. This is currently exposed publicly as a quick path for advanced search in admin tools.
      *
      * @param filter                    the LDAP search filter to use when searching
      * @param limit                     the maximum number of results to return, a limit of 0 indicates that all results
@@ -130,8 +131,8 @@ public class LdaptiveUserDao extends AbstractLdapUserDao {
      * @throws ExceededMaximumAllowedResultsException exception thrown when there are more results than the maximum
      */
     @Nonnull
-    private List<User> findAllByFilter(@Nullable BaseFilter filter, final boolean includeDeactivated, final int limit,
-                                       final boolean restrictMaxAllowedResults)
+    public List<User> findAllByFilter(@Nullable BaseFilter filter, final boolean includeDeactivated, final int limit,
+                                      final boolean restrictMaxAllowedResults)
             throws ExceededMaximumAllowedResultsException {
         final List<User> results = new ArrayList<User>();
         try {
