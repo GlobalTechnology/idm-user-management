@@ -27,7 +27,6 @@ import static org.ccci.idm.user.dao.ldap.Constants.LDAP_ATTR_OBJECTCLASS;
 import static org.ccci.idm.user.dao.ldap.Constants.LDAP_ATTR_PASSWORD;
 import static org.ccci.idm.user.dao.ldap.Constants.LDAP_ATTR_POSTAL_CODE;
 import static org.ccci.idm.user.dao.ldap.Constants.LDAP_ATTR_PROPOSEDEMAIL;
-import static org.ccci.idm.user.dao.ldap.Constants.LDAP_ATTR_RELAY_GUID;
 import static org.ccci.idm.user.dao.ldap.Constants.LDAP_ATTR_RESETPASSWORDKEY;
 import static org.ccci.idm.user.dao.ldap.Constants.LDAP_ATTR_SECURITY_ANSWER;
 import static org.ccci.idm.user.dao.ldap.Constants.LDAP_ATTR_SECURITY_QUESTION;
@@ -64,7 +63,6 @@ public abstract class AbstractLdapUserDao extends AbstractUserDao {
                     LDAP_ATTR_RESETPASSWORDKEY, LDAP_ATTR_SIGNUPKEY, LDAP_ATTR_OBJECTCLASS))
             .put(Attr.FACEBOOK, ImmutableSet.of(LDAP_ATTR_FACEBOOKID, LDAP_ATTR_FACEBOOKIDSTRENGTH,
                     LDAP_ATTR_OBJECTCLASS))
-            .put(Attr.RELAY_GUID, ImmutableSet.of(LDAP_ATTR_RELAY_GUID, LDAP_ATTR_OBJECTCLASS))
             .put(Attr.LOCATION, ImmutableSet.of(LDAP_ATTR_CITY, LDAP_ATTR_STATE, LDAP_ATTR_POSTAL_CODE,
                     LDAP_ATTR_COUNTRY, LDAP_ATTR_OBJECTCLASS))
 
