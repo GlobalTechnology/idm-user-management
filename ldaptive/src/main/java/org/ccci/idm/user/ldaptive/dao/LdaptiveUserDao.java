@@ -22,6 +22,7 @@ import com.google.common.base.Predicate;
 import com.google.common.base.Predicates;
 import com.google.common.base.Throwables;
 import com.google.common.collect.Collections2;
+import com.google.common.collect.FluentIterable;
 import org.ccci.idm.user.Group;
 import org.ccci.idm.user.User;
 import org.ccci.idm.user.dao.exception.DaoException;
@@ -411,11 +412,16 @@ public class LdaptiveUserDao extends AbstractLdapUserDao {
             conn = this.connectionFactory.getConnection();
             conn.open();
 
-            // modify the DN if it changed
-            final String dn = this.userMapper.mapDn(user);
             final String originalDn = this.userMapper.mapDn(original);
-            if (!Objects.equal(originalDn, dn)) {
-                new ModifyDnOperation(conn).execute(new ModifyDnRequest(originalDn, dn));
+            final String dn;
+            if (FluentIterable.of(attrs).contains(User.Attr.EMAIL)) {
+                // modify the DN if we are updating the user's email and it changed
+                dn = this.userMapper.mapDn(user);
+                if (!Objects.equal(originalDn, dn)) {
+                    new ModifyDnOperation(conn).execute(new ModifyDnRequest(originalDn, dn));
+                }
+            } else {
+                dn = originalDn;
             }
 
             // update the actual user account

@@ -320,19 +320,36 @@ public abstract class AbstractDefaultUserManagerIT {
 
         // update email of user
         {
-            final String oldEmail = user.getEmail();
+            final User original = userManager.getFreshUser(user);
+
+            // change email, correctly specifying Attr.EMAIL
             user.setEmail(randomEmail());
             this.userManager.updateUser(user, User.Attr.EMAIL);
 
-            assertFalse(this.userManager.doesEmailExist(oldEmail));
+            // ensure the email was changed
+            assertFalse(this.userManager.doesEmailExist(original.getEmail()));
             assertTrue(this.userManager.doesEmailExist(user.getEmail()));
+        }
+
+        // check enforcement of Attr.EMAIL
+        {
+            final User original = userManager.getFreshUser(user);
+
+            // try changing the email without specifying Attr.EMAIL
+            user.setEmail(randomEmail());
+            this.userManager.updateUser(user);
+
+            // make sure the email wasn't changed
+            assertTrue(userManager.doesEmailExist(original.getEmail()));
+            assertFalse(userManager.doesEmailExist(user.getEmail()));
         }
 
         // update to invalid email
         {
-            final String oldEmail = user.getEmail();
-            user.setEmail("invalid.email." + RAND.nextInt(Integer.MAX_VALUE));
+            final User original = userManager.getFreshUser(user);
 
+            // change to an invalid email
+            user.setEmail("invalid.email." + RAND.nextInt(Integer.MAX_VALUE));
             try {
                 this.userManager.updateUser(user, User.Attr.EMAIL);
                 fail("no error when updating to invalid email");
@@ -340,7 +357,7 @@ public abstract class AbstractDefaultUserManagerIT {
                 // This exception is expected
             }
 
-            assertTrue(this.userManager.doesEmailExist(oldEmail));
+            assertTrue(this.userManager.doesEmailExist(original.getEmail()));
             assertFalse(this.userManager.doesEmailExist(user.getEmail()));
         }
     }
