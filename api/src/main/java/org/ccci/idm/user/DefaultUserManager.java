@@ -1,6 +1,5 @@
 package org.ccci.idm.user;
 
-import com.github.inspektr.audit.annotation.Audit;
 import com.google.common.base.CharMatcher;
 import com.google.common.collect.FluentIterable;
 import com.google.common.collect.ImmutableList;
@@ -17,6 +16,7 @@ import org.ccci.idm.user.exception.UserNotFoundException;
 import org.ccci.idm.user.util.DefaultRandomPasswordGenerator;
 import org.ccci.idm.user.util.PasswordHistoryManager;
 import org.ccci.idm.user.util.RandomPasswordGenerator;
+import org.jasig.inspektr.audit.annotation.Audit;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
