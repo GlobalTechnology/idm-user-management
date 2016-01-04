@@ -9,6 +9,7 @@ import com.google.common.base.Objects;
 import com.google.common.base.Predicates;
 import com.google.common.base.Strings;
 import com.google.common.collect.Collections2;
+import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 import org.ccci.idm.user.util.HashUtility;
@@ -86,7 +87,7 @@ public class User implements Cloneable, Serializable {
     private String cruPreferredName;
     private String cruSubMinistryCode;
     private Collection<String> cruProxyAddresses = Sets.newHashSet();
-    private Collection<String> cruPasswordHistory = Sets.newHashSet();
+    private final Set<String> cruPasswordHistory = Sets.newHashSet();
 
     // other attributes (used by relay)
     private String city;
@@ -411,12 +412,15 @@ public class User implements Cloneable, Serializable {
         this.cruProxyAddresses = cruProxyAddresses;
     }
 
-    public Collection<String> getCruPasswordHistory() {
-        return cruPasswordHistory;
+    public Set<String> getCruPasswordHistory() {
+        return ImmutableSet.copyOf(cruPasswordHistory);
     }
 
-    public void setCruPasswordHistory(final Collection<String> cruPasswordHistory) {
-        this.cruPasswordHistory = cruPasswordHistory;
+    public void setCruPasswordHistory(@Nullable final Collection<String> history) {
+        cruPasswordHistory.clear();
+        if (history != null) {
+            cruPasswordHistory.addAll(history);
+        }
     }
 
     public String getCity() {
