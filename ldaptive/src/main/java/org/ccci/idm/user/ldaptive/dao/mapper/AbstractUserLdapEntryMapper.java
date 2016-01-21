@@ -131,7 +131,7 @@ public abstract class AbstractUserLdapEntryMapper<O extends User> implements Lda
         // set the simple attributes for this user
         entry.addAttribute(this.attr(LDAP_ATTR_GUID, user.getGuid()));
         entry.addAttribute(this.attr(LDAP_ATTR_RELAY_GUID, user.getRelayGuid()));
-        entry.addAttribute(this.attr(LDAP_ATTR_THEKEY_GUID, user.getRawTheKeyGuid()));
+        entry.addAttribute(this.attr(LDAP_ATTR_THEKEY_GUID, user.getTheKeyGuid()));
         entry.addAttribute(this.attr(LDAP_ATTR_FIRSTNAME, user.getFirstName()));
         entry.addAttribute(this.attr(LDAP_ATTR_LASTNAME, user.getLastName()));
 
