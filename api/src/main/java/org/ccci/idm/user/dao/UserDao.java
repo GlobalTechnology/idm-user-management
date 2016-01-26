@@ -1,6 +1,8 @@
 package org.ccci.idm.user.dao;
 
+import com.google.common.annotations.Beta;
 import org.ccci.idm.user.Group;
+import org.ccci.idm.user.SearchQuery;
 import org.ccci.idm.user.User;
 import org.ccci.idm.user.dao.exception.DaoException;
 import org.ccci.idm.user.dao.exception.ExceededMaximumAllowedResultsException;
@@ -83,6 +85,17 @@ public interface UserDao {
      * @return Requested {@link User} or <tt>null</tt> if not found.
      */
     User findByFacebookId(String id, boolean includeDeactivated);
+
+    /**
+     * Find all users matching the search query.
+     *
+     * @param query the users to find
+     * @return {@link List} of {@link User} objects.
+     * @throws DaoException
+     */
+    @Beta
+    @Nonnull
+    List<User> findAllByQuery(@Nonnull SearchQuery query) throws DaoException;
 
     /**
      * Find all users matching the first name pattern.

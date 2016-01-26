@@ -17,6 +17,7 @@ import com.google.common.collect.FluentIterable;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Sets;
 import org.ccci.idm.user.Group;
+import org.ccci.idm.user.SearchQuery;
 import org.ccci.idm.user.User;
 import org.ccci.idm.user.dao.exception.ExceededMaximumAllowedResultsException;
 import org.ccci.idm.user.util.HashUtility;
@@ -403,6 +404,80 @@ public class LdaptiveUserDaoIT {
         } finally {
             // reset maxPageSize to force paging for other tests
             this.dao.setMaxPageSize(1);
+        }
+    }
+
+    /**
+     * Test findAllByQuery. we use bit math to generate and test all possible search combinations
+     *
+     * @throws Exception
+     */
+    @Test
+    public void testFindAllByQuery() throws Exception {
+        assumeConfigured();
+
+        // generate all possible intersections of query values on accounts
+        final String prefix1 = Integer.toString(RAND.nextInt(Integer.MAX_VALUE));
+        final String prefix2 = Integer.toString(RAND.nextInt(Integer.MAX_VALUE));
+        final int EMAIL = 1 << 0;
+        final int FIRST = 1 << 1;
+        final int LAST = 1 << 2;
+        final int GROUP = 1 << 3;
+        final int DEACTIVATED = 1 << 4;
+        final int MAX = 1 << 5;
+        for (int i = 0; i < MAX; i++) {
+            final User user = newUser();
+            user.setEmail(((EMAIL & i) == EMAIL ? prefix1 : prefix2) + "-" + user.getEmail());
+            user.setFirstName(((FIRST & i) == FIRST ? prefix1 : prefix2) + "-" + user.getFirstName());
+            user.setLastName(((LAST & i) == LAST ? prefix1 : prefix2) + "-" + user.getLastName());
+            user.setDeactivated((DEACTIVATED & i) == DEACTIVATED);
+            this.dao.save(user);
+
+            // add user to group1
+            if ((GROUP & i) == GROUP) {
+                this.dao.addToGroup(user, group1);
+            }
+        }
+
+        // perform all possible query combinations, we only search for prefix1.
+        for (int i = 0; i < MAX; i++) {
+            int count = MAX;
+            boolean hasFilter = false;
+            final SearchQuery query = new SearchQuery();
+            if ((EMAIL & i) == EMAIL) {
+                query.email(prefix1 + "*");
+                count /= 2;
+                hasFilter = true;
+            }
+            if ((FIRST & i) == FIRST) {
+                query.firstName(prefix1 + "*");
+                count /= 2;
+                hasFilter = true;
+            }
+            if ((LAST & i) == LAST) {
+                query.lastName(prefix1 + "*");
+                count /= 2;
+                hasFilter = true;
+            }
+            // groups aren't unique to this test, so we don't consider it as hasFilter
+            if ((GROUP & i) == GROUP) {
+                query.group(group1);
+                count /= 2;
+            }
+
+            query.includeDeactivated((DEACTIVATED & i) == DEACTIVATED);
+            if (!query.isIncludeDeactivated()) {
+                count /= 2;
+            }
+
+            // skip any tests that aren't filtering anything
+            if (!hasFilter) {
+                continue;
+            }
+
+            // perform query and test results
+            final List<User> results = this.dao.findAllByQuery(query);
+            assertEquals("invalid number of results for i = " + i, count, results.size());
         }
     }
 

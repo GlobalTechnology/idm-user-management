@@ -1,5 +1,6 @@
 package org.ccci.idm.user;
 
+import com.google.common.annotations.Beta;
 import org.ccci.idm.user.dao.exception.DaoException;
 import org.ccci.idm.user.dao.exception.ExceededMaximumAllowedResultsException;
 import org.ccci.idm.user.exception.EmailAlreadyExistsException;
@@ -189,6 +190,17 @@ public interface UserManager {
      * @return {@link User} with the specified e-mail address, or <tt>null</tt> if not found.
      */
     User findUserByEmployeeId(String employeeId, boolean includeDeactivated);
+
+    /**
+     * Find all users matching the search query.
+     *
+     * @param query the users to find
+     * @return {@link List} of {@link User} objects.
+     * @throws DaoException
+     */
+    @Beta
+    @Nonnull
+    List<User> findAllByQuery(@Nonnull SearchQuery query) throws DaoException;
 
     /**
      * Find all users matching the first name pattern.

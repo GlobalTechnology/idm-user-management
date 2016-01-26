@@ -17,19 +17,23 @@ import static org.ccci.idm.user.dao.ldap.Constants.LDAP_ATTR_USERID;
 import static org.ccci.idm.user.dao.ldap.Constants.LDAP_DEACTIVATED_PREFIX;
 import static org.ccci.idm.user.dao.ldap.Constants.LDAP_OBJECTCLASS_PERSON;
 
+import com.google.common.annotations.Beta;
 import com.google.common.base.Objects;
 import com.google.common.base.Predicate;
 import com.google.common.base.Predicates;
+import com.google.common.base.Strings;
 import com.google.common.base.Throwables;
 import com.google.common.collect.Collections2;
 import com.google.common.collect.FluentIterable;
 import org.ccci.idm.user.Group;
+import org.ccci.idm.user.SearchQuery;
 import org.ccci.idm.user.User;
 import org.ccci.idm.user.dao.exception.DaoException;
 import org.ccci.idm.user.dao.exception.ExceededMaximumAllowedResultsException;
 import org.ccci.idm.user.dao.exception.InterruptedDaoException;
 import org.ccci.idm.user.dao.ldap.AbstractLdapUserDao;
 import org.ccci.idm.user.ldaptive.dao.exception.LdaptiveDaoException;
+import org.ccci.idm.user.ldaptive.dao.filter.AndFilter;
 import org.ccci.idm.user.ldaptive.dao.filter.BaseFilter;
 import org.ccci.idm.user.ldaptive.dao.filter.EqualsFilter;
 import org.ccci.idm.user.ldaptive.dao.filter.LikeFilter;
@@ -260,6 +264,46 @@ public class LdaptiveUserDao extends AbstractLdapUserDao {
             LOG.error("ExceededMaximumAllowedResults thrown for findByFilter, this should be impossible!!!!", e);
             throw Throwables.propagate(e);
         }
+    }
+
+    @Beta
+    @Nonnull
+    @Override
+    public List<User> findAllByQuery(@Nonnull final SearchQuery query) throws DaoException {
+        // build filter from search query
+        final List<BaseFilter> filters = new ArrayList<BaseFilter>();
+        if (!Strings.isNullOrEmpty(query.getEmail())) {
+            filters.add(new LikeFilter(LDAP_ATTR_USERID, query.getEmail()));
+        }
+        if (!Strings.isNullOrEmpty(query.getFirstName())) {
+            filters.add(new LikeFilter(LDAP_ATTR_FIRSTNAME, query.getFirstName()));
+        }
+        if (!Strings.isNullOrEmpty(query.getLastName())) {
+            filters.add(new LikeFilter(LDAP_ATTR_LASTNAME, query.getLastName()));
+        }
+        if (query.getGroup() != null) {
+            // short-circuit if we can't transcode the group
+            if (groupValueTranscoder == null) {
+                throw new UnsupportedOperationException("Searching by group membership requires a configured Group "
+                        + "ValueTranscoder");
+            }
+
+            filters.add(new EqualsFilter(LDAP_ATTR_GROUPS, groupValueTranscoder.encodeStringValue(query.getGroup())));
+        }
+        final BaseFilter filter;
+        if (filters.size() == 0) {
+            filter = null;
+        } else if (filters.size() == 1) {
+            filter = filters.get(0);
+        } else {
+            filter = new AndFilter(filters.toArray(new BaseFilter[filters.size()]));
+        }
+
+        // execute query
+        // XXX: we don't use findAllByFilter so we can properly report all DaoExceptions
+        final List<User> results = new ArrayList<User>();
+        enqueueAllByFilter(results, filter, query.isIncludeDeactivated(), SEARCH_NO_LIMIT, true);
+        return results;
     }
 
     @Override
