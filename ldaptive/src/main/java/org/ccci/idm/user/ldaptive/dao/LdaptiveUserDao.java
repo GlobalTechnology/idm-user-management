@@ -281,6 +281,9 @@ public class LdaptiveUserDao extends AbstractLdapUserDao {
         if (!Strings.isNullOrEmpty(query.getLastName())) {
             filters.add(new LikeFilter(LDAP_ATTR_LASTNAME, query.getLastName()));
         }
+        if (!Strings.isNullOrEmpty(query.getEmployeeId())) {
+            filters.add(new LikeFilter(LDAP_ATTR_EMPLOYEE_NUMBER, query.getEmployeeId()));
+        }
         if (query.getGroup() != null) {
             // short-circuit if we can't transcode the group
             if (groupValueTranscoder == null) {

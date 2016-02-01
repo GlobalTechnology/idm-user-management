@@ -423,14 +423,16 @@ public class LdaptiveUserDaoIT {
         final int EMAIL = 1 << 0;
         final int FIRST = 1 << 1;
         final int LAST = 1 << 2;
-        final int GROUP = 1 << 3;
-        final int DEACTIVATED = 1 << 4;
-        final int MAX = 1 << 5;
+        final int EMPLOYEEID = 1 << 3;
+        final int GROUP = 1 << 4;
+        final int DEACTIVATED = 1 << 5;
+        final int MAX = 1 << 6;
         for (int i = 0; i < MAX; i++) {
-            final User user = newUser();
+            final User user = getStaffUser();
             user.setEmail(((EMAIL & i) == EMAIL ? prefix1 : prefix2) + "-" + user.getEmail());
             user.setFirstName(((FIRST & i) == FIRST ? prefix1 : prefix2) + "-" + user.getFirstName());
             user.setLastName(((LAST & i) == LAST ? prefix1 : prefix2) + "-" + user.getLastName());
+            user.setEmployeeId(((EMPLOYEEID & i) == EMPLOYEEID ? prefix1 : prefix2) + "-" + user.getEmployeeId());
             user.setDeactivated((DEACTIVATED & i) == DEACTIVATED);
             this.dao.save(user);
 
@@ -457,6 +459,11 @@ public class LdaptiveUserDaoIT {
             }
             if ((LAST & i) == LAST) {
                 query.lastName(prefix1 + "*");
+                count /= 2;
+                hasFilter = true;
+            }
+            if ((EMPLOYEEID & i) == EMPLOYEEID) {
+                query.employeeId(prefix1 + "*");
                 count /= 2;
                 hasFilter = true;
             }
