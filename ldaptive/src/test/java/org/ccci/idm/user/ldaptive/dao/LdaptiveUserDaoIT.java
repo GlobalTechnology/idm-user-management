@@ -415,6 +415,7 @@ public class LdaptiveUserDaoIT {
     @Test
     public void testFindAllByQuery() throws Exception {
         assumeConfigured();
+        assumeGroupsConfigured();
 
         // generate all possible intersections of query values on accounts
         final String prefix1 = Integer.toString(RAND.nextInt(Integer.MAX_VALUE));
