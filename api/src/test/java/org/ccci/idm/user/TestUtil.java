@@ -21,13 +21,18 @@ public class TestUtil {
         user.setGuid(guid());
         user.setRelayGuid(guid());
         user.setPassword(guid());
-        user.setFirstName("Test");
-        user.setLastName("User");
+        user.setFirstName(randomName());
+        user.setLastName(randomName());
         return user;
     }
 
     @Nonnull
     public static String randomEmail() {
         return "test.user." + RAND.nextInt(Integer.MAX_VALUE) + "@example.com";
+    }
+
+    @Nonnull
+    public static String randomName() {
+        return "Name-" + RAND.nextInt(Integer.MAX_VALUE);
     }
 }

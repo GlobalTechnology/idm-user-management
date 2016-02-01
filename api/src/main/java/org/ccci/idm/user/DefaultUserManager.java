@@ -1,5 +1,6 @@
 package org.ccci.idm.user;
 
+import com.google.common.annotations.Beta;
 import com.google.common.base.CharMatcher;
 import com.google.common.collect.FluentIterable;
 import com.google.common.collect.ImmutableList;
@@ -326,6 +327,13 @@ public class DefaultUserManager implements UserManager {
     @Override
     public User findUserByEmployeeId(final String employeeId, final boolean includeDeactivated) {
         return this.userDao.findByEmployeeId(employeeId, includeDeactivated);
+    }
+
+    @Beta
+    @Nonnull
+    @Override
+    public List<User> findAllByQuery(@Nonnull final SearchQuery query) throws DaoException {
+        return this.userDao.findAllByQuery(query);
     }
 
     @Override
