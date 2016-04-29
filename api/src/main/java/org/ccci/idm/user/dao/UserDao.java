@@ -195,5 +195,5 @@ public interface UserDao {
      *
      * @return list of all available groups
      */
-    List<Group> getAllGroups() throws ExceededMaximumAllowedResultsException;
+    List<Group> getAllGroups() throws DaoException;
 }
