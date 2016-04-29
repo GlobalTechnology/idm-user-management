@@ -28,6 +28,7 @@
     <maven.compiler.source>1.7</maven.compiler.source>
     <maven.compiler.target>1.7</maven.compiler.target>
     <inspektr.version>1.2.GA</inspektr.version>
+    <ldaptive.version>1.1.0</ldaptive.version>
   </properties>
 
   <dependencyManagement>
