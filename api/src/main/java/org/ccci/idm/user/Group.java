@@ -25,27 +25,20 @@ public final class Group extends Dn {
     };
 
     /**
-     * @deprecated Since 0.3.0, use {@link Group#Group(Component...)} instead.
+     * @deprecated Since 0.3.0, use {@link Group#Group(List)} instead.
      */
     @Deprecated
     public Group(@Nonnull final String[] path, @Nonnull final String name) {
-        super(FluentIterable.of(path).transform(LEGACY_PATH).filter(Predicates.notNull()).append(new Component(LEGACY_NAME_TYPE, name))
-                .toList());
+        super(FluentIterable.of(path).transform(LEGACY_PATH).filter(Predicates.notNull())
+                .append(new Component(LEGACY_NAME_TYPE, name)).toList());
     }
 
     /**
-     * @deprecated Since 0.3.0, use {@link Group#Group(Component...)} instead.
+     * @deprecated Since 0.3.0, use {@link Group#Group(List)} instead.
      */
     @Deprecated
     public Group(@Nonnull final String... path) {
         this(Arrays.copyOf(path, path.length - 1), path[path.length - 1]);
-    }
-
-    public Group(@Nonnull final Component... components) {
-        super(components);
-        if (getComponents().isEmpty()) {
-            throw new IllegalArgumentException("There needs to be at least 1 Component specified");
-        }
     }
 
     public Group(@Nonnull final List<Component> components) {
