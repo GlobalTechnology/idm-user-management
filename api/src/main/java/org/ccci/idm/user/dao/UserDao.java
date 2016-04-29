@@ -186,4 +186,14 @@ public interface UserDao {
      * @param group from group
      */
     void removeFromGroup(User user, Group group) throws DaoException;
+
+    /**
+     * Returns all available groups
+     *
+     * Note that this method is not particular to a user, but is temporarily made available here until a
+     * more suitable framework becomes available for providing group dao.
+     *
+     * @return list of all available groups
+     */
+    List<Group> getAllGroups() throws ExceededMaximumAllowedResultsException;
 }
