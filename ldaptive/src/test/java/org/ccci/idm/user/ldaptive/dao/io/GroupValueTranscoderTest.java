@@ -78,12 +78,5 @@ public class GroupValueTranscoderTest {
             fail("parsing the baseDn should have triggered an IllegalArgumentException");
         } catch (final IllegalGroupDnException expected) {
         }
-
-        // test missing name component
-        try {
-            groupDnResolver.decodeStringValue("ou=test" + groupSuffix);
-            fail("parsing with no name component should fail");
-        } catch (final IllegalGroupDnException expected) {
-        }
     }
 }

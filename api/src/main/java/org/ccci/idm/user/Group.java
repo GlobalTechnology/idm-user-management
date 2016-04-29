@@ -1,62 +1,56 @@
 package org.ccci.idm.user;
 
-import com.google.common.base.Joiner;
-import com.google.common.base.MoreObjects;
-import com.google.common.base.Objects;
+import com.google.common.base.Function;
+import com.google.common.base.Predicates;
+import com.google.common.collect.FluentIterable;
 
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import javax.annotation.concurrent.Immutable;
-import java.io.Serializable;
 import java.util.Arrays;
+import java.util.List;
 
 @Immutable
-public final class Group implements Serializable {
+public final class Group extends Dn {
     private static final long serialVersionUID = 8588784014544957895L;
 
-    private final String[] path;
-
-    private final String name;
-
-    public Group(@Nonnull final String[] path, @Nonnull final String name) {
-        this.path = path;
-        this.name = name;
-    }
-
-    public Group(@Nonnull final String... path) {
-        if (path.length < 1) {
-            throw new IllegalArgumentException("a path for the Group needs to be specified");
+    private static final String LEGACY_PATH_TYPE = "ou";
+    private static final String LEGACY_NAME_TYPE = "cn";
+    private static final Function<String, Component> LEGACY_PATH = new Function<String, Component>() {
+        @Nullable
+        @Override
+        public Component apply(@Nullable final String value) {
+            return value != null ? new Component(LEGACY_PATH_TYPE, value) : null;
         }
+    };
 
-        this.path = Arrays.copyOf(path, path.length - 1);
-        this.name = path[path.length - 1];
+    /**
+     * @deprecated Since 0.3.0, use {@link Group#Group(List)} instead.
+     */
+    @Deprecated
+    public Group(@Nonnull final String[] path, @Nonnull final String name) {
+        super(FluentIterable.of(path).transform(LEGACY_PATH).filter(Predicates.notNull())
+                .append(new Component(LEGACY_NAME_TYPE, name)).toList());
     }
 
+    /**
+     * @deprecated Since 0.3.0, use {@link Group#Group(List)} instead.
+     */
+    @Deprecated
+    public Group(@Nonnull final String... path) {
+        this(Arrays.copyOf(path, path.length - 1), path[path.length - 1]);
+    }
+
+    public Group(@Nonnull final List<Component> components) {
+        super(components);
+        if (getComponents().isEmpty()) {
+            throw new IllegalArgumentException("There needs to be at least 1 Component specified");
+        }
+    }
+
+    @Deprecated
     public String[] getPath() {
-        return this.path;
-    }
-
-    public String getName() {
-        return this.name;
-    }
-
-    @Override
-    public boolean equals(final Object o) {
-        if (this == o) { return true; }
-        if (!(o instanceof Group)) { return false; }
-
-        final Group other = (Group) o;
-        return Arrays.equals(this.path, other.path) && Objects.equal(this.name, other.name);
-    }
-
-    @Override
-    public int hashCode() {
-        return Arrays.deepHashCode(new Object[]{this.path, this.name});
-    }
-
-    private static final Joiner PATH_JOINER = Joiner.on(".").skipNulls();
-
-    @Override
-    public String toString() {
-        return MoreObjects.toStringHelper(this).add("path", PATH_JOINER.join(path)).add("name", name).toString();
+        final List<Component> components = getComponents();
+        return FluentIterable.from(components).limit(components.size() - 1).transform(Component.FUNCTION_VALUE).toArray(String.class);
     }
 }

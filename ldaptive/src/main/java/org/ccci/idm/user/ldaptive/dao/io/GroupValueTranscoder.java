@@ -1,15 +1,16 @@
 package org.ccci.idm.user.ldaptive.dao.io;
 
 import com.google.common.base.Strings;
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
+import org.ccci.idm.user.Dn;
 import org.ccci.idm.user.Group;
+import org.ldaptive.DnParser;
 import org.ldaptive.LdapAttribute;
 import org.ldaptive.io.AbstractStringValueTranscoder;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
 
 public class GroupValueTranscoder extends AbstractStringValueTranscoder<Group> {
@@ -17,8 +18,6 @@ public class GroupValueTranscoder extends AbstractStringValueTranscoder<Group> {
     private static final String valueDelimiter = "=";
 
     private String baseDn = "";
-    private String pathRdnAttr = "ou";
-    private String nameRdnAttr = "cn";
 
     public String getBaseDn() {
         return this.baseDn;
@@ -28,25 +27,21 @@ public class GroupValueTranscoder extends AbstractStringValueTranscoder<Group> {
         this.baseDn = Strings.nullToEmpty(dn);
     }
 
+    @Deprecated
     public String getPathRdnAttr() {
-        return this.pathRdnAttr;
+        return "ou";
     }
 
-    public void setPathRdnAttr(@Nullable final String rdnAttr) {
-        this.pathRdnAttr = Strings.nullToEmpty(rdnAttr);
-    }
+    @Deprecated
+    public void setPathRdnAttr(@Nullable final String rdnAttr) {}
 
+    @Deprecated
     public String getNameRdnAttr() {
-        return this.nameRdnAttr;
+        return "cn";
     }
 
-    public void setNameRdnAttr(@Nonnull final String rdnAttr) {
-        if (Strings.isNullOrEmpty(rdnAttr)) {
-            throw new IllegalArgumentException("Name RDN Attribute cannot be empty");
-        }
-
-        this.nameRdnAttr = rdnAttr;
-    }
+    @Deprecated
+    public void setNameRdnAttr(@Nonnull final String rdnAttr) {}
 
     @Override
     public Class<Group> getType() {
@@ -57,14 +52,12 @@ public class GroupValueTranscoder extends AbstractStringValueTranscoder<Group> {
     public String encodeStringValue(@Nonnull final Group group) {
         final StringBuilder sb = new StringBuilder();
 
-        sb.append(this.nameRdnAttr).append(valueDelimiter).append(LdapAttribute.escapeValue(group.getName()));
-
-        // append path components
-        for (final String component : Lists.reverse(Arrays.asList(group.getPath()))) {
+        // append components
+        for (final Dn.Component component : Lists.reverse(group.getComponents())) {
             if(sb.length() > 0) {
                 sb.append(delimiter);
             }
-            sb.append(this.pathRdnAttr).append(valueDelimiter).append(LdapAttribute.escapeValue(component));
+            sb.append(component.type).append(valueDelimiter).append(LdapAttribute.escapeValue(component.value));
         }
 
         if (baseDn.length() > 0) {
@@ -89,28 +82,15 @@ public class GroupValueTranscoder extends AbstractStringValueTranscoder<Group> {
             relative = groupDn;
         }
 
-        List<String> path = Lists.newArrayList();
-        String name = null;
-        for(String element : relative.split(delimiter))
-        {
-            if(element.toLowerCase().startsWith(pathRdnAttr + valueDelimiter))
-            {
-                path.add(element.split(valueDelimiter, 2)[1]);
-            }
-            else if(element.toLowerCase().startsWith(nameRdnAttr + valueDelimiter))
-            {
-                name = element.split(valueDelimiter, 2)[1];
-            }
+        final ImmutableList.Builder<Dn.Component> builder = ImmutableList.builder();
+        for (final LdapAttribute attribute : Lists.reverse(DnParser.convertDnToAttributes(relative))) {
+            builder.add(new Dn.Component(attribute.getName(), attribute.getStringValue()));
         }
-
-        // throw an exception if we didn't find a name component
-        if (name == null) {
+        final List<Dn.Component> components = builder.build();
+        if (components.isEmpty()) {
             throw new IllegalGroupDnException(groupDn);
         }
-
-        Collections.reverse(path);
-
-        return new Group(path.toArray(new String[path.size()]), name);
+        return new Group(components);
     }
 
     public static class IllegalGroupDnException extends IllegalArgumentException {
