@@ -81,7 +81,7 @@ public class Dn implements Serializable {
     public static final class Component implements Serializable {
         private static final long serialVersionUID = -5497975422744151635L;
 
-        public static final Function<Component, String> FUNCTION_VALUE = new Function<Component, String>() {
+        static final Function<Component, String> FUNCTION_VALUE = new Function<Component, String>() {
             @Nullable
             @Override
             public String apply(@Nullable final Component input) {
