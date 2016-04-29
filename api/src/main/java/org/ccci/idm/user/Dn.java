@@ -45,7 +45,7 @@ public class Dn implements Serializable {
                 .components.size()));
     }
 
-    public final boolean isAnscestorOf(@Nonnull final Dn descendant) {
+    public final boolean isAncestorOf(@Nonnull final Dn descendant) {
         return descendant.isDescendantOf(this);
     }
 
