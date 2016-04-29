@@ -59,6 +59,14 @@ public class Dn implements Serializable {
         return new Group(components);
     }
 
+    @Nullable
+    public final Dn parent() {
+        if (!components.isEmpty()) {
+            return new Dn(components.subList(0, components.size() - 1));
+        }
+        return null;
+    }
+
     @Override
     public boolean equals(final Object o) {
         if (this == o) { return true; }
