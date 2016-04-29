@@ -18,19 +18,15 @@ public class Dn implements Serializable {
 
     private final List<Component> components;
 
-    public Dn(@Nonnull final Component... components) {
-        if (components.length < 1) {
-            throw new IllegalArgumentException("There needs to be at least 1 Component specified");
-        }
+    public Dn() {
+        components = ImmutableList.of();
+    }
 
+    public Dn(@Nonnull final Component... components) {
         this.components = ImmutableList.copyOf(components);
     }
 
     public Dn(@Nonnull final List<Component> components) {
-        if (components.size() < 1) {
-            throw new IllegalArgumentException("There needs to be at least 1 Component specified");
-        }
-
         this.components = ImmutableList.copyOf(components);
     }
 
@@ -39,9 +35,9 @@ public class Dn implements Serializable {
         return components;
     }
 
-    @Nonnull
+    @Nullable
     public final String getName() {
-        return components.get(components.size() - 1).value;
+        return components.isEmpty() ? null : components.get(components.size() - 1).value;
     }
 
     public final boolean isDescendantOf(@Nonnull final Dn ancestor) {
@@ -51,6 +47,16 @@ public class Dn implements Serializable {
 
     public final boolean isAnscestorOf(@Nonnull final Dn descendant) {
         return descendant.isDescendantOf(this);
+    }
+
+    @Nonnull
+    public final Dn descendant(@Nonnull final Component... components) {
+        return new Dn(ImmutableList.<Component>builder().addAll(this.components).add(components).build());
+    }
+
+    @Nonnull
+    public final Group asGroup() {
+        return new Group(components);
     }
 
     @Override

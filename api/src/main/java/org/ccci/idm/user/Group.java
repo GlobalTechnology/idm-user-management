@@ -43,6 +43,16 @@ public final class Group extends Dn {
 
     public Group(@Nonnull final Component... components) {
         super(components);
+        if (getComponents().isEmpty()) {
+            throw new IllegalArgumentException("There needs to be at least 1 Component specified");
+        }
+    }
+
+    public Group(@Nonnull final List<Component> components) {
+        super(components);
+        if (getComponents().isEmpty()) {
+            throw new IllegalArgumentException("There needs to be at least 1 Component specified");
+        }
     }
 
     @Deprecated
