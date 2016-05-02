@@ -40,6 +40,7 @@ import org.ccci.idm.user.ldaptive.dao.filter.BaseFilter;
 import org.ccci.idm.user.ldaptive.dao.filter.EqualsFilter;
 import org.ccci.idm.user.ldaptive.dao.filter.LikeFilter;
 import org.ccci.idm.user.ldaptive.dao.filter.PresentFilter;
+import org.ccci.idm.user.ldaptive.dao.util.GroupUtils;
 import org.ccci.idm.user.ldaptive.dao.util.LdapUtils;
 import org.ldaptive.AddOperation;
 import org.ldaptive.AddRequest;
@@ -579,8 +580,8 @@ public class LdaptiveUserDao extends AbstractLdapUserDao {
                 while ((limit == SEARCH_NO_LIMIT || processed < limit) && (!restrictMaxAllowedResults ||
                         maxSearchResults == SEARCH_NO_LIMIT || processed < maxSearchResults) && entries.hasNext()) {
                     LdapEntry ldapEntry = entries.next();
-                    if (groupValueTranscoder != null) {
-                        final Group group = groupValueTranscoder.decodeStringValue(ldapEntry.getDn());
+                    final Group group = GroupUtils.fromDn(ldapEntry.getDn(), groupValueTranscoder);
+                    if (group != null) {
                         if (groups instanceof BlockingQueue) {
                             try {
                                 ((BlockingQueue<Group>) groups).put(group);
