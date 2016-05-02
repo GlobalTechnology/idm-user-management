@@ -558,9 +558,15 @@ public class LdaptiveUserDao extends AbstractLdapUserDao {
             conn.open();
             SearchOperation search = new SearchOperation(conn);
 
-            boolean useBaseSearchDn = baseSearchDn != null &&
-                    baseSearchDn.toLowerCase().endsWith(this.groupsBaseSearchDn.toLowerCase());
-            final SearchRequest request = new SearchRequest(useBaseSearchDn? baseSearchDn : this.groupsBaseSearchDn, filter);
+            // require provided base dn be descendant of (or identical to) groups base dn, under threat of exception
+            if(!Strings.isNullOrEmpty(baseSearchDn) &&
+                    !baseSearchDn.toLowerCase().endsWith(this.groupsBaseSearchDn.toLowerCase())) {
+                throw new IllegalArgumentException(baseSearchDn + " must be descendant of (or identical to) " +
+                        this.groupsBaseSearchDn);
+            }
+
+            final SearchRequest request = new
+                    SearchRequest(!Strings.isNullOrEmpty(baseSearchDn) ? baseSearchDn : this.groupsBaseSearchDn, filter);
 
             // calculate the page size based on the provided limit & maxPageSize
             int pageSize = maxPageSize;
