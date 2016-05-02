@@ -513,14 +513,17 @@ public class LdaptiveUserDao extends AbstractLdapUserDao {
      * Note that this method is not particular to a user, but is temporarily made available here until a
      * more suitable framework becomes available for providing group dao.
      *
-     * @return list of all available groups
+     * @param baseSearchDn
+     *  null value indicates to return all groups
+     *
+     * @return list of all available groups under base search dn
      */
     @Override
-    public List<Group> getAllGroups() throws ExceededMaximumAllowedResultsException {
+    public List<Group> getAllGroups(String baseSearchDn) throws ExceededMaximumAllowedResultsException {
         List<Group> groups = Lists.newArrayList();
 
         try {
-            enqueueAllByFilter(groups, null, SEARCH_NO_LIMIT, false);
+            enqueueAllByFilter(groups, null, baseSearchDn, SEARCH_NO_LIMIT, false);
         } catch (final ExceededMaximumAllowedResultsException e) {
             // propagate ExceededMaximumAllowedResultsException exceptions
             throw e;
@@ -535,6 +538,7 @@ public class LdaptiveUserDao extends AbstractLdapUserDao {
     /**
      * @param groups                    collection to populate with loaded groups
      * @param filter                    the LDAP search filter to use when searching
+     * @param baseSearchDn        groups base search dn, null defaults to all groups (this.groupsBaseSearchDn)
      * @param limit                     the maximum number of results to return, a limit of 0 indicates that all results
      *                                  should be returned
      * @param restrictMaxAllowedResults a flag indicating if maxSearchResults should be observed
@@ -542,7 +546,8 @@ public class LdaptiveUserDao extends AbstractLdapUserDao {
      * @throws DaoException
      */
     private int enqueueAllByFilter(@Nonnull final Collection<Group> groups, @Nullable BaseFilter filter,
-                                   final int limit, final boolean restrictMaxAllowedResults) throws DaoException {
+                                   String baseSearchDn, final int limit, final boolean restrictMaxAllowedResults)
+            throws DaoException {
 
         filter = filter != null ? filter.and(FILTER_GROUP) : FILTER_GROUP;
 
@@ -552,7 +557,10 @@ public class LdaptiveUserDao extends AbstractLdapUserDao {
             conn = this.connectionFactory.getConnection();
             conn.open();
             SearchOperation search = new SearchOperation(conn);
-            final SearchRequest request = new SearchRequest(this.groupsBaseSearchDn, filter);
+
+            boolean useBaseSearchDn = baseSearchDn != null &&
+                    baseSearchDn.toLowerCase().endsWith(this.groupsBaseSearchDn.toLowerCase());
+            final SearchRequest request = new SearchRequest(useBaseSearchDn? baseSearchDn : this.groupsBaseSearchDn, filter);
 
             // calculate the page size based on the provided limit & maxPageSize
             int pageSize = maxPageSize;
