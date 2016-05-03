@@ -1,17 +1,12 @@
 package org.ccci.idm.user.ldaptive.dao.io;
 
 import com.google.common.base.Strings;
-import com.google.common.collect.ImmutableList;
-import com.google.common.collect.Lists;
-import org.ccci.idm.user.Dn;
 import org.ccci.idm.user.Group;
-import org.ldaptive.DnParser;
-import org.ldaptive.LdapAttribute;
+import org.ccci.idm.user.ldaptive.dao.util.DnUtils;
 import org.ldaptive.io.AbstractStringValueTranscoder;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-import java.util.List;
 
 public class GroupValueTranscoder extends AbstractStringValueTranscoder<Group> {
     private static final String delimiter = ",";
@@ -50,15 +45,7 @@ public class GroupValueTranscoder extends AbstractStringValueTranscoder<Group> {
 
     @Override
     public String encodeStringValue(@Nonnull final Group group) {
-        final StringBuilder sb = new StringBuilder();
-
-        // append components
-        for (final Dn.Component component : Lists.reverse(group.getComponents())) {
-            if(sb.length() > 0) {
-                sb.append(delimiter);
-            }
-            sb.append(component.type).append(valueDelimiter).append(LdapAttribute.escapeValue(component.value));
-        }
+        final StringBuilder sb = new StringBuilder(DnUtils.toString(group));
 
         if (baseDn.length() > 0) {
             sb.append(delimiter).append(this.baseDn);
@@ -82,15 +69,11 @@ public class GroupValueTranscoder extends AbstractStringValueTranscoder<Group> {
             relative = groupDn;
         }
 
-        final ImmutableList.Builder<Dn.Component> builder = ImmutableList.builder();
-        for (final LdapAttribute attribute : Lists.reverse(DnParser.convertDnToAttributes(relative))) {
-            builder.add(new Dn.Component(attribute.getName(), attribute.getStringValue()));
-        }
-        final List<Dn.Component> components = builder.build();
-        if (components.isEmpty()) {
+        try {
+            return DnUtils.parse(relative).asGroup();
+        } catch (final IllegalArgumentException e) {
             throw new IllegalGroupDnException(groupDn);
         }
-        return new Group(components);
     }
 
     public static class IllegalGroupDnException extends IllegalArgumentException {
