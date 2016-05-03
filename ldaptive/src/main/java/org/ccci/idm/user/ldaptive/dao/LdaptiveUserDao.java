@@ -16,6 +16,7 @@ import static org.ccci.idm.user.dao.ldap.Constants.LDAP_ATTR_THEKEY_GUID;
 import static org.ccci.idm.user.dao.ldap.Constants.LDAP_ATTR_USERID;
 import static org.ccci.idm.user.dao.ldap.Constants.LDAP_DEACTIVATED_PREFIX;
 import static org.ccci.idm.user.dao.ldap.Constants.LDAP_OBJECTCLASS_PERSON;
+import static org.ccci.idm.user.dao.ldap.Constants.LDAP_OBJECTCLASS_GROUP_OF_NAMES;
 
 import com.google.common.annotations.Beta;
 import com.google.common.base.Objects;
@@ -25,6 +26,7 @@ import com.google.common.base.Strings;
 import com.google.common.base.Throwables;
 import com.google.common.collect.Collections2;
 import com.google.common.collect.FluentIterable;
+import com.google.common.collect.Lists;
 import org.ccci.idm.user.Group;
 import org.ccci.idm.user.SearchQuery;
 import org.ccci.idm.user.User;
@@ -38,6 +40,7 @@ import org.ccci.idm.user.ldaptive.dao.filter.BaseFilter;
 import org.ccci.idm.user.ldaptive.dao.filter.EqualsFilter;
 import org.ccci.idm.user.ldaptive.dao.filter.LikeFilter;
 import org.ccci.idm.user.ldaptive.dao.filter.PresentFilter;
+import org.ccci.idm.user.ldaptive.dao.util.GroupUtils;
 import org.ccci.idm.user.ldaptive.dao.util.LdapUtils;
 import org.ldaptive.AddOperation;
 import org.ldaptive.AddRequest;
@@ -80,6 +83,8 @@ public class LdaptiveUserDao extends AbstractLdapUserDao {
 
     // common LDAP search filters
     private static final BaseFilter FILTER_PERSON = new EqualsFilter(LDAP_ATTR_OBJECTCLASS, LDAP_OBJECTCLASS_PERSON);
+    private static final BaseFilter FILTER_GROUP =
+            new EqualsFilter(LDAP_ATTR_OBJECTCLASS, LDAP_OBJECTCLASS_GROUP_OF_NAMES);
     private static final BaseFilter FILTER_DEACTIVATED = new LikeFilter(LDAP_ATTR_CN, LDAP_DEACTIVATED_PREFIX + "*");
     private static final BaseFilter FILTER_NOT_DEACTIVATED = FILTER_DEACTIVATED.not();
 
@@ -102,6 +107,8 @@ public class LdaptiveUserDao extends AbstractLdapUserDao {
 
     private String baseSearchDn = "";
 
+    private String groupsBaseSearchDn = "";
+
     private int maxPageSize = 1000;
 
     public void setConnectionFactory(final ConnectionFactory factory) {
@@ -114,6 +121,10 @@ public class LdaptiveUserDao extends AbstractLdapUserDao {
 
     public void setBaseSearchDn(final String dn) {
         this.baseSearchDn = dn;
+    }
+
+    public void setGroupsBaseSearchDn(String groupsBaseSearchDn) {
+        this.groupsBaseSearchDn = groupsBaseSearchDn;
     }
 
     public void setGroupValueTranscoder(@Nullable ValueTranscoder<Group> transcoder) {
@@ -494,6 +505,131 @@ public class LdaptiveUserDao extends AbstractLdapUserDao {
         assertValidUser(user);
 
         modifyGroupMembership(user, group, AttributeModificationType.REMOVE);
+    }
+
+    /**
+     * Returns all available groups
+     *
+     * Note that this method is not particular to a user, but is temporarily made available here until a
+     * more suitable framework becomes available for providing group dao.
+     *
+     * @param baseSearchDn
+     *  null value indicates to return all groups
+     *
+     * @return list of all available groups under base search dn
+     */
+    @Override
+    public List<Group> getAllGroups(String baseSearchDn) throws ExceededMaximumAllowedResultsException {
+        List<Group> groups = Lists.newArrayList();
+
+        try {
+            enqueueAllByFilter(groups, null, baseSearchDn, SEARCH_NO_LIMIT, false);
+        } catch (final ExceededMaximumAllowedResultsException e) {
+            // propagate ExceededMaximumAllowedResultsException exceptions
+            throw e;
+        } catch (final DaoException suppressed) {
+            // suppress any other DaoExceptions
+            return Collections.emptyList();
+        }
+
+        return groups;
+    }
+
+    /**
+     * @param groups                    collection to populate with loaded groups
+     * @param filter                    the LDAP search filter to use when searching
+     * @param baseSearchDn        groups base search dn, null defaults to all groups (this.groupsBaseSearchDn)
+     * @param limit                     the maximum number of results to return, a limit of 0 indicates that all results
+     *                                  should be returned
+     * @param restrictMaxAllowedResults a flag indicating if maxSearchResults should be observed
+     * @return number of users loaded
+     * @throws DaoException
+     */
+    private int enqueueAllByFilter(@Nonnull final Collection<Group> groups, @Nullable BaseFilter filter,
+                                   String baseSearchDn, final int limit, final boolean restrictMaxAllowedResults)
+            throws DaoException {
+
+        filter = filter != null ? filter.and(FILTER_GROUP) : FILTER_GROUP;
+
+        // perform search
+        Connection conn = null;
+        try {
+            conn = this.connectionFactory.getConnection();
+            conn.open();
+            SearchOperation search = new SearchOperation(conn);
+
+            // require provided base dn be descendant of (or identical to) groups base dn, under threat of exception
+            if(!Strings.isNullOrEmpty(baseSearchDn) &&
+                    !baseSearchDn.toLowerCase().endsWith(this.groupsBaseSearchDn.toLowerCase())) {
+                throw new IllegalArgumentException(baseSearchDn + " must be descendant of (or identical to) " +
+                        this.groupsBaseSearchDn);
+            }
+
+            final SearchRequest request = new
+                    SearchRequest(!Strings.isNullOrEmpty(baseSearchDn) ? baseSearchDn : this.groupsBaseSearchDn, filter);
+
+            // calculate the page size based on the provided limit & maxPageSize
+            int pageSize = maxPageSize;
+            if (limit != SEARCH_NO_LIMIT && pageSize > limit) {
+                pageSize = limit;
+            }
+            if (restrictMaxAllowedResults && maxPageSize != SEARCH_NO_LIMIT && pageSize > maxPageSize + 1) {
+                pageSize = maxPageSize + 1;
+            }
+            final PagedResultsControl prc = new PagedResultsControl(pageSize);
+            request.setControls(prc);
+
+            // retrieve results
+            byte[] cookie = null;
+            int processed = 0;
+            do {
+                // execute request
+                prc.setCookie(cookie);
+                cookie = null;
+                final Response<SearchResult> response = search.execute(request);
+
+                // process response
+                final SearchResult result = response.getResult();
+                final Iterator<LdapEntry> entries = result.getEntries().iterator();
+                while ((limit == SEARCH_NO_LIMIT || processed < limit) && (!restrictMaxAllowedResults ||
+                        maxSearchResults == SEARCH_NO_LIMIT || processed < maxSearchResults) && entries.hasNext()) {
+                    LdapEntry ldapEntry = entries.next();
+                    final Group group = GroupUtils.fromDn(ldapEntry.getDn(), groupValueTranscoder);
+                    if (group != null) {
+                        if (groups instanceof BlockingQueue) {
+                            try {
+                                ((BlockingQueue<Group>) groups).put(group);
+                            } catch (final InterruptedException e) {
+                                LOG.debug("Error adding group to the BlockingQueue, let's propagate the exception", e);
+                                throw new InterruptedDaoException(e);
+                            }
+                        } else {
+                            groups.add(group);
+                        }
+                    }
+                    processed++;
+                }
+
+                // process the PRC in the response
+                final ResponseControl ctl = response.getControl(PagedResultsControl.OID);
+                if (ctl instanceof PagedResultsControl) {
+                    // get cookie for next page of results
+                    cookie = ((PagedResultsControl) ctl).getCookie();
+                }
+            } while (cookie != null && cookie.length > 0);
+
+            // return found groups
+            return processed;
+        } catch (final LdapException e) {
+            LOG.debug("error searching for groups, wrapping & propagating exception", e);
+            if (e.getCause() instanceof InterruptedNamingException) {
+                throw new InterruptedDaoException(e);
+            } else {
+                throw new LdaptiveDaoException(e);
+            }
+        } finally {
+            LdapUtils.closeConnection(conn);
+        }
     }
 
     private void modifyGroupMembership(User user, Group group, AttributeModificationType attributeModificationType)

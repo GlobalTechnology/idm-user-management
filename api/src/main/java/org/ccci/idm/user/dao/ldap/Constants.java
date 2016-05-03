@@ -50,6 +50,7 @@ public class Constants {
     public static final Set<String> LDAP_OBJECTCLASSES_USER = ImmutableSet.of(LDAP_OBJECTCLASS_TOP,
             LDAP_OBJECTCLASS_PERSON, LDAP_OBJECTCLASS_NDSLOGIN, LDAP_OBJECTCLASS_ORGANIZATIONALPERSON,
             LDAP_OBJECTCLASS_INETORGPERSON, LDAP_OBJECTCLASS_THEKEYATTRIBUTES, LDAP_OBJECTCLASS_RELAY_ATTRIBUTES);
+    public static final String LDAP_OBJECTCLASS_GROUP_OF_NAMES = "groupOfNames";
 
     // CruPerson attributes
     public static final String LDAP_ATTR_CRU_DESIGNATION = "cruDesignation";

@@ -380,6 +380,22 @@ public class DefaultUserManager implements UserManager {
         this.userDao.removeFromGroup(user, group);
     }
 
+    /**
+     * Returns all available groups
+     *
+     * Note that this method is not particular to a user, but is temporarily made available here until a
+     * more suitable framework becomes available for providing group dao.
+     *
+     * @param baseSearchDn
+     *  null value indicates to return all groups
+     *
+     * @return list of all available groups under base search dn
+     */
+    @Override
+    public List<Group> getAllGroups(String baseSearchDn) throws DaoException {
+        return this.userDao.getAllGroups(baseSearchDn);
+    }
+
     protected void validateEmail(@Nonnull final User user) throws UserException {
         // throw an error if we don't have a valid email
         final String email = user.getEmail();
