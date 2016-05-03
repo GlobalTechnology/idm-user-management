@@ -8,14 +8,15 @@ import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import javax.annotation.concurrent.Immutable;
 import java.io.Serializable;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Locale;
-import java.util.Objects;
 
 @Immutable
 public class Dn implements Serializable {
     private static final long serialVersionUID = 5510344429904560934L;
 
+    @Nonnull
     private final List<Component> components;
 
     public Dn() {
@@ -88,12 +89,12 @@ public class Dn implements Serializable {
         if (this == o) { return true; }
         if (!(o instanceof Dn)) { return false; }
         final Dn dn = (Dn) o;
-        return Objects.equals(components, dn.components);
+        return components.equals(dn.components);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(components);
+        return components.hashCode();
     }
 
     @Override
@@ -133,7 +134,7 @@ public class Dn implements Serializable {
 
         @Override
         public int hashCode() {
-            return Objects.hash(type.toLowerCase(Locale.US), value.toLowerCase(Locale.US));
+            return Arrays.hashCode(new String[]{type.toLowerCase(Locale.US), value.toLowerCase(Locale.US)});
         }
 
         @Override
