@@ -87,9 +87,7 @@ public class Dn implements Serializable {
     @Override
     public boolean equals(final Object o) {
         if (this == o) { return true; }
-        if (!(o instanceof Dn)) { return false; }
-        final Dn dn = (Dn) o;
-        return components.equals(dn.components);
+        return o != null && getClass().equals(o.getClass()) && components.equals(((Dn) o).components);
     }
 
     @Override
