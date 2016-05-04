@@ -87,7 +87,6 @@ public class GroupValueTranscoder extends AbstractStringValueTranscoder<Group> {
     @Override
     public Group decodeStringValue(@Nonnull final String groupDn) {
         final Dn dn = DnUtils.parse(groupDn);
-        assert dn != null : "dn will be NonNull if groupDn is NonNull";
 
         // make sure the group DN ends with the base DN (plus delimiter) if we have a base DN
         if (!dn.isDescendantOf(baseDn)) {

@@ -13,10 +13,10 @@ public class DnUtils {
     private static final String DELIMITER = ",";
     private static final String VALUE_DELIMITER = "=";
 
-    @Nullable
+    @Nonnull
     public static Dn parse(@Nullable final String rawDn) {
         if (rawDn == null) {
-            return null;
+            return Dn.ROOT;
         }
 
         final ImmutableList.Builder<Dn.Component> builder = ImmutableList.builder();
