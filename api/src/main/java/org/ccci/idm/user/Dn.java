@@ -41,12 +41,28 @@ public class Dn implements Serializable {
     }
 
     public final boolean isDescendantOf(@Nonnull final Dn ancestor) {
-        return ancestor.components.size() < components.size() && Objects.deepEquals(ancestor.components, components.subList(0, ancestor
-                .components.size()));
+        return ancestor.components.size() < components.size() && isDescendantOfOrEqualTo(ancestor);
+    }
+
+    /**
+     * @param ancestor the DN we are comparing to this DN.
+     * @return true if the DN represented by this object is a descendant of or equal to the specified DN.
+     */
+    public final boolean isDescendantOfOrEqualTo(@Nonnull final Dn ancestor) {
+        return ancestor.components.size() <= components.size() &&
+                ancestor.components.equals(components.subList(0, ancestor.components.size()));
     }
 
     public final boolean isAncestorOf(@Nonnull final Dn descendant) {
         return descendant.isDescendantOf(this);
+    }
+
+    /**
+     * @param descendant the DN we are comparing to this DN.
+     * @return true if the DN represented by this object is an ancestor of or equal to the specified DN.
+     */
+    public final boolean isAncestorOfOrEqualTo(@Nonnull final Dn descendant) {
+        return descendant.isDescendantOfOrEqualTo(this);
     }
 
     @Nonnull
