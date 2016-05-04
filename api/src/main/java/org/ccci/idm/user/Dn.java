@@ -41,12 +41,12 @@ public class Dn implements Serializable {
     }
 
     public final boolean isDescendantOf(@Nonnull final Dn ancestor) {
-        return ancestor.components.size() < components.size() && Objects.deepEquals(ancestor.components, components.subList(0, ancestor
-                .components.size()));
+        return ancestor.components.size() < components.size() && isDescendantOfOrEqualTo(ancestor);
     }
 
     public final boolean isDescendantOfOrEqualTo(@Nonnull final Dn ancestor) {
-        return equals(ancestor) || isDescendantOf(ancestor);
+        return ancestor.components.size() <= components.size() &&
+                ancestor.components.equals(components.subList(0, ancestor.components.size()));
     }
 
     public final boolean isAncestorOf(@Nonnull final Dn descendant) {
@@ -54,7 +54,7 @@ public class Dn implements Serializable {
     }
 
     public final boolean isAncestorOfOrEqualTo(@Nonnull final Dn descendant) {
-        return equals(descendant) || isAncestorOf(descendant);
+        return descendant.isDescendantOfOrEqualTo(this);
     }
 
     @Nonnull
