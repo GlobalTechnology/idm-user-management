@@ -1,5 +1,6 @@
 package org.ccci.idm.user.ldaptive.dao.io;
 
+import com.google.common.annotations.VisibleForTesting;
 import org.ccci.idm.user.Dn;
 import org.ccci.idm.user.Group;
 import org.ccci.idm.user.ldaptive.dao.util.DnUtils;
@@ -14,16 +15,39 @@ public class GroupValueTranscoder extends AbstractStringValueTranscoder<Group> {
     @Nonnull
     private Dn baseDn = Dn.ROOT;
 
+    /**
+     * @deprecated Since 0.3.0, kept for old spring config compatibility.
+     */
     @Nonnull
-    public Dn getBaseDn() {
-        return baseDn;
+    @Deprecated
+    public String getBaseDn() {
+        return getBaseDnString();
+    }
+
+    @Nonnull
+    @VisibleForTesting
+    String getBaseDnString() {
+        return DnUtils.toString(baseDn);
     }
 
     public void setBaseDn(@Nullable final Dn dn) {
         baseDn = dn != null ? dn : Dn.ROOT;
     }
 
+    /**
+     * @deprecated Since v0.3.0, use {@link GroupValueTranscoder#setBaseDnString(String)} instead.
+     */
+    @Deprecated
     public void setBaseDn(@Nullable final String dn) {
+        setBaseDnString(dn);
+    }
+
+    /**
+     * Set the baseDn as a String. Provided for Spring ease of use.
+     *
+     * @param dn
+     */
+    public void setBaseDnString(@Nullable final String dn) {
         setBaseDn(DnUtils.parse(dn));
     }
 
