@@ -66,13 +66,9 @@ public class GroupValueTranscoderTest {
     }
 
     @Test
-    public void testGroupNotMutated() throws Exception {
+    public void verifySourceCasePreserved() throws Exception {
         final String groupDn = "cn=" + NAME + ",ou=Cru,ou=Cru,ou=GoogleApps" + groupSuffix;
-
-        Group group = groupDnResolver.decodeStringValue(groupDn);
-
-        assertThat(group, is(GROUP));
-        assertEquals(groupDn, groupDnResolver.encodeStringValue(group));
+        assertThat(groupDnResolver.encodeStringValue(groupDnResolver.decodeStringValue(groupDn)), is(groupDn));
     }
 
     @Test
