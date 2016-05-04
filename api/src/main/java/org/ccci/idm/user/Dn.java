@@ -16,12 +16,10 @@ import java.util.Locale;
 public class Dn implements Serializable {
     private static final long serialVersionUID = 5510344429904560934L;
 
+    public static final Dn ROOT = new Dn();
+
     @Nonnull
     private final List<Component> components;
-
-    public Dn() {
-        components = ImmutableList.of();
-    }
 
     public Dn(@Nonnull final Component... components) {
         this.components = ImmutableList.copyOf(components);

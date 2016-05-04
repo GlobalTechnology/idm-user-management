@@ -1,6 +1,6 @@
 package org.ccci.idm.user.ldaptive.dao.io;
 
-import com.google.common.base.Strings;
+import org.ccci.idm.user.Dn;
 import org.ccci.idm.user.Group;
 import org.ccci.idm.user.ldaptive.dao.util.DnUtils;
 import org.ldaptive.io.AbstractStringValueTranscoder;
@@ -10,16 +10,21 @@ import javax.annotation.Nullable;
 
 public class GroupValueTranscoder extends AbstractStringValueTranscoder<Group> {
     private static final String delimiter = ",";
-    private static final String valueDelimiter = "=";
 
-    private String baseDn = "";
+    @Nonnull
+    private Dn baseDn = Dn.ROOT;
 
-    public String getBaseDn() {
-        return this.baseDn;
+    @Nonnull
+    public Dn getBaseDn() {
+        return baseDn;
+    }
+
+    public void setBaseDn(@Nullable final Dn dn) {
+        baseDn = dn != null ? dn : Dn.ROOT;
     }
 
     public void setBaseDn(@Nullable final String dn) {
-        this.baseDn = Strings.nullToEmpty(dn);
+        setBaseDn(DnUtils.parse(dn));
     }
 
     @Deprecated
@@ -47,8 +52,8 @@ public class GroupValueTranscoder extends AbstractStringValueTranscoder<Group> {
     public String encodeStringValue(@Nonnull final Group group) {
         final StringBuilder sb = new StringBuilder(DnUtils.toString(group));
 
-        if (baseDn.length() > 0) {
-            sb.append(delimiter).append(this.baseDn);
+        if (baseDn.getComponents().size() > 0) {
+            sb.append(delimiter).append(DnUtils.toString(baseDn));
         }
 
         // return generated DN
@@ -57,20 +62,18 @@ public class GroupValueTranscoder extends AbstractStringValueTranscoder<Group> {
 
     @Override
     public Group decodeStringValue(@Nonnull final String groupDn) {
+        final Dn dn = DnUtils.parse(groupDn);
+        assert dn != null : "dn will be NonNull if groupDn is NonNull";
+
         // make sure the group DN ends with the base DN (plus delimiter) if we have a base DN
-        if (baseDn.length() > 0 && !groupDn.toLowerCase().endsWith(delimiter + baseDn.toLowerCase())) {
+        if (!dn.isDescendantOf(baseDn)) {
             throw new IllegalGroupDnException(groupDn);
         }
 
-        final String relative;
-        if (baseDn.length() > 0) {
-            relative = groupDn.substring(0, groupDn.length() - baseDn.length() - 1);
-        } else {
-            relative = groupDn;
-        }
-
+        // return the relative DN
         try {
-            return DnUtils.parse(relative).asGroup();
+            return new Dn(dn.getComponents().subList(baseDn.getComponents().size(), dn.getComponents().size()))
+                    .asGroup();
         } catch (final IllegalArgumentException e) {
             throw new IllegalGroupDnException(groupDn);
         }

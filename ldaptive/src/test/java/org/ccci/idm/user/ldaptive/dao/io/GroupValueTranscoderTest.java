@@ -9,6 +9,7 @@ import static org.junit.Assert.fail;
 import com.google.common.base.Strings;
 import org.ccci.idm.user.Group;
 import org.ccci.idm.user.ldaptive.dao.io.GroupValueTranscoder.IllegalGroupDnException;
+import org.ccci.idm.user.ldaptive.dao.util.DnUtils;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
@@ -86,7 +87,7 @@ public class GroupValueTranscoderTest {
     public void testEdgeCases() throws Exception {
         // test groupDn == baseDn
         try {
-            groupDnResolver.decodeStringValue(groupDnResolver.getBaseDn());
+            groupDnResolver.decodeStringValue(DnUtils.toString(groupDnResolver.getBaseDn()));
             fail("parsing the baseDn should have triggered an IllegalArgumentException");
         } catch (final IllegalGroupDnException expected) {
         }
