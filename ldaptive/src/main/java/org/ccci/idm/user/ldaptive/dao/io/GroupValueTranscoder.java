@@ -99,7 +99,7 @@ public class GroupValueTranscoder extends AbstractStringValueTranscoder<Group> {
             throw new IllegalGroupDnException(groupDn);
         }
 
-        // return the relative DN
+        // return the DN as a Group
         try {
             return dn.asGroup();
         } catch (final IllegalArgumentException e) {
