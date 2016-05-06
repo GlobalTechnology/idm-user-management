@@ -13,15 +13,6 @@ public class GroupValueTranscoder extends AbstractStringValueTranscoder<Group> {
     @Nonnull
     private Dn baseDn = Dn.ROOT;
 
-    /**
-     * @deprecated Since 0.3.0, kept for old spring config compatibility.
-     */
-    @Nonnull
-    @Deprecated
-    public String getBaseDn() {
-        return getBaseDnString();
-    }
-
     @Nonnull
     @VisibleForTesting
     String getBaseDnString() {
@@ -30,14 +21,6 @@ public class GroupValueTranscoder extends AbstractStringValueTranscoder<Group> {
 
     public void setBaseDn(@Nullable final Dn dn) {
         baseDn = dn != null ? dn : Dn.ROOT;
-    }
-
-    /**
-     * @deprecated Since v0.3.0, use {@link GroupValueTranscoder#setBaseDnString(String)} instead.
-     */
-    @Deprecated
-    public void setBaseDn(@Nullable final String dn) {
-        setBaseDnString(dn);
     }
 
     /**

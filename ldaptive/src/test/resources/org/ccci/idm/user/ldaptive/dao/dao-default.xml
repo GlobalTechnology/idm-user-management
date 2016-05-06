@@ -4,7 +4,7 @@
     xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.2.xsd">
 
   <bean id="groupValueTranscoder" class="org.ccci.idm.user.ldaptive.dao.io.GroupValueTranscoder"
-      p:baseDn="${ldap.dn.group}" />
+      p:baseDnString="${ldap.dn.group}" />
 
   <bean class="org.ccci.idm.user.ldaptive.dao.LdaptiveUserDao"
       p:connectionFactory-ref="ldap.connection.factory.pooled.management"
