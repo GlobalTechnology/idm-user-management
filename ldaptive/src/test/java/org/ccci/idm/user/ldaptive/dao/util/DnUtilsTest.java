@@ -9,13 +9,13 @@ import org.junit.Test;
 public class DnUtilsTest {
     @Test
     public void verifyParseRoot() throws Exception {
-        assertThat(DnUtils.parse(null), is(Dn.ROOT));
-        assertThat(DnUtils.parse(""), is(Dn.ROOT));
+        assertThat(DnUtils.toDn(null), is(Dn.ROOT));
+        assertThat(DnUtils.toDn(""), is(Dn.ROOT));
     }
 
     @Test(expected = IllegalArgumentException.class)
     public void verifyParseInvalidDn() throws Exception {
-        DnUtils.parse("dcorg");
+        DnUtils.toDn("dcorg");
     }
 
     @Test
@@ -24,8 +24,8 @@ public class DnUtilsTest {
                 Dn.Component("cn", "name"));
         final String rawDn = "cn=nAmE,OU=groups,dC=org";
 
-        assertThat(DnUtils.parse(rawDn), is(expected));
-        assertThat(DnUtils.parse(rawDn.toUpperCase()), is(expected));
-        assertThat(DnUtils.parse(rawDn.toLowerCase()), is(expected));
+        assertThat(DnUtils.toDn(rawDn), is(expected));
+        assertThat(DnUtils.toDn(rawDn.toUpperCase()), is(expected));
+        assertThat(DnUtils.toDn(rawDn.toLowerCase()), is(expected));
     }
 }

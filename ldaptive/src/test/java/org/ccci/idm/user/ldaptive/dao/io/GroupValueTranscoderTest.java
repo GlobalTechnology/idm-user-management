@@ -43,7 +43,7 @@ public class GroupValueTranscoderTest {
         groupDnResolver.setBaseDnString(baseDn);
         groupDn = "cn=" + NAME + ",ou=Cru,ou=Cru,ou=GoogleApps" + groupSuffix;
 
-        Dn dn = DnUtils.parse(baseDn);
+        Dn dn = DnUtils.toDn(baseDn);
         for (final String component : PATH) {
             dn = dn.descendant(new Dn.Component("ou", component));
         }

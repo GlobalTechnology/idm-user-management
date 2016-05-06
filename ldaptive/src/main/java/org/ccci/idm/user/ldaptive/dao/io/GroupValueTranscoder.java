@@ -46,7 +46,7 @@ public class GroupValueTranscoder extends AbstractStringValueTranscoder<Group> {
      * @param dn
      */
     public void setBaseDnString(@Nullable final String dn) {
-        setBaseDn(DnUtils.parse(dn));
+        setBaseDn(DnUtils.toDn(dn));
     }
 
     /**
@@ -92,7 +92,7 @@ public class GroupValueTranscoder extends AbstractStringValueTranscoder<Group> {
 
     @Override
     public Group decodeStringValue(@Nonnull final String groupDn) {
-        final Dn dn = DnUtils.parse(groupDn);
+        final Dn dn = DnUtils.toDn(groupDn);
 
         // make sure the group DN ends with the base DN (plus delimiter) if we have a base DN
         if (!dn.isDescendantOf(baseDn)) {

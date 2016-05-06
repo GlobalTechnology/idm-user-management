@@ -14,7 +14,7 @@ public class DnUtils {
     private static final String VALUE_DELIMITER = "=";
 
     @Nonnull
-    public static Dn parse(@Nullable final String rawDn) {
+    public static Dn toDn(@Nullable final String rawDn) {
         if (rawDn == null) {
             return Dn.ROOT;
         }
