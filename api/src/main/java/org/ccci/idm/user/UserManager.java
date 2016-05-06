@@ -283,5 +283,6 @@ public interface UserManager {
      *
      * @return list of all available groups under base search dn
      */
-    List<Group> getAllGroups(String baseSearchDn) throws DaoException;
+    @Nonnull
+    List<Group> getAllGroups(@Nullable Dn baseSearchDn) throws DaoException;
 }

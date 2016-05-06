@@ -15,10 +15,11 @@ import static org.ccci.idm.user.dao.ldap.Constants.LDAP_ATTR_RELAY_GUID;
 import static org.ccci.idm.user.dao.ldap.Constants.LDAP_ATTR_THEKEY_GUID;
 import static org.ccci.idm.user.dao.ldap.Constants.LDAP_ATTR_USERID;
 import static org.ccci.idm.user.dao.ldap.Constants.LDAP_DEACTIVATED_PREFIX;
-import static org.ccci.idm.user.dao.ldap.Constants.LDAP_OBJECTCLASS_PERSON;
 import static org.ccci.idm.user.dao.ldap.Constants.LDAP_OBJECTCLASS_GROUP_OF_NAMES;
+import static org.ccci.idm.user.dao.ldap.Constants.LDAP_OBJECTCLASS_PERSON;
 
 import com.google.common.annotations.Beta;
+import com.google.common.base.MoreObjects;
 import com.google.common.base.Objects;
 import com.google.common.base.Predicate;
 import com.google.common.base.Predicates;
@@ -27,6 +28,7 @@ import com.google.common.base.Throwables;
 import com.google.common.collect.Collections2;
 import com.google.common.collect.FluentIterable;
 import com.google.common.collect.Lists;
+import org.ccci.idm.user.Dn;
 import org.ccci.idm.user.Group;
 import org.ccci.idm.user.SearchQuery;
 import org.ccci.idm.user.User;
@@ -40,6 +42,7 @@ import org.ccci.idm.user.ldaptive.dao.filter.BaseFilter;
 import org.ccci.idm.user.ldaptive.dao.filter.EqualsFilter;
 import org.ccci.idm.user.ldaptive.dao.filter.LikeFilter;
 import org.ccci.idm.user.ldaptive.dao.filter.PresentFilter;
+import org.ccci.idm.user.ldaptive.dao.util.DnUtils;
 import org.ccci.idm.user.ldaptive.dao.util.GroupUtils;
 import org.ccci.idm.user.ldaptive.dao.util.LdapUtils;
 import org.ldaptive.AddOperation;
@@ -107,7 +110,8 @@ public class LdaptiveUserDao extends AbstractLdapUserDao {
 
     private String baseSearchDn = "";
 
-    private String groupsBaseSearchDn = "";
+    @Nonnull
+    private Dn groupsBaseSearchDn = Dn.ROOT;
 
     private int maxPageSize = 1000;
 
@@ -123,8 +127,12 @@ public class LdaptiveUserDao extends AbstractLdapUserDao {
         this.baseSearchDn = dn;
     }
 
-    public void setGroupsBaseSearchDn(String groupsBaseSearchDn) {
-        this.groupsBaseSearchDn = groupsBaseSearchDn;
+    public void setGroupsBaseSearchDn(@Nonnull final Dn baseDn) {
+        groupsBaseSearchDn = baseDn;
+    }
+
+    public void setGroupsBaseSearchDnString(@Nonnull final String baseDn) {
+        setGroupsBaseSearchDn(DnUtils.toDn(baseDn));
     }
 
     public void setGroupValueTranscoder(@Nullable ValueTranscoder<Group> transcoder) {
@@ -518,20 +526,11 @@ public class LdaptiveUserDao extends AbstractLdapUserDao {
      *
      * @return list of all available groups under base search dn
      */
+    @Nonnull
     @Override
-    public List<Group> getAllGroups(String baseSearchDn) throws ExceededMaximumAllowedResultsException {
-        List<Group> groups = Lists.newArrayList();
-
-        try {
-            enqueueAllByFilter(groups, null, baseSearchDn, SEARCH_NO_LIMIT, false);
-        } catch (final ExceededMaximumAllowedResultsException e) {
-            // propagate ExceededMaximumAllowedResultsException exceptions
-            throw e;
-        } catch (final DaoException suppressed) {
-            // suppress any other DaoExceptions
-            return Collections.emptyList();
-        }
-
+    public List<Group> getAllGroups(@Nullable final Dn baseSearchDn) throws DaoException {
+        final List<Group> groups = Lists.newArrayList();
+        enqueueGroupsByFilter(groups, null, baseSearchDn, SEARCH_NO_LIMIT, false);
         return groups;
     }
 
@@ -545,9 +544,15 @@ public class LdaptiveUserDao extends AbstractLdapUserDao {
      * @return number of users loaded
      * @throws DaoException
      */
-    private int enqueueAllByFilter(@Nonnull final Collection<Group> groups, @Nullable BaseFilter filter,
-                                   String baseSearchDn, final int limit, final boolean restrictMaxAllowedResults)
-            throws DaoException {
+    private int enqueueGroupsByFilter(@Nonnull final Collection<Group> groups, @Nullable BaseFilter filter,
+                                      @Nullable final Dn baseSearchDn, final int limit,
+                                      final boolean restrictMaxAllowedResults) throws DaoException {
+        // require provided base dn be descendant of (or identical to) groups base dn, under threat of exception
+        final Dn searchDn = MoreObjects.firstNonNull(baseSearchDn, groupsBaseSearchDn);
+        if (!searchDn.isDescendantOfOrEqualTo(groupsBaseSearchDn)) {
+            throw new IllegalArgumentException(baseSearchDn + " must be descendant of (or identical to) " +
+                    groupsBaseSearchDn);
+        }
 
         filter = filter != null ? filter.and(FILTER_GROUP) : FILTER_GROUP;
 
@@ -557,16 +562,7 @@ public class LdaptiveUserDao extends AbstractLdapUserDao {
             conn = this.connectionFactory.getConnection();
             conn.open();
             SearchOperation search = new SearchOperation(conn);
-
-            // require provided base dn be descendant of (or identical to) groups base dn, under threat of exception
-            if(!Strings.isNullOrEmpty(baseSearchDn) &&
-                    !baseSearchDn.toLowerCase().endsWith(this.groupsBaseSearchDn.toLowerCase())) {
-                throw new IllegalArgumentException(baseSearchDn + " must be descendant of (or identical to) " +
-                        this.groupsBaseSearchDn);
-            }
-
-            final SearchRequest request = new
-                    SearchRequest(!Strings.isNullOrEmpty(baseSearchDn) ? baseSearchDn : this.groupsBaseSearchDn, filter);
+            final SearchRequest request = new SearchRequest(DnUtils.toString(searchDn), filter);
 
             // calculate the page size based on the provided limit & maxPageSize
             int pageSize = maxPageSize;
