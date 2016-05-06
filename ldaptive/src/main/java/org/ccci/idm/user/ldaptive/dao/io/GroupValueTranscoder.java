@@ -32,34 +32,6 @@ public class GroupValueTranscoder extends AbstractStringValueTranscoder<Group> {
         setBaseDn(DnUtils.toDn(dn));
     }
 
-    /**
-     * @deprecated Since v0.3.0, this is no longer required for {@link GroupValueTranscoder} to work.
-     */
-    @Deprecated
-    public String getPathRdnAttr() {
-        return "ou";
-    }
-
-    /**
-     * @deprecated Since v0.3.0, this is no longer required for {@link GroupValueTranscoder} to work.
-     */
-    @Deprecated
-    public void setPathRdnAttr(@Nullable final String rdnAttr) {}
-
-    /**
-     * @deprecated Since v0.3.0, this is no longer required for {@link GroupValueTranscoder} to work.
-     */
-    @Deprecated
-    public String getNameRdnAttr() {
-        return "cn";
-    }
-
-    /**
-     * @deprecated Since v0.3.0, this is no longer required for {@link GroupValueTranscoder} to work.
-     */
-    @Deprecated
-    public void setNameRdnAttr(@Nonnull final String rdnAttr) {}
-
     @Override
     public Class<Group> getType() {
         return Group.class;
