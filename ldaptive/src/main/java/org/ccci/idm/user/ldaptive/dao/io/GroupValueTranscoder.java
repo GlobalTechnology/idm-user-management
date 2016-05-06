@@ -10,8 +10,6 @@ import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
 public class GroupValueTranscoder extends AbstractStringValueTranscoder<Group> {
-    private static final String delimiter = ",";
-
     @Nonnull
     private Dn baseDn = Dn.ROOT;
 
@@ -88,10 +86,6 @@ public class GroupValueTranscoder extends AbstractStringValueTranscoder<Group> {
     public String encodeStringValue(@Nonnull final Group group) {
         final StringBuilder sb = new StringBuilder(DnUtils.toString(group));
 
-        if (baseDn.getComponents().size() > 0) {
-            sb.append(delimiter).append(DnUtils.toString(baseDn));
-        }
-
         // return generated DN
         return sb.toString();
     }
@@ -107,8 +101,7 @@ public class GroupValueTranscoder extends AbstractStringValueTranscoder<Group> {
 
         // return the relative DN
         try {
-            return new Dn(dn.getComponents().subList(baseDn.getComponents().size(), dn.getComponents().size()))
-                    .asGroup();
+            return dn.asGroup();
         } catch (final IllegalArgumentException e) {
             throw new IllegalGroupDnException(groupDn);
         }
