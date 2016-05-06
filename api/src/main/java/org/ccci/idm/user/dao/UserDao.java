@@ -1,6 +1,7 @@
 package org.ccci.idm.user.dao;
 
 import com.google.common.annotations.Beta;
+import org.ccci.idm.user.Dn;
 import org.ccci.idm.user.Group;
 import org.ccci.idm.user.SearchQuery;
 import org.ccci.idm.user.User;
@@ -198,5 +199,6 @@ public interface UserDao {
      *
      * @return list of all available groups under base search dn
      */
-    List<Group> getAllGroups(String baseSearchDn) throws DaoException;
+    @Nonnull
+    List<Group> getAllGroups(@Nullable Dn baseSearchDn) throws DaoException;
 }

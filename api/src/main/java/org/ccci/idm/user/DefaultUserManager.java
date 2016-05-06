@@ -391,8 +391,9 @@ public class DefaultUserManager implements UserManager {
      *
      * @return list of all available groups under base search dn
      */
+    @Nonnull
     @Override
-    public List<Group> getAllGroups(String baseSearchDn) throws DaoException {
+    public List<Group> getAllGroups(@Nullable final Dn baseSearchDn) throws DaoException {
         return this.userDao.getAllGroups(baseSearchDn);
     }
 
