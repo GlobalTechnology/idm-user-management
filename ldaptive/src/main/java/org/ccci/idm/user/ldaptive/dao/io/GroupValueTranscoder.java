@@ -67,10 +67,13 @@ public class GroupValueTranscoder extends AbstractStringValueTranscoder<Group> {
 
     @Override
     public String encodeStringValue(@Nonnull final Group group) {
-        final StringBuilder sb = new StringBuilder(DnUtils.toString(group));
+        if (!group.isDescendantOf(baseDn)) {
+            throw new IllegalArgumentException("Group \"" + DnUtils.toString(group)
+                    + "\" is not a descendant of baseDn \"" + DnUtils.toString(baseDn) + "\"");
+        }
 
         // return generated DN
-        return sb.toString();
+        return DnUtils.toString(group);
     }
 
     @Override
