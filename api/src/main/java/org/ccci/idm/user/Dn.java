@@ -1,6 +1,5 @@
 package org.ccci.idm.user;
 
-import com.google.common.base.Function;
 import com.google.common.base.MoreObjects;
 import com.google.common.collect.ImmutableList;
 
@@ -16,12 +15,10 @@ import java.util.Locale;
 public class Dn implements Serializable {
     private static final long serialVersionUID = 5510344429904560934L;
 
+    public static final Dn ROOT = new Dn();
+
     @Nonnull
     private final List<Component> components;
-
-    public Dn() {
-        components = ImmutableList.of();
-    }
 
     public Dn(@Nonnull final Component... components) {
         this.components = ImmutableList.copyOf(components);
@@ -103,14 +100,6 @@ public class Dn implements Serializable {
     @Immutable
     public static final class Component implements Serializable {
         private static final long serialVersionUID = -5497975422744151635L;
-
-        static final Function<Component, String> FUNCTION_VALUE = new Function<Component, String>() {
-            @Nullable
-            @Override
-            public String apply(@Nullable final Component input) {
-                return input != null ? input.value : null;
-            }
-        };
 
         @Nonnull
         public final String type;

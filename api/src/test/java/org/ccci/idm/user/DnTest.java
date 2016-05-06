@@ -29,7 +29,7 @@ public class DnTest {
         assertEquals(ROOT, CHILD2.parent());
         assertThat(CHILD1.parent(), is(CHILD2.parent()));
 
-        assertNull(new Dn().parent());
+        assertNull(Dn.ROOT.parent());
     }
 
     @Test

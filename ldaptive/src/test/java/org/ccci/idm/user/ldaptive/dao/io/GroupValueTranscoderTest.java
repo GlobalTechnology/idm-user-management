@@ -1,12 +1,17 @@
 package org.ccci.idm.user.ldaptive.dao.io;
 
+import static org.hamcrest.CoreMatchers.is;
+import static org.hamcrest.Matchers.equalToIgnoringCase;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
 import com.google.common.base.Strings;
+import org.ccci.idm.user.Dn;
 import org.ccci.idm.user.Group;
 import org.ccci.idm.user.ldaptive.dao.io.GroupValueTranscoder.IllegalGroupDnException;
+import org.ccci.idm.user.ldaptive.dao.util.DnUtils;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
@@ -23,6 +28,11 @@ public class GroupValueTranscoderTest {
         return Arrays.asList(new Object[][]{{null}, {""}, {"ou=groups,ou=idm,dc=cru,dc=org"}});
     }
 
+    private final Group GROUP;
+    private static final String[] PATH = new String[]{"GoogleApps", "Cru", "Cru"};
+    private static final String NAME = "Mail";
+
+    private final String groupDn;
     private final String groupSuffix;
     @Nonnull
     private final GroupValueTranscoder groupDnResolver;
@@ -30,51 +40,56 @@ public class GroupValueTranscoderTest {
     public GroupValueTranscoderTest(@Nullable final String baseDn) {
         groupSuffix = Strings.isNullOrEmpty(baseDn) ? "" : ("," + baseDn);
         groupDnResolver = new GroupValueTranscoder();
-        groupDnResolver.setBaseDn(baseDn);
+        groupDnResolver.setBaseDnString(baseDn);
+        groupDn = "cn=" + NAME + ",ou=Cru,ou=Cru,ou=GoogleApps" + groupSuffix;
+
+        Dn dn = DnUtils.toDn(baseDn);
+        for (final String component : PATH) {
+            dn = dn.descendant(new Dn.Component("ou", component));
+        }
+        GROUP = dn.descendant(new Dn.Component("cn", NAME)).asGroup();
     }
 
-    private String name = "Mail";
-    private String[] path = new String[] {"GoogleApps", "Cru", "Cru"};
-
     @Test
-    public void testGroupDnResolver() throws Exception {
-        final String groupDn = "cn=" + name + ",ou=Cru,ou=Cru,ou=GoogleApps" + groupSuffix;
-
+    public void verifyDecodeStringValue() throws Exception {
         Group group = groupDnResolver.decodeStringValue(groupDn);
 
-        assertEquals(name, group.getName());
-        assertEquals(Arrays.toString(path), Arrays.toString(group.getPath()));
+        assertThat(group, is(this.GROUP));
+        assertThat(DnUtils.toString(group), is(equalToIgnoringCase(groupDn)));
+        assertThat(group.getName(), is(equalToIgnoringCase(NAME)));
 
         assertEquals(groupDn, groupDnResolver.encodeStringValue(group));
     }
 
     @Test
-    public void testGroupDnResolverCaseInsensitiveDn() throws Exception {
-        final String groupDn = "CN=" + name + ",OU=Cru,ou=Cru,OU=GoogleApps" + groupSuffix.toUpperCase();
+    public void verifyDecodeStringValueCaseInsensitiveDn() throws Exception {
+        Group group = groupDnResolver.decodeStringValue(groupDn.toUpperCase());
 
-        Group group = groupDnResolver.decodeStringValue(groupDn);
-
-        assertEquals(name, group.getName());
-        assertEquals(Arrays.toString(path), Arrays.toString(group.getPath()));
+        assertThat(group, is(this.GROUP));
+        assertThat(DnUtils.toString(group), is(equalToIgnoringCase(groupDn)));
+        assertThat(group.getName(), is(equalToIgnoringCase(NAME)));
 
         assertTrue(groupDn.equalsIgnoreCase(groupDnResolver.encodeStringValue(group)));
     }
 
     @Test
-    public void testGroupNotMutated() throws Exception {
-        final String groupDn = "cn=" + name + ",ou=Cru,ou=Cru,ou=GoogleApps" + groupSuffix;
+    public void verifySourceCasePreserved() throws Exception {
+        final String groupDn = "cn=" + NAME + ",ou=Cru,ou=Cru,ou=GoogleApps" + groupSuffix;
+        assertThat(groupDnResolver.encodeStringValue(groupDnResolver.decodeStringValue(groupDn)), is(groupDn));
+    }
 
-        Group group = groupDnResolver.decodeStringValue(groupDn);
+    @Test
+    public void verifyEncodeStringValue() throws Exception {
+        final String groupDn = "CN=" + NAME + ",OU=Cru,ou=Cru,OU=GoogleApps" + groupSuffix.toUpperCase();
 
-        assertEquals(groupDn, groupDnResolver.encodeStringValue(group));
-        assertEquals(groupDn, groupDnResolver.encodeStringValue(group));
+        assertTrue(groupDn.equalsIgnoreCase(groupDnResolver.encodeStringValue(GROUP)));
     }
 
     @Test
     public void testEdgeCases() throws Exception {
         // test groupDn == baseDn
         try {
-            groupDnResolver.decodeStringValue(groupDnResolver.getBaseDn());
+            groupDnResolver.decodeStringValue(groupDnResolver.getBaseDnString());
             fail("parsing the baseDn should have triggered an IllegalArgumentException");
         } catch (final IllegalGroupDnException expected) {
         }
