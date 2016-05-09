@@ -126,9 +126,9 @@ public class Dn implements Comparable<Dn>, Serializable {
 
         @Override
         public int compareTo(@Nonnull final Component o) {
-            int resp = type.compareToIgnoreCase(o.type);
+            int resp = value.compareToIgnoreCase(o.value);
             if (resp == 0) {
-                resp = value.compareToIgnoreCase(o.value);
+                resp = type.compareToIgnoreCase(o.type);
             }
             return resp;
         }
