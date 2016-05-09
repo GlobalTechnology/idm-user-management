@@ -1,6 +1,8 @@
 package org.ccci.idm.user;
 
 import static org.hamcrest.CoreMatchers.is;
+import static org.hamcrest.Matchers.greaterThan;
+import static org.hamcrest.Matchers.lessThan;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotEquals;
 import static org.junit.Assert.assertNull;
@@ -82,5 +84,14 @@ public class DnTest {
         assertThat(ROOT.isDescendantOfOrEqualTo(CHILD2), is(false));
         assertThat(CHILD1.isDescendantOfOrEqualTo(CHILD2), is(false));
         assertThat(CHILD2.isDescendantOfOrEqualTo(CHILD1), is(false));
+    }
+
+    @Test
+    public void verifyCompareTo() throws Exception {
+        assertThat(ROOT.compareTo(ROOT), is(0));
+        assertThat(CHILD1.compareTo(CHILD2), is(lessThan(0)));
+        assertThat(CHILD2.compareTo(CHILD1), is(greaterThan(0)));
+        assertThat(ROOT.compareTo(CHILD1), is(lessThan(0)));
+        assertThat(CHILD1.compareTo(ROOT), is(greaterThan(0)));
     }
 }

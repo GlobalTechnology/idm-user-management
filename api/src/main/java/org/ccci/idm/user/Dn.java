@@ -12,7 +12,7 @@ import java.util.List;
 import java.util.Locale;
 
 @Immutable
-public class Dn implements Serializable {
+public class Dn implements Comparable<Dn>, Serializable {
     private static final long serialVersionUID = 5510344429904560934L;
 
     public static final Dn ROOT = new Dn();
@@ -82,6 +82,19 @@ public class Dn implements Serializable {
     }
 
     @Override
+    public int compareTo(@Nonnull final Dn o) {
+        int resp = 0;
+        int i;
+        for (i = 0; resp == 0 && i < components.size() && i < o.components.size(); i++) {
+            resp = components.get(i).compareTo(o.components.get(i));
+        }
+        if (resp == 0) {
+            resp = Integer.valueOf(components.size()).compareTo(o.components.size());
+        }
+        return resp;
+    }
+
+    @Override
     public boolean equals(final Object o) {
         if (this == o) { return true; }
         return o != null && getClass().equals(o.getClass()) && components.equals(((Dn) o).components);
@@ -98,7 +111,7 @@ public class Dn implements Serializable {
     }
 
     @Immutable
-    public static final class Component implements Serializable {
+    public static final class Component implements Comparable<Component>, Serializable {
         private static final long serialVersionUID = -5497975422744151635L;
 
         @Nonnull
@@ -109,6 +122,15 @@ public class Dn implements Serializable {
         public Component(@Nonnull final String type, @Nonnull final String value) {
             this.type = type;
             this.value = value;
+        }
+
+        @Override
+        public int compareTo(@Nonnull final Component o) {
+            int resp = value.compareToIgnoreCase(o.value);
+            if (resp == 0) {
+                resp = type.compareToIgnoreCase(o.type);
+            }
+            return resp;
         }
 
         @Override
