@@ -41,4 +41,12 @@ public class AbsoluteDn extends Dn<AbsoluteDn> {
     public final Group asGroup() {
         return new Group(components);
     }
+
+    @Nonnull
+    public final RelativeDn relativeTo(@Nonnull final AbsoluteDn baseDn) {
+        if (!isDescendantOf(baseDn)) {
+            throw new IllegalArgumentException("This DN is not a descendant of baseDn");
+        }
+        return new RelativeDn(components.subList(baseDn.components.size(), components.size()));
+    }
 }
