@@ -11,14 +11,14 @@ import static org.junit.Assert.assertThat;
 import org.junit.Test;
 
 public class DnTest {
-    private final static Dn ROOT = Dn.ROOT.child("dc", "org").child("dc", "ccci");
+    private final static Dn ROOT = AbsoluteDn.ROOT.child("dc", "org").child("dc", "ccci");
     private final static Dn CHILD1 = ROOT.child("ou", "child1");
     private final static Dn CHILD2 = ROOT.child("ou", "child2");
 
     @Test
     public void verifyEqualsCaseInsensitive() throws Exception {
-        final Dn dn1 = Dn.ROOT.child("ou", "OuTeR").child("cn", "inner");
-        final Dn dn2 = Dn.ROOT.child("OU", "outer").child("CN", "INNER");
+        final Dn dn1 = AbsoluteDn.ROOT.child("ou", "OuTeR").child("cn", "inner");
+        final Dn dn2 = AbsoluteDn.ROOT.child("OU", "outer").child("CN", "INNER");
 
         assertThat(dn1, is(dn2));
         assertThat(dn1.hashCode(), is(dn2.hashCode()));
@@ -31,7 +31,7 @@ public class DnTest {
         assertEquals(ROOT, CHILD2.parent());
         assertThat(CHILD1.parent(), is(CHILD2.parent()));
 
-        assertNull(Dn.ROOT.parent());
+        assertNull(AbsoluteDn.ROOT.parent());
     }
 
     @Test

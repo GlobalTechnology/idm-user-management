@@ -1,7 +1,7 @@
 package org.ccci.idm.user.ldaptive.dao.io;
 
 import com.google.common.annotations.VisibleForTesting;
-import org.ccci.idm.user.Dn;
+import org.ccci.idm.user.AbsoluteDn;
 import org.ccci.idm.user.Group;
 import org.ccci.idm.user.ldaptive.dao.util.DnUtils;
 import org.ldaptive.io.AbstractStringValueTranscoder;
@@ -15,7 +15,7 @@ import javax.annotation.Nullable;
 @Deprecated
 public class GroupValueTranscoder extends AbstractStringValueTranscoder<Group> {
     @Nonnull
-    private Dn baseDn = Dn.ROOT;
+    private AbsoluteDn baseDn = AbsoluteDn.ROOT;
 
     @Nonnull
     @VisibleForTesting
@@ -23,8 +23,8 @@ public class GroupValueTranscoder extends AbstractStringValueTranscoder<Group> {
         return DnUtils.toString(baseDn);
     }
 
-    public void setBaseDn(@Nullable final Dn dn) {
-        baseDn = dn != null ? dn : Dn.ROOT;
+    public void setBaseDn(@Nullable final AbsoluteDn dn) {
+        baseDn = dn != null ? dn : AbsoluteDn.ROOT;
     }
 
     /**
@@ -54,7 +54,7 @@ public class GroupValueTranscoder extends AbstractStringValueTranscoder<Group> {
 
     @Override
     public Group decodeStringValue(@Nonnull final String groupDn) {
-        final Dn dn = DnUtils.toDn(groupDn);
+        final AbsoluteDn dn = DnUtils.toDn(groupDn);
 
         // make sure the group DN ends with the base DN (plus delimiter) if we have a base DN
         if (!dn.isDescendantOf(baseDn)) {

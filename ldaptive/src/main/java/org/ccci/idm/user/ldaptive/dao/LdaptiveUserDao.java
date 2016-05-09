@@ -28,7 +28,7 @@ import com.google.common.base.Throwables;
 import com.google.common.collect.Collections2;
 import com.google.common.collect.FluentIterable;
 import com.google.common.collect.Lists;
-import org.ccci.idm.user.Dn;
+import org.ccci.idm.user.AbsoluteDn;
 import org.ccci.idm.user.Group;
 import org.ccci.idm.user.SearchQuery;
 import org.ccci.idm.user.User;
@@ -106,7 +106,7 @@ public class LdaptiveUserDao extends AbstractLdapUserDao {
     private String baseSearchDn = "";
 
     @Nullable
-    private Dn baseGroupDn = null;
+    private AbsoluteDn baseGroupDn = null;
 
     private int maxPageSize = 1000;
 
@@ -122,7 +122,7 @@ public class LdaptiveUserDao extends AbstractLdapUserDao {
         this.baseSearchDn = dn;
     }
 
-    public void setBaseGroupDn(@Nullable final Dn dn) {
+    public void setBaseGroupDn(@Nullable final AbsoluteDn dn) {
         baseGroupDn = dn;
     }
 
@@ -141,7 +141,7 @@ public class LdaptiveUserDao extends AbstractLdapUserDao {
         }
     }
 
-    private void assertValidGroupDn(@Nonnull final Dn dn) {
+    private void assertValidGroupDn(@Nonnull final AbsoluteDn dn) {
         assertValidBaseGroupDn();
         assert baseGroupDn != null;
         if (!dn.isDescendantOfOrEqualTo(baseGroupDn)) {
@@ -528,7 +528,7 @@ public class LdaptiveUserDao extends AbstractLdapUserDao {
      */
     @Nonnull
     @Override
-    public List<Group> getAllGroups(@Nullable final Dn baseSearchDn) throws DaoException {
+    public List<Group> getAllGroups(@Nullable final AbsoluteDn baseSearchDn) throws DaoException {
         assertValidBaseGroupDn();
         if (baseSearchDn != null) {
             assertValidGroupDn(baseSearchDn);
@@ -550,13 +550,13 @@ public class LdaptiveUserDao extends AbstractLdapUserDao {
      * @throws DaoException
      */
     private int enqueueGroupsByFilter(@Nonnull final Collection<Group> groups, @Nullable BaseFilter filter,
-                                      @Nullable final Dn baseSearchDn, final int limit,
+                                      @Nullable final AbsoluteDn baseSearchDn, final int limit,
                                       final boolean restrictMaxAllowedResults) throws DaoException {
         assertValidBaseGroupDn();
         assert baseGroupDn != null;
 
         // require provided base dn be descendant of (or identical to) groups base dn, under threat of exception
-        final Dn searchDn = MoreObjects.firstNonNull(baseSearchDn, baseGroupDn);
+        final AbsoluteDn searchDn = MoreObjects.firstNonNull(baseSearchDn, baseGroupDn);
         assertValidGroupDn(searchDn);
 
         filter = filter != null ? filter.and(FILTER_GROUP) : FILTER_GROUP;
@@ -594,7 +594,7 @@ public class LdaptiveUserDao extends AbstractLdapUserDao {
                 final Iterator<LdapEntry> entries = result.getEntries().iterator();
                 while ((limit == SEARCH_NO_LIMIT || processed < limit) && (!restrictMaxAllowedResults ||
                         maxSearchResults == SEARCH_NO_LIMIT || processed < maxSearchResults) && entries.hasNext()) {
-                    final Dn dn = DnUtils.toDnSafe(entries.next().getDn());
+                    final AbsoluteDn dn = DnUtils.toDnSafe(entries.next().getDn());
                     if (dn != null && dn.isDescendantOfOrEqualTo(baseGroupDn) && dn.getComponents().size() > 0) {
                         if (groups instanceof BlockingQueue) {
                             try {

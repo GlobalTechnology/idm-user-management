@@ -8,7 +8,7 @@ import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
 import com.google.common.base.Strings;
-import org.ccci.idm.user.Dn;
+import org.ccci.idm.user.AbsoluteDn;
 import org.ccci.idm.user.Group;
 import org.ccci.idm.user.ldaptive.dao.io.GroupValueTranscoder.IllegalGroupDnException;
 import org.ccci.idm.user.ldaptive.dao.util.DnUtils;
@@ -43,11 +43,11 @@ public class GroupValueTranscoderTest {
         groupDnResolver.setBaseDnString(baseDn);
         groupDn = "cn=" + NAME + ",ou=Cru,ou=Cru,ou=GoogleApps" + groupSuffix;
 
-        Dn dn = DnUtils.toDn(baseDn);
+        AbsoluteDn dn = DnUtils.toDn(baseDn);
         for (final String component : PATH) {
-            dn = dn.descendant(new Dn.Component("ou", component));
+            dn = dn.child("ou", component);
         }
-        GROUP = dn.descendant(new Dn.Component("cn", NAME)).asGroup();
+        GROUP = dn.child("cn", NAME).asGroup();
     }
 
     @Test

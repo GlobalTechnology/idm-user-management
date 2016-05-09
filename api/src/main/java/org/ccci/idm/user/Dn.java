@@ -12,13 +12,11 @@ import java.util.List;
 import java.util.Locale;
 
 @Immutable
-public class Dn implements Comparable<Dn>, Serializable {
+public abstract class Dn<T extends Dn<T>> implements Comparable<Dn<?>>, Serializable {
     private static final long serialVersionUID = 5510344429904560934L;
 
-    public static final Dn ROOT = new Dn();
-
     @Nonnull
-    private final List<Component> components;
+    final List<Component> components;
 
     public Dn(@Nonnull final Component... components) {
         this.components = ImmutableList.copyOf(components);
@@ -63,31 +61,21 @@ public class Dn implements Comparable<Dn>, Serializable {
         return descendant.isDescendantOfOrEqualTo(this);
     }
 
+    public abstract boolean isRelative();
+
     @Nonnull
-    public final Dn descendant(@Nonnull final Component... components) {
-        return new Dn(ImmutableList.<Component>builder().addAll(this.components).add(components).build());
+    public final T child(@Nonnull final String type, @Nonnull final String name) {
+        return descendant(new Component(type, name));
     }
 
     @Nonnull
-    public final Dn child(@Nonnull final String type, @Nonnull final String value) {
-        return descendant(new Component(type, value));
-    }
-
-    @Nonnull
-    public final Group asGroup() {
-        return new Group(components);
-    }
+    public abstract T descendant(@Nonnull Component... components);
 
     @Nullable
-    public final Dn parent() {
-        if (!components.isEmpty()) {
-            return new Dn(components.subList(0, components.size() - 1));
-        }
-        return null;
-    }
+    public abstract T parent();
 
     @Override
-    public int compareTo(@Nonnull final Dn o) {
+    public int compareTo(@Nonnull final Dn<?> o) {
         int resp = 0;
         int i;
         for (i = 0; resp == 0 && i < components.size() && i < o.components.size(); i++) {
