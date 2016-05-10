@@ -69,6 +69,11 @@ public class Dn implements Comparable<Dn>, Serializable {
     }
 
     @Nonnull
+    public final Dn child(@Nonnull final String type, @Nonnull final String value) {
+        return descendant(new Component(type, value));
+    }
+
+    @Nonnull
     public final Group asGroup() {
         return new Group(components);
     }
