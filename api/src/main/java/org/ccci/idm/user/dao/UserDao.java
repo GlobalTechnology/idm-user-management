@@ -178,7 +178,7 @@ public interface UserDao {
      * @param user to add
      * @param group to group
      */
-    void addToGroup(User user, Group group) throws DaoException;
+    void addToGroup(@Nonnull User user, @Nonnull Group group) throws DaoException;
 
     /**
      * Remove user from group
@@ -186,7 +186,7 @@ public interface UserDao {
      * @param user to remove
      * @param group from group
      */
-    void removeFromGroup(User user, Group group) throws DaoException;
+    void removeFromGroup(@Nonnull User user, @Nonnull Group group) throws DaoException;
 
     /**
      * Returns all available groups

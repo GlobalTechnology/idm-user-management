@@ -500,7 +500,7 @@ public class LdaptiveUserDao extends AbstractLdapUserDao {
     }
 
     @Override
-    public void addToGroup(User user, Group group) throws DaoException {
+    public void addToGroup(@Nonnull final User user, @Nonnull final Group group) throws DaoException {
         assertWritable();
         assertValidUser(user);
 
@@ -508,7 +508,7 @@ public class LdaptiveUserDao extends AbstractLdapUserDao {
     }
 
     @Override
-    public void removeFromGroup(User user, Group group) throws DaoException {
+    public void removeFromGroup(@Nonnull final User user, @Nonnull final Group group) throws DaoException {
         assertWritable();
         assertValidUser(user);
 

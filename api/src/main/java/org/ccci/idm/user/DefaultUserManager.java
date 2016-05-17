@@ -369,14 +369,14 @@ public class DefaultUserManager implements UserManager {
     @Override
     @Audit(action = "IDM_ADD_TO_GROUP", actionResolverName = AUDIT_ACTION_RESOLVER, resourceResolverName =
             "IDM_USER_MANAGER_ADD_TO_GROUP_RESOURCE_RESOLVER")
-    public void addToGroup(final User user, final Group group) throws DaoException {
+    public void addToGroup(@Nonnull final User user, @Nonnull final Group group) throws DaoException {
         this.userDao.addToGroup(user, group);
     }
 
     @Override
     @Audit(action = "IDM_REMOVE_FROM_GROUP", actionResolverName = AUDIT_ACTION_RESOLVER, resourceResolverName =
             "IDM_USER_MANAGER_REMOVE_FROM_GROUP_RESOURCE_RESOLVER")
-    public void removeFromGroup(final User user, final Group group) throws DaoException {
+    public void removeFromGroup(@Nonnull final User user, @Nonnull final Group group) throws DaoException {
         this.userDao.removeFromGroup(user, group);
     }
 
