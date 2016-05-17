@@ -8,7 +8,7 @@
 
   <bean class="org.ccci.idm.user.ldaptive.dao.LdaptiveUserDao"
       p:connectionFactory-ref="ldap.connection.factory.pooled.management"
-      p:baseGroupDnString="${ldap.dn.group:dc=org}"
+      p:baseGroupDnString="${ldap.dn.group:#{null}}"
       p:baseSearchDn="${ldap.base}"
       p:maxPageSize="1">
     <property name="userMapper">

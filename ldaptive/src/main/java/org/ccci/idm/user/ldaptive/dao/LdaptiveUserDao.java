@@ -105,8 +105,8 @@ public class LdaptiveUserDao extends AbstractLdapUserDao {
 
     private String baseSearchDn = "";
 
-    @NotNull
-    private Dn baseGroupDn = Dn.ROOT;
+    @Nullable
+    private Dn baseGroupDn = null;
 
     private int maxPageSize = 1000;
 
@@ -123,15 +123,30 @@ public class LdaptiveUserDao extends AbstractLdapUserDao {
     }
 
     public void setBaseGroupDn(@Nullable final Dn dn) {
-        baseGroupDn = dn != null ? dn : Dn.ROOT;
+        baseGroupDn = dn;
     }
 
     public void setBaseGroupDnString(@Nullable final String dn) {
-        setBaseGroupDn(DnUtils.toDn(dn));
+        setBaseGroupDn(dn != null ? DnUtils.toDn(dn) : null);
     }
 
     public void setMaxPageSize(final int size) {
         this.maxPageSize = size;
+    }
+
+    private void assertValidBaseGroupDn() {
+        if (baseGroupDn == null) {
+            throw new UnsupportedOperationException(
+                    "a baseGroupDn needs to be configured before group functionality can be used");
+        }
+    }
+
+    private void assertValidGroupDn(@Nonnull final Dn dn) {
+        assertValidBaseGroupDn();
+        assert baseGroupDn != null;
+        if (!dn.isDescendantOfOrEqualTo(baseGroupDn)) {
+            throw new IllegalArgumentException(dn + " must be descendant of (or identical to) " + baseGroupDn);
+        }
     }
 
     /**
@@ -296,12 +311,7 @@ public class LdaptiveUserDao extends AbstractLdapUserDao {
         }
         final Group group = query.getGroup();
         if (group != null) {
-            // short-circuit if we can't transcode the group
-            if (!group.isDescendantOfOrEqualTo(baseGroupDn)) {
-                throw new UnsupportedOperationException(
-                        "Cannot search by a group that is not a descendant of the baseGroupDn");
-            }
-
+            assertValidGroupDn(group);
             filters.add(new EqualsFilter(LDAP_ATTR_GROUPS, DnUtils.toString(group)));
         }
         final BaseFilter filter;
@@ -354,11 +364,7 @@ public class LdaptiveUserDao extends AbstractLdapUserDao {
     @Nonnull
     @Override
     public List<User> findAllByGroup(@Nonnull final Group group, final boolean includeDeactivated) throws DaoException {
-        // short-circuit if we can't transcode the group
-        if (!group.isDescendantOfOrEqualTo(baseGroupDn)) {
-            throw new UnsupportedOperationException(
-                    "Cannot search by a group that is not a descendant of the baseGroupDn");
-        }
+        assertValidGroupDn(group);
 
         // execute the search
         return findAllByFilter(new EqualsFilter(LDAP_ATTR_GROUPS, DnUtils.toString(group)), includeDeactivated,
@@ -495,6 +501,7 @@ public class LdaptiveUserDao extends AbstractLdapUserDao {
     public void addToGroup(@Nonnull final User user, @Nonnull final Group group) throws DaoException {
         assertWritable();
         assertValidUser(user);
+        assertValidGroupDn(group);
 
         modifyGroupMembership(user, group, AttributeModificationType.ADD);
     }
@@ -503,6 +510,7 @@ public class LdaptiveUserDao extends AbstractLdapUserDao {
     public void removeFromGroup(@Nonnull final User user, @Nonnull final Group group) throws DaoException {
         assertWritable();
         assertValidUser(user);
+        assertValidGroupDn(group);
 
         modifyGroupMembership(user, group, AttributeModificationType.REMOVE);
     }
@@ -521,6 +529,11 @@ public class LdaptiveUserDao extends AbstractLdapUserDao {
     @Nonnull
     @Override
     public List<Group> getAllGroups(@Nullable final Dn baseSearchDn) throws DaoException {
+        assertValidBaseGroupDn();
+        if (baseSearchDn != null) {
+            assertValidGroupDn(baseSearchDn);
+        }
+
         final List<Group> groups = Lists.newArrayList();
         enqueueGroupsByFilter(groups, null, baseSearchDn, SEARCH_NO_LIMIT, false);
         return groups;
@@ -539,6 +552,9 @@ public class LdaptiveUserDao extends AbstractLdapUserDao {
     private int enqueueGroupsByFilter(@Nonnull final Collection<Group> groups, @Nullable BaseFilter filter,
                                       @Nullable final Dn baseSearchDn, final int limit,
                                       final boolean restrictMaxAllowedResults) throws DaoException {
+        assertValidBaseGroupDn();
+        assert baseGroupDn != null;
+
         // require provided base dn be descendant of (or identical to) groups base dn, under threat of exception
         final Dn searchDn = MoreObjects.firstNonNull(baseSearchDn, baseGroupDn);
         if (!searchDn.isDescendantOfOrEqualTo(baseGroupDn)) {
@@ -621,11 +637,6 @@ public class LdaptiveUserDao extends AbstractLdapUserDao {
 
     private void modifyGroupMembership(User user, Group group, AttributeModificationType attributeModificationType)
             throws DaoException {
-        if (!group.isDescendantOfOrEqualTo(baseGroupDn)) {
-            throw new UnsupportedOperationException(
-                    "Cannot modify group membership for a group that is not a descendant of the baseGroupDn");
-        }
-
         Connection conn = null;
         try {
             conn = this.connectionFactory.getConnection();
