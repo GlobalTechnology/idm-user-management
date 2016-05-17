@@ -43,7 +43,6 @@ import org.ccci.idm.user.ldaptive.dao.filter.EqualsFilter;
 import org.ccci.idm.user.ldaptive.dao.filter.LikeFilter;
 import org.ccci.idm.user.ldaptive.dao.filter.PresentFilter;
 import org.ccci.idm.user.ldaptive.dao.util.DnUtils;
-import org.ccci.idm.user.ldaptive.dao.util.GroupUtils;
 import org.ccci.idm.user.ldaptive.dao.util.LdapUtils;
 import org.ldaptive.AddOperation;
 import org.ldaptive.AddRequest;
@@ -65,7 +64,6 @@ import org.ldaptive.SearchResult;
 import org.ldaptive.beans.LdapEntryMapper;
 import org.ldaptive.control.PagedResultsControl;
 import org.ldaptive.control.ResponseControl;
-import org.ldaptive.io.ValueTranscoder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -105,13 +103,10 @@ public class LdaptiveUserDao extends AbstractLdapUserDao {
     @NotNull
     protected LdapEntryMapper<User> userMapper;
 
-    @Nullable
-    protected ValueTranscoder<Group> groupValueTranscoder;
-
     private String baseSearchDn = "";
 
-    @Nonnull
-    private Dn groupsBaseSearchDn = Dn.ROOT;
+    @NotNull
+    private Dn baseGroupDn = Dn.ROOT;
 
     private int maxPageSize = 1000;
 
@@ -127,16 +122,12 @@ public class LdaptiveUserDao extends AbstractLdapUserDao {
         this.baseSearchDn = dn;
     }
 
-    public void setGroupsBaseSearchDn(@Nonnull final Dn baseDn) {
-        groupsBaseSearchDn = baseDn;
+    public void setBaseGroupDn(@Nullable final Dn dn) {
+        baseGroupDn = dn != null ? dn : Dn.ROOT;
     }
 
-    public void setGroupsBaseSearchDnString(@Nonnull final String baseDn) {
-        setGroupsBaseSearchDn(DnUtils.toDn(baseDn));
-    }
-
-    public void setGroupValueTranscoder(@Nullable ValueTranscoder<Group> transcoder) {
-        this.groupValueTranscoder = transcoder;
+    public void setBaseGroupDnString(@Nullable final String dn) {
+        setBaseGroupDn(DnUtils.toDn(dn));
     }
 
     public void setMaxPageSize(final int size) {
@@ -303,14 +294,15 @@ public class LdaptiveUserDao extends AbstractLdapUserDao {
         if (!Strings.isNullOrEmpty(query.getEmployeeId())) {
             filters.add(new LikeFilter(LDAP_ATTR_EMPLOYEE_NUMBER, query.getEmployeeId()));
         }
-        if (query.getGroup() != null) {
+        final Group group = query.getGroup();
+        if (group != null) {
             // short-circuit if we can't transcode the group
-            if (groupValueTranscoder == null) {
-                throw new UnsupportedOperationException("Searching by group membership requires a configured Group "
-                        + "ValueTranscoder");
+            if (!group.isDescendantOfOrEqualTo(baseGroupDn)) {
+                throw new UnsupportedOperationException(
+                        "Cannot search by a group that is not a descendant of the baseGroupDn");
             }
 
-            filters.add(new EqualsFilter(LDAP_ATTR_GROUPS, groupValueTranscoder.encodeStringValue(query.getGroup())));
+            filters.add(new EqualsFilter(LDAP_ATTR_GROUPS, DnUtils.toString(group)));
         }
         final BaseFilter filter;
         if (filters.size() == 0) {
@@ -363,14 +355,14 @@ public class LdaptiveUserDao extends AbstractLdapUserDao {
     @Override
     public List<User> findAllByGroup(@Nonnull final Group group, final boolean includeDeactivated) throws DaoException {
         // short-circuit if we can't transcode the group
-        if (groupValueTranscoder == null) {
-            throw new UnsupportedOperationException("Searching by group membership requires a configured Group " +
-                    "ValueTranscoder");
+        if (!group.isDescendantOfOrEqualTo(baseGroupDn)) {
+            throw new UnsupportedOperationException(
+                    "Cannot search by a group that is not a descendant of the baseGroupDn");
         }
 
         // execute the search
-        return findAllByFilter(new EqualsFilter(LDAP_ATTR_GROUPS, groupValueTranscoder.encodeStringValue(group)),
-                includeDeactivated, SEARCH_NO_LIMIT, true);
+        return findAllByFilter(new EqualsFilter(LDAP_ATTR_GROUPS, DnUtils.toString(group)), includeDeactivated,
+                SEARCH_NO_LIMIT, true);
     }
 
     @Override
@@ -537,7 +529,7 @@ public class LdaptiveUserDao extends AbstractLdapUserDao {
     /**
      * @param groups                    collection to populate with loaded groups
      * @param filter                    the LDAP search filter to use when searching
-     * @param baseSearchDn        groups base search dn, null defaults to all groups (this.groupsBaseSearchDn)
+     * @param baseSearchDn        groups base search dn, null defaults to all groups (this.baseGroupDn)
      * @param limit                     the maximum number of results to return, a limit of 0 indicates that all results
      *                                  should be returned
      * @param restrictMaxAllowedResults a flag indicating if maxSearchResults should be observed
@@ -548,10 +540,10 @@ public class LdaptiveUserDao extends AbstractLdapUserDao {
                                       @Nullable final Dn baseSearchDn, final int limit,
                                       final boolean restrictMaxAllowedResults) throws DaoException {
         // require provided base dn be descendant of (or identical to) groups base dn, under threat of exception
-        final Dn searchDn = MoreObjects.firstNonNull(baseSearchDn, groupsBaseSearchDn);
-        if (!searchDn.isDescendantOfOrEqualTo(groupsBaseSearchDn)) {
+        final Dn searchDn = MoreObjects.firstNonNull(baseSearchDn, baseGroupDn);
+        if (!searchDn.isDescendantOfOrEqualTo(baseGroupDn)) {
             throw new IllegalArgumentException(baseSearchDn + " must be descendant of (or identical to) " +
-                    groupsBaseSearchDn);
+                    baseGroupDn);
         }
 
         filter = filter != null ? filter.and(FILTER_GROUP) : FILTER_GROUP;
@@ -589,18 +581,17 @@ public class LdaptiveUserDao extends AbstractLdapUserDao {
                 final Iterator<LdapEntry> entries = result.getEntries().iterator();
                 while ((limit == SEARCH_NO_LIMIT || processed < limit) && (!restrictMaxAllowedResults ||
                         maxSearchResults == SEARCH_NO_LIMIT || processed < maxSearchResults) && entries.hasNext()) {
-                    LdapEntry ldapEntry = entries.next();
-                    final Group group = GroupUtils.fromDn(ldapEntry.getDn(), groupValueTranscoder);
-                    if (group != null) {
+                    final Dn dn = DnUtils.toDnSafe(entries.next().getDn());
+                    if (dn != null && dn.isDescendantOfOrEqualTo(baseGroupDn) && dn.getComponents().size() > 0) {
                         if (groups instanceof BlockingQueue) {
                             try {
-                                ((BlockingQueue<Group>) groups).put(group);
+                                ((BlockingQueue<Group>) groups).put(dn.asGroup());
                             } catch (final InterruptedException e) {
                                 LOG.debug("Error adding group to the BlockingQueue, let's propagate the exception", e);
                                 throw new InterruptedDaoException(e);
                             }
                         } else {
-                            groups.add(group);
+                            groups.add(dn.asGroup());
                         }
                     }
                     processed++;
@@ -630,8 +621,9 @@ public class LdaptiveUserDao extends AbstractLdapUserDao {
 
     private void modifyGroupMembership(User user, Group group, AttributeModificationType attributeModificationType)
             throws DaoException {
-        if (this.groupValueTranscoder == null) {
-            throw new UnsupportedOperationException("Modifying group membership requires a configured Group ValueTranscoder");
+        if (!group.isDescendantOfOrEqualTo(baseGroupDn)) {
+            throw new UnsupportedOperationException(
+                    "Cannot modify group membership for a group that is not a descendant of the baseGroupDn");
         }
 
         Connection conn = null;
@@ -640,7 +632,7 @@ public class LdaptiveUserDao extends AbstractLdapUserDao {
             conn.open();
 
             String userDn = this.userMapper.mapDn(user);
-            String groupDn = this.groupValueTranscoder.encodeStringValue(group);
+            final String groupDn = DnUtils.toString(group);
 
             // modify user entry
             modifyEntry(conn, userDn, attributeModificationType, groupDn, LDAP_ATTR_GROUPS);
