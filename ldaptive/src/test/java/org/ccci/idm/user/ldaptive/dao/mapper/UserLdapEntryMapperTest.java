@@ -8,9 +8,9 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
 import com.google.common.collect.ImmutableSet;
+import org.ccci.idm.user.Dn;
 import org.ccci.idm.user.Group;
 import org.ccci.idm.user.User;
-import org.ccci.idm.user.ldaptive.dao.io.GroupValueTranscoder;
 import org.junit.Test;
 import org.ldaptive.LdapAttribute;
 import org.ldaptive.LdapEntry;
@@ -38,7 +38,7 @@ public class UserLdapEntryMapperTest {
 
         // test resolution using no Group DN resolver
         {
-            mapper.setGroupValueTranscoder(null);
+            mapper.setBaseGroupDn(null);
             final Collection<Group> groups = mapper.getGroupValues(entry, name);
             assertNotNull(groups);
             assertEquals(0, groups.size());
@@ -46,7 +46,7 @@ public class UserLdapEntryMapperTest {
 
         // test resolution using a base Group DN resolver
         {
-            mapper.setGroupValueTranscoder(new GroupValueTranscoder());
+            mapper.setBaseGroupDn(Dn.ROOT);
             final Collection<Group> groups = mapper.getGroupValues(entry, name);
             assertNotNull(groups);
             assertEquals(2, groups.size());

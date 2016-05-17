@@ -3,9 +3,6 @@
     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
     xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.2.xsd">
 
-  <bean id="groupValueTranscoder" class="org.ccci.idm.user.ldaptive.dao.io.GroupValueTranscoder"
-      p:baseDnString="${ldap.dn.group:dc=org}" />
-
   <bean class="org.ccci.idm.user.ldaptive.dao.LdaptiveUserDao"
       p:connectionFactory-ref="ldap.connection.factory.pooled.management"
       p:baseGroupDnString="${ldap.dn.group:#{null}}"
@@ -13,7 +10,7 @@
       p:maxPageSize="1">
     <property name="userMapper">
       <bean class="org.ccci.idm.user.ldaptive.dao.mapper.UserLdapEntryMapper"
-          p:groupValueTranscoder-ref="groupValueTranscoder">
+          p:baseGroupDnString="${ldap.dn.group:#{null}}">
         <property name="dnResolver">
           <bean class="org.ldaptive.auth.FormatDnResolver"
               p:format="${ldap.dn.user}" />
