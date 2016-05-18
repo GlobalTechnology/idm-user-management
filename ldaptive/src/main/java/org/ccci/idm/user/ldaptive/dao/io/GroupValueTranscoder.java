@@ -9,6 +9,7 @@ import org.ldaptive.io.AbstractStringValueTranscoder;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
+@Deprecated
 public class GroupValueTranscoder extends AbstractStringValueTranscoder<Group> {
     @Nonnull
     private Dn baseDn = Dn.ROOT;
