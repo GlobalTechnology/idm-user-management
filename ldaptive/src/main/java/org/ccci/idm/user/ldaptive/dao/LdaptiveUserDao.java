@@ -557,10 +557,7 @@ public class LdaptiveUserDao extends AbstractLdapUserDao {
 
         // require provided base dn be descendant of (or identical to) groups base dn, under threat of exception
         final Dn searchDn = MoreObjects.firstNonNull(baseSearchDn, baseGroupDn);
-        if (!searchDn.isDescendantOfOrEqualTo(baseGroupDn)) {
-            throw new IllegalArgumentException(baseSearchDn + " must be descendant of (or identical to) " +
-                    baseGroupDn);
-        }
+        assertValidGroupDn(searchDn);
 
         filter = filter != null ? filter.and(FILTER_GROUP) : FILTER_GROUP;
 
