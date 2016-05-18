@@ -11,10 +11,10 @@ import static org.ccci.idm.user.dao.ldap.Constants.LDAP_ATTR_CRU_HR_STATUS_CODE;
 import static org.ccci.idm.user.dao.ldap.Constants.LDAP_ATTR_CRU_JOB_CODE;
 import static org.ccci.idm.user.dao.ldap.Constants.LDAP_ATTR_CRU_MANAGER_ID;
 import static org.ccci.idm.user.dao.ldap.Constants.LDAP_ATTR_CRU_MINISTRY_CODE;
+import static org.ccci.idm.user.dao.ldap.Constants.LDAP_ATTR_CRU_PASSWORD_HISTORY;
 import static org.ccci.idm.user.dao.ldap.Constants.LDAP_ATTR_CRU_PAY_GROUP;
 import static org.ccci.idm.user.dao.ldap.Constants.LDAP_ATTR_CRU_PREFERRED_NAME;
 import static org.ccci.idm.user.dao.ldap.Constants.LDAP_ATTR_CRU_PROXY_ADDRESSES;
-import static org.ccci.idm.user.dao.ldap.Constants.LDAP_ATTR_CRU_PASSWORD_HISTORY;
 import static org.ccci.idm.user.dao.ldap.Constants.LDAP_ATTR_CRU_SUB_MINISTRY_CODE;
 import static org.ccci.idm.user.dao.ldap.Constants.LDAP_ATTR_DEPARTMENT_NUMBER;
 import static org.ccci.idm.user.dao.ldap.Constants.LDAP_ATTR_DOMAINSVISITED;
@@ -51,10 +51,13 @@ import static org.ccci.idm.user.dao.ldap.Constants.LDAP_OBJECTCLASSES_USER;
 import com.google.common.base.Joiner;
 import com.google.common.base.Strings;
 import com.google.common.base.Throwables;
+import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Sets;
+import org.ccci.idm.user.Dn;
 import org.ccci.idm.user.Group;
 import org.ccci.idm.user.User;
 import org.ccci.idm.user.ldaptive.dao.io.ReadableInstantValueTranscoder;
+import org.ccci.idm.user.ldaptive.dao.util.DnUtils;
 import org.joda.time.ReadableInstant;
 import org.ldaptive.LdapAttribute;
 import org.ldaptive.LdapEntry;
@@ -95,10 +98,14 @@ public abstract class AbstractUserLdapEntryMapper<O extends User> implements Lda
     }
 
     @Nullable
-    protected ValueTranscoder<Group> groupValueTranscoder;
+    protected Dn baseGroupDn;
 
-    public void setGroupValueTranscoder(@Nullable final ValueTranscoder<Group> transcoder) {
-        this.groupValueTranscoder = transcoder;
+    public void setBaseGroupDn(@Nullable final Dn dn) {
+        baseGroupDn = dn;
+    }
+
+    public void setBaseGroupDnString(@Nullable final String dn) {
+        setBaseGroupDn(dn != null ? DnUtils.toDn(dn) : null);
     }
 
     @Override
@@ -358,20 +365,23 @@ public abstract class AbstractUserLdapEntryMapper<O extends User> implements Lda
         return defaultValue;
     }
 
-    protected final Collection<Group> getGroupValues(final LdapEntry entry, final String attribute) {
-        final Collection<Group> groups = Sets.newHashSet();
+    @Nonnull
+    protected final Collection<Group> getGroupValues(@Nonnull final LdapEntry entry, final String attribute) {
+        // short-circuit if we aren't configured to load groups
+        if (baseGroupDn == null) {
+            return ImmutableSet.of();
+        }
 
-        if (this.groupValueTranscoder != null) {
-            for (final String dn : this.getStringValues(entry, attribute)) {
-                try {
-                    groups.add(groupValueTranscoder.decodeStringValue(dn));
-                } catch (final Exception e) {
-                    LOG.debug("Caught exception resolving group from group dn {}", dn);
+        final ImmutableSet.Builder<Group> groups = ImmutableSet.builder();
+        for (final String rawDn : getStringValues(entry, attribute)) {
+            final Dn dn = DnUtils.toDnSafe(rawDn);
+            if (dn != null && dn.isDescendantOfOrEqualTo(baseGroupDn)) {
+                if (dn.getComponents().size() > 0) {
+                    groups.add(dn.asGroup());
                 }
             }
         }
-
-        return groups;
+        return groups.build();
     }
 
     protected final ReadableInstant getTimeValue(final LdapEntry entry, final String attribute) {
