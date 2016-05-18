@@ -9,6 +9,9 @@ import org.ldaptive.io.AbstractStringValueTranscoder;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
+/**
+ * @deprecated Since v0.4.0, use {@link DnUtils} to convert Group Values.
+ */
 @Deprecated
 public class GroupValueTranscoder extends AbstractStringValueTranscoder<Group> {
     @Nonnull
