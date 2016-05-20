@@ -29,7 +29,7 @@ public class User implements Cloneable, Serializable {
     private static final long serialVersionUID = -1174980195690210236L;
 
     public enum Attr {
-        EMAIL, PASSWORD, NAME, LOGINTIME, FLAGS, SELFSERVICEKEYS, DOMAINSVISITED, FACEBOOK, LOCATION,
+        EMAIL, PASSWORD, NAME, LOGINTIME, FLAGS, SELFSERVICEKEYS, DOMAINSVISITED, FACEBOOK, GLOBALREGISTRY, LOCATION,
         EMPLOYEE_NUMBER, CRU_DESIGNATION, CONTACT, CRU_PREFERRED_NAME, CRU_PROXY_ADDRESSES, HUMAN_RESOURCE, SECURITYQA
     }
 
@@ -68,6 +68,12 @@ public class User implements Cloneable, Serializable {
     // federated identities
     private String facebookId = null;
     private double facebookIdStrength = STRENGTH_NONE;
+
+    // Global Registry ID
+    @Nullable
+    private String grPersonId;
+    @Nullable
+    private String grStagePersonId;
 
     // miscellaneous implementation meta-data
     @Nonnull
@@ -128,6 +134,9 @@ public class User implements Cloneable, Serializable {
 
         this.facebookId = source.facebookId;
         this.facebookIdStrength = source.facebookIdStrength;
+
+        grPersonId = source.grPersonId;
+        grStagePersonId = source.grStagePersonId;
 
         this.employeeId = source.employeeId;
         this.departmentNumber = source.departmentNumber;
@@ -627,6 +636,24 @@ public class User implements Cloneable, Serializable {
         }
     }
 
+    @Nullable
+    public String getGrPersonId() {
+        return grPersonId;
+    }
+
+    public void setGrPersonId(@Nullable final String id) {
+        grPersonId = id;
+    }
+
+    @Nullable
+    public String getGrStagePersonId() {
+        return grStagePersonId;
+    }
+
+    public void setGrStagePersonId(@Nullable final String id) {
+        grStagePersonId = id;
+    }
+
     /**
      * This method is for use by UserDao &amp; UserManager implementations only and is not meant for public use.
      */
@@ -709,13 +736,13 @@ public class User implements Cloneable, Serializable {
 
     @Override
     public int hashCode() {
-        return Objects.hashCode(email, password, guid, this.getTheKeyGuid(), this.getRelayGuid(), firstName, lastName,
+        return Objects.hashCode(email, password, guid, getTheKeyGuid(), getRelayGuid(), firstName, lastName,
                 emailVerified, allowPasswordChange, forcePasswordChange, deactivated, loginDisabled, locked,
                 domainsVisited, groups, signupKey, changeEmailKey, resetPasswordKey, proposedEmail, facebookId,
-                facebookIdStrength, employeeId, departmentNumber, cruDesignation, cruEmployeeStatus, cruGender,
-                cruHrStatusCode, cruJobCode, cruManagerID, cruMinistryCode, cruPayGroup, cruPreferredName,
-                cruSubMinistryCode, cruProxyAddresses, cruPasswordHistory, city, state, postal, country,
-                telephoneNumber, securityQuestion, securityAnswer);
+                facebookIdStrength, grPersonId, grStagePersonId, employeeId, departmentNumber, cruDesignation,
+                cruEmployeeStatus, cruGender, cruHrStatusCode, cruJobCode, cruManagerID, cruMinistryCode,
+                cruPayGroup, cruPreferredName, cruSubMinistryCode, cruProxyAddresses, cruPasswordHistory, city,
+                state, postal, country, telephoneNumber, securityQuestion, securityAnswer);
     }
 
     @Override
@@ -744,6 +771,8 @@ public class User implements Cloneable, Serializable {
                 Objects.equal(this.proposedEmail, other.proposedEmail) &&
                 Objects.equal(this.facebookId, other.facebookId) &&
                 Objects.equal(this.facebookIdStrength, other.facebookIdStrength) &&
+                Objects.equal(grPersonId, other.grPersonId) &&
+                Objects.equal(grStagePersonId, other.grStagePersonId) &&
                 Objects.equal(this.employeeId, other.employeeId) &&
                 Objects.equal(this.departmentNumber, other.departmentNumber) &&
                 Objects.equal(this.cruDesignation, other.cruDesignation) &&

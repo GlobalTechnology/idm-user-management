@@ -23,6 +23,8 @@ import static org.ccci.idm.user.dao.ldap.Constants.LDAP_ATTR_FACEBOOKID;
 import static org.ccci.idm.user.dao.ldap.Constants.LDAP_ATTR_FACEBOOKIDSTRENGTH;
 import static org.ccci.idm.user.dao.ldap.Constants.LDAP_ATTR_FIRSTNAME;
 import static org.ccci.idm.user.dao.ldap.Constants.LDAP_ATTR_GROUPS;
+import static org.ccci.idm.user.dao.ldap.Constants.LDAP_ATTR_GRPERSONID;
+import static org.ccci.idm.user.dao.ldap.Constants.LDAP_ATTR_GRSTAGEPERSONID;
 import static org.ccci.idm.user.dao.ldap.Constants.LDAP_ATTR_GUID;
 import static org.ccci.idm.user.dao.ldap.Constants.LDAP_ATTR_LASTNAME;
 import static org.ccci.idm.user.dao.ldap.Constants.LDAP_ATTR_LOGINTIME;
@@ -174,6 +176,10 @@ public abstract class AbstractUserLdapEntryMapper<O extends User> implements Lda
         entry.addAttribute(this.attr(LDAP_ATTR_FACEBOOKIDSTRENGTH, encodeStrength(facebookId,
                 user.getFacebookIdStrengthFor(facebookId))));
 
+        // Global Registry attributes
+        entry.addAttribute(attr(LDAP_ATTR_GRPERSONID, user.getGrPersonId()));
+        entry.addAttribute(attr(LDAP_ATTR_GRSTAGEPERSONID, user.getGrStagePersonId()));
+
         // cru person attributes
         entry.addAttribute(this.attr(LDAP_ATTR_CRU_DESIGNATION, user.getCruDesignation()));
         entry.addAttribute(this.attr(LDAP_ATTR_CRU_EMPLOYEE_STATUS, user.getCruEmployeeStatus()));
@@ -235,6 +241,10 @@ public abstract class AbstractUserLdapEntryMapper<O extends User> implements Lda
         for (final String facebookId : this.getStringValues(entry, LDAP_ATTR_FACEBOOKID)) {
             user.setFacebookId(facebookId, facebookIdStrengths.get(facebookId));
         }
+
+        // Global Registry attributes
+        user.setGrPersonId(getStringValue(entry, LDAP_ATTR_GRPERSONID));
+        user.setGrStagePersonId(getStringValue(entry, LDAP_ATTR_GRSTAGEPERSONID));
 
         // Multi-value attributes
         user.setGroups(this.getGroupValues(entry, LDAP_ATTR_GROUPS));
