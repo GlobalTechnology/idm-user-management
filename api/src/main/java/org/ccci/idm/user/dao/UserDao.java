@@ -181,6 +181,15 @@ public interface UserDao {
     void addToGroup(@Nonnull User user, @Nonnull Group group) throws DaoException;
 
     /**
+     * Add user to group
+     *
+     * @param user        to add to a group
+     * @param group       to add the user to
+     * @param addSecurity specifies if the Group security should be shared with the user being added.
+     */
+    void addToGroup(@Nonnull User user, @Nonnull Group group, boolean addSecurity) throws DaoException;
+
+    /**
      * Remove user from group
      *
      * @param user to remove

@@ -3,6 +3,7 @@ package org.ccci.idm.user.ldaptive.dao;
 import static org.ccci.idm.user.dao.ldap.Constants.LDAP_ATTR_CN;
 import static org.ccci.idm.user.dao.ldap.Constants.LDAP_ATTR_CRU_DESIGNATION;
 import static org.ccci.idm.user.dao.ldap.Constants.LDAP_ATTR_EMPLOYEE_NUMBER;
+import static org.ccci.idm.user.dao.ldap.Constants.LDAP_ATTR_EQUIVALENT_TO_ME;
 import static org.ccci.idm.user.dao.ldap.Constants.LDAP_ATTR_FACEBOOKID;
 import static org.ccci.idm.user.dao.ldap.Constants.LDAP_ATTR_FIRSTNAME;
 import static org.ccci.idm.user.dao.ldap.Constants.LDAP_ATTR_GROUPS;
@@ -12,6 +13,7 @@ import static org.ccci.idm.user.dao.ldap.Constants.LDAP_ATTR_MEMBER;
 import static org.ccci.idm.user.dao.ldap.Constants.LDAP_ATTR_OBJECTCLASS;
 import static org.ccci.idm.user.dao.ldap.Constants.LDAP_ATTR_PASSWORDCHANGEDTIME;
 import static org.ccci.idm.user.dao.ldap.Constants.LDAP_ATTR_RELAY_GUID;
+import static org.ccci.idm.user.dao.ldap.Constants.LDAP_ATTR_SECURITY_EQUALS;
 import static org.ccci.idm.user.dao.ldap.Constants.LDAP_ATTR_THEKEY_GUID;
 import static org.ccci.idm.user.dao.ldap.Constants.LDAP_ATTR_USERID;
 import static org.ccci.idm.user.dao.ldap.Constants.LDAP_DEACTIVATED_PREFIX;
@@ -500,11 +502,17 @@ public class LdaptiveUserDao extends AbstractLdapUserDao {
 
     @Override
     public void addToGroup(@Nonnull final User user, @Nonnull final Group group) throws DaoException {
+        addToGroup(user, group, false);
+    }
+
+    @Override
+    public void addToGroup(@Nonnull final User user, @Nonnull final Group group, final boolean addSecurity)
+            throws DaoException {
         assertWritable();
         assertValidUser(user);
         assertValidGroupDn(group);
 
-        modifyGroupMembership(AttributeModificationType.ADD, user, group);
+        modifyGroupMembership(AttributeModificationType.ADD, user, group, addSecurity);
     }
 
     @Override
@@ -513,7 +521,7 @@ public class LdaptiveUserDao extends AbstractLdapUserDao {
         assertValidUser(user);
         assertValidGroupDn(group);
 
-        modifyGroupMembership(AttributeModificationType.REMOVE, user, group);
+        modifyGroupMembership(AttributeModificationType.REMOVE, user, group, true);
     }
 
     /**
@@ -634,7 +642,7 @@ public class LdaptiveUserDao extends AbstractLdapUserDao {
     }
 
     private void modifyGroupMembership(@Nonnull final AttributeModificationType type, @Nonnull final User user,
-                                       @Nonnull final Group group) throws DaoException {
+                                       @Nonnull final Group group, final boolean updateSecurity) throws DaoException {
         Connection conn = null;
         try {
             conn = this.connectionFactory.getConnection();
@@ -649,9 +657,15 @@ public class LdaptiveUserDao extends AbstractLdapUserDao {
 
             // modify user entry
             modifyEntrySuppressed(conn, userDn, type, LDAP_ATTR_GROUPS, groupDn, suppressedError);
+            if (updateSecurity) {
+                modifyEntrySuppressed(conn, userDn, type, LDAP_ATTR_SECURITY_EQUALS, groupDn, suppressedError);
+            }
 
             // modify group entry
             modifyEntrySuppressed(conn, groupDn, type, LDAP_ATTR_MEMBER, userDn, suppressedError);
+            if (updateSecurity) {
+                modifyEntrySuppressed(conn, groupDn, type, LDAP_ATTR_EQUIVALENT_TO_ME, userDn, suppressedError);
+            }
         } catch (final LdapException e) {
             throw convertLdapException(e);
         } finally {

@@ -24,8 +24,12 @@ public class Constants {
     public static final String LDAP_ATTR_GRPERSONID = "thekeyGrPersonId";
     public static final String LDAP_ATTR_GRSTAGEPERSONID = "thekeyGrStagePersonId";
     public static final String LDAP_ATTR_DOMAINSVISITED = "thekeyDomainVisited";
+
+    // LDAP group membership attributes
     public static final String LDAP_ATTR_GROUPS = "groupMembership";
+    public static final String LDAP_ATTR_SECURITY_EQUALS = "securityEquals";
     public static final String LDAP_ATTR_MEMBER = "member";
+    public static final String LDAP_ATTR_EQUIVALENT_TO_ME = "equivalentToMe";
 
     public static final String LDAP_ATTR_RESETPASSWORDKEY = "thekeyResetPasswordKey";
     public static final String LDAP_ATTR_SIGNUPKEY = "thekeySignupKey";
