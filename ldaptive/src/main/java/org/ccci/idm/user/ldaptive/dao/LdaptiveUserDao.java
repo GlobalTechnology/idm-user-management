@@ -3,6 +3,7 @@ package org.ccci.idm.user.ldaptive.dao;
 import static org.ccci.idm.user.dao.ldap.Constants.LDAP_ATTR_CN;
 import static org.ccci.idm.user.dao.ldap.Constants.LDAP_ATTR_CRU_DESIGNATION;
 import static org.ccci.idm.user.dao.ldap.Constants.LDAP_ATTR_EMPLOYEE_NUMBER;
+import static org.ccci.idm.user.dao.ldap.Constants.LDAP_ATTR_EQUIVALENT_TO_ME;
 import static org.ccci.idm.user.dao.ldap.Constants.LDAP_ATTR_FACEBOOKID;
 import static org.ccci.idm.user.dao.ldap.Constants.LDAP_ATTR_FIRSTNAME;
 import static org.ccci.idm.user.dao.ldap.Constants.LDAP_ATTR_GROUPS;
@@ -12,6 +13,7 @@ import static org.ccci.idm.user.dao.ldap.Constants.LDAP_ATTR_MEMBER;
 import static org.ccci.idm.user.dao.ldap.Constants.LDAP_ATTR_OBJECTCLASS;
 import static org.ccci.idm.user.dao.ldap.Constants.LDAP_ATTR_PASSWORDCHANGEDTIME;
 import static org.ccci.idm.user.dao.ldap.Constants.LDAP_ATTR_RELAY_GUID;
+import static org.ccci.idm.user.dao.ldap.Constants.LDAP_ATTR_SECURITY_EQUALS;
 import static org.ccci.idm.user.dao.ldap.Constants.LDAP_ATTR_THEKEY_GUID;
 import static org.ccci.idm.user.dao.ldap.Constants.LDAP_ATTR_USERID;
 import static org.ccci.idm.user.dao.ldap.Constants.LDAP_DEACTIVATED_PREFIX;
@@ -58,6 +60,7 @@ import org.ldaptive.ModifyDnRequest;
 import org.ldaptive.ModifyOperation;
 import org.ldaptive.ModifyRequest;
 import org.ldaptive.Response;
+import org.ldaptive.ResultCode;
 import org.ldaptive.SearchOperation;
 import org.ldaptive.SearchRequest;
 import org.ldaptive.SearchResult;
@@ -499,11 +502,17 @@ public class LdaptiveUserDao extends AbstractLdapUserDao {
 
     @Override
     public void addToGroup(@Nonnull final User user, @Nonnull final Group group) throws DaoException {
+        addToGroup(user, group, false);
+    }
+
+    @Override
+    public void addToGroup(@Nonnull final User user, @Nonnull final Group group, final boolean addSecurity)
+            throws DaoException {
         assertWritable();
         assertValidUser(user);
         assertValidGroupDn(group);
 
-        modifyGroupMembership(user, group, AttributeModificationType.ADD);
+        modifyGroupMembership(AttributeModificationType.ADD, user, group, addSecurity);
     }
 
     @Override
@@ -512,7 +521,7 @@ public class LdaptiveUserDao extends AbstractLdapUserDao {
         assertValidUser(user);
         assertValidGroupDn(group);
 
-        modifyGroupMembership(user, group, AttributeModificationType.REMOVE);
+        modifyGroupMembership(AttributeModificationType.REMOVE, user, group, true);
     }
 
     /**
@@ -632,26 +641,63 @@ public class LdaptiveUserDao extends AbstractLdapUserDao {
         }
     }
 
-    private void modifyGroupMembership(User user, Group group, AttributeModificationType attributeModificationType)
-            throws DaoException {
+    private void modifyGroupMembership(@Nonnull final AttributeModificationType type, @Nonnull final User user,
+                                       @Nonnull final Group group, final boolean updateSecurity) throws DaoException {
         Connection conn = null;
         try {
             conn = this.connectionFactory.getConnection();
             conn.open();
 
-            String userDn = this.userMapper.mapDn(user);
+            final String userDn = userMapper.mapDn(user);
             final String groupDn = DnUtils.toString(group);
 
             // modify user entry
-            modifyEntry(conn, userDn, attributeModificationType, groupDn, LDAP_ATTR_GROUPS);
+            modifyGroupMembershipEntry(conn, userDn, type, LDAP_ATTR_GROUPS, groupDn);
+            if (updateSecurity) {
+                modifyGroupMembershipEntry(conn, userDn, type, LDAP_ATTR_SECURITY_EQUALS, groupDn);
+            }
 
             // modify group entry
-            modifyEntry(conn, groupDn, attributeModificationType, userDn, LDAP_ATTR_MEMBER);
-
+            modifyGroupMembershipEntry(conn, groupDn, type, LDAP_ATTR_MEMBER, userDn);
+            if (updateSecurity) {
+                modifyGroupMembershipEntry(conn, groupDn, type, LDAP_ATTR_EQUIVALENT_TO_ME, userDn);
+            }
         } catch (final LdapException e) {
             throw convertLdapException(e);
         } finally {
             LdapUtils.closeConnection(conn);
+        }
+    }
+
+    private boolean modifyGroupMembershipEntry(@Nonnull final Connection conn, @Nonnull final String dn,
+                                               @Nonnull final AttributeModificationType type,
+                                               @Nonnull final String name, @Nonnull final String value)
+            throws LdapException {
+        final LdapAttribute attribute = new LdapAttribute(name, value);
+        final AttributeModification[] modifications = {new AttributeModification(type, attribute)};
+        try {
+            new ModifyOperation(conn).execute(new ModifyRequest(dn, modifications));
+            return true;
+        } catch (final LdapException e) {
+            // check to see if we are suppressing this exception
+            final ResultCode code = e.getResultCode();
+            if (code != null) {
+                switch (e.getResultCode()) {
+                    case ATTRIBUTE_OR_VALUE_EXISTS:
+                        if (type == AttributeModificationType.ADD) {
+                            return false;
+                        }
+                        break;
+                    case NO_SUCH_ATTRIBUTE:
+                        if (type == AttributeModificationType.REMOVE) {
+                            return false;
+                        }
+                        break;
+                }
+            }
+
+            // propagate the exception otherwise
+            throw e;
         }
     }
 
@@ -674,22 +720,6 @@ public class LdaptiveUserDao extends AbstractLdapUserDao {
         // execute the ModifyOperation
         new ModifyOperation(conn).execute(new ModifyRequest(dn, modifications.toArray(new
                 AttributeModification[modifications.size()])));
-    }
-
-    private void modifyEntry(final Connection conn, final String dn,
-                             AttributeModificationType attributeModificationType,
-                             String attributeValue,
-                             String... attributeNames) throws LdapException {
-
-        final ArrayList<AttributeModification> modifications = new ArrayList<AttributeModification>();
-
-        for(String attributeName : attributeNames) {
-            LdapAttribute ldapAttribute = new LdapAttribute(attributeName, attributeValue);
-            modifications.add(new AttributeModification(attributeModificationType, ldapAttribute));
-        }
-
-        new ModifyOperation(conn).execute(new ModifyRequest(dn,
-                modifications.toArray(new AttributeModification[modifications.size()])));
     }
 
     private DaoException convertLdapException(@Nonnull final LdapException e) {

@@ -643,11 +643,25 @@ public class LdaptiveUserDaoIT {
             assertEquals(ImmutableSet.of(group1), foundUser.getGroups());
         }
 
+        // test adding this user to group1
+        {
+            this.dao.addToGroup(user, group1);
+            final User foundUser = this.dao.findByEmail(user.getEmail(), false);
+            assertEquals(ImmutableSet.of(group1), foundUser.getGroups());
+        }
+
         // test adding this user to group2
         {
             this.dao.addToGroup(user, group2);
             final User foundUser = this.dao.findByEmail(user.getEmail(), false);
             assertEquals(ImmutableSet.of(group1, group2), foundUser.getGroups());
+        }
+
+        // test removing this user from group 1
+        {
+            this.dao.removeFromGroup(user, group1);
+            final User foundUser = this.dao.findByEmail(user.getEmail(), false);
+            assertEquals(ImmutableSet.of(group2), foundUser.getGroups());
         }
 
         // test removing this user from group 1
