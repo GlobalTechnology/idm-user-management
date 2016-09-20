@@ -3,9 +3,11 @@ package org.ccci.idm.user.inspektr.util;
 import com.google.common.base.Function;
 import com.google.common.base.Joiner;
 import com.google.common.base.MoreObjects;
+import com.google.common.base.MoreObjects.ToStringHelper;
 import com.google.common.collect.FluentIterable;
 import org.ccci.idm.user.Dn;
 import org.ccci.idm.user.Group;
+import org.ccci.idm.user.User;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -20,6 +22,13 @@ public class InspektrSerializationUtils {
             return input != null ? input.type + "=" + input.value : null;
         }
     };
+
+    @Nonnull
+    public static ToStringHelper userToStringHelper(@Nonnull final User user) {
+        return MoreObjects.toStringHelper(user)
+                .add("guid", user.getGuid())
+                .add("email", user.getEmail());
+    }
 
     @Nonnull
     public static String groupToString(@Nonnull final Group group) {
