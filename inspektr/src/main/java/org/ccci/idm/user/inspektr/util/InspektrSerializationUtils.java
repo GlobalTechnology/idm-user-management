@@ -24,10 +24,14 @@ public class InspektrSerializationUtils {
     };
 
     @Nonnull
-    public static ToStringHelper userToStringHelper(@Nonnull final User user) {
-        return MoreObjects.toStringHelper(user)
-                .add("guid", user.getGuid())
-                .add("email", user.getEmail());
+    public static ToStringHelper userToStringHelper(@Nullable final User user) {
+        final ToStringHelper helper = MoreObjects.toStringHelper(User.class);
+        if (user != null) {
+            helper.add("guid", user.getGuid()).add("email", user.getEmail());
+        } else {
+            helper.addValue(null);
+        }
+        return helper;
     }
 
     @Nonnull
