@@ -1,6 +1,7 @@
 package org.ccci.idm.user.inspektr.spi;
 
-import com.google.common.base.MoreObjects;
+import static org.ccci.idm.user.inspektr.util.InspektrSerializationUtils.userToStringHelper;
+
 import com.google.common.base.MoreObjects.ToStringHelper;
 import org.ccci.idm.user.User;
 import org.jasig.inspektr.audit.spi.support.AbstractAuditResourceResolver;
@@ -20,6 +21,6 @@ public class UserAuditResourceResolver extends AbstractAuditResourceResolver {
 
     @Nonnull
     protected ToStringHelper userToString(@Nonnull final User user) {
-        return MoreObjects.toStringHelper(user).add("guid", user.getGuid()).add("email", user.getEmail());
+        return userToStringHelper(user);
     }
 }
