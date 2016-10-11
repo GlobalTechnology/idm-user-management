@@ -4,9 +4,11 @@ import static org.ccci.idm.user.TestUtil.guid;
 import static org.ccci.idm.user.TestUtil.randomEmail;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotEquals;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
+import com.google.common.base.Strings;
 import org.apache.commons.collections.CollectionUtils;
 import org.junit.Test;
 
@@ -80,6 +82,62 @@ public class UserTest {
             assertEquals(relayGuid, user.getRawRelayGuid());
             assertEquals(relayGuid, user.getRelayGuid());
         }
+    }
+
+    @Test
+    public void testPreferredNameNotSet() throws Exception {
+        // initialize user object
+        final User user = new User();
+        user.setFirstName("First");
+        user.setPreferredName(null);
+        assertNull(user.getRawPreferredName());
+        assertEquals(user.getFirstName(), user.getPreferredName());
+
+        // update first name
+        user.setFirstName("New Name!");
+        assertNull(user.getRawPreferredName());
+        assertEquals(user.getFirstName(), user.getPreferredName());
+        assertNotEquals("First", user.getPreferredName());
+    }
+
+    @Test
+    public void testPreferredNameSet() throws Exception {
+        // initialize user object
+        final User user = new User();
+        user.setFirstName("First");
+        user.setPreferredName("Preferred");
+        assertEquals("Preferred", user.getRawPreferredName());
+        assertEquals("Preferred", user.getPreferredName());
+        assertNotEquals(user.getFirstName(), user.getPreferredName());
+
+        // update first name
+        user.setFirstName("Second");
+        assertEquals("Preferred", user.getRawPreferredName());
+        assertEquals("Preferred", user.getPreferredName());
+        assertNotEquals(user.getFirstName(), user.getPreferredName());
+
+        // update preferred name
+        user.setPreferredName("Preferred 2");
+        assertEquals("Preferred 2", user.getRawPreferredName());
+        assertEquals("Preferred 2", user.getPreferredName());
+        assertNotEquals(user.getFirstName(), user.getPreferredName());
+    }
+
+    @Test
+    public void verifySetPreferredName() {
+        // initialize user object
+        final User user = new User();
+        user.setFirstName("First");
+        user.setPreferredName("Preferred");
+        assertEquals("Preferred", user.getRawPreferredName());
+
+        // update preferred name to first name
+        user.setPreferredName(user.getFirstName());
+        assertTrue(Strings.isNullOrEmpty(user.getRawPreferredName()));
+
+        // update preferred name to another name
+        user.setPreferredName("Other");
+        assertEquals("Other", user.getRawPreferredName());
     }
 
     @Test
