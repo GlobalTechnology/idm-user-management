@@ -42,6 +42,7 @@ public class User implements Cloneable, Serializable {
     private String relayGuid;
 
     private String firstName;
+    private String preferredName;
     private String lastName;
 
     private ReadableInstant loginTime;
@@ -90,7 +91,6 @@ public class User implements Cloneable, Serializable {
     private String cruManagerID;
     private String cruMinistryCode;
     private String cruPayGroup;
-    private String cruPreferredName;
     private String cruSubMinistryCode;
     private Collection<String> cruProxyAddresses = Sets.newHashSet();
     private final Set<String> cruPasswordHistory = Sets.newHashSet();
@@ -116,6 +116,7 @@ public class User implements Cloneable, Serializable {
         this.theKeyGuid = source.theKeyGuid;
         this.relayGuid = source.relayGuid;
         this.firstName = source.firstName;
+        preferredName = source.preferredName;
         this.lastName = source.lastName;
         this.emailVerified = source.emailVerified;
         this.allowPasswordChange = source.allowPasswordChange;
@@ -148,7 +149,6 @@ public class User implements Cloneable, Serializable {
         this.cruManagerID = source.cruManagerID;
         this.cruMinistryCode = source.cruMinistryCode;
         this.cruPayGroup = source.cruPayGroup;
-        this.cruPreferredName = source.cruPreferredName;
         this.cruSubMinistryCode = source.cruSubMinistryCode;
         this.cruProxyAddresses.addAll(source.cruProxyAddresses);
         this.cruPasswordHistory.addAll(source.cruPasswordHistory);
@@ -239,6 +239,20 @@ public class User implements Cloneable, Serializable {
 
     public void setFirstName(final String firstName) {
         this.firstName = firstName;
+    }
+
+    @Nullable
+    public String getRawPreferredName() {
+        return preferredName;
+    }
+
+    @Nullable
+    public String getPreferredName() {
+        return !Strings.isNullOrEmpty(preferredName) ? preferredName : firstName;
+    }
+
+    public void setPreferredName(@Nullable final String name) {
+        preferredName = Objects.equal(firstName, name) ? null : name;
     }
 
     public String getLastName() {
@@ -397,12 +411,14 @@ public class User implements Cloneable, Serializable {
         this.cruPayGroup = cruPayGroup;
     }
 
+    @Deprecated
     public String getCruPreferredName() {
-        return cruPreferredName;
+        return getPreferredName();
     }
 
+    @Deprecated
     public void setCruPreferredName(String cruPreferredName) {
-        this.cruPreferredName = cruPreferredName;
+        setPreferredName(cruPreferredName);
     }
 
     public String getCruSubMinistryCode() {
@@ -694,6 +710,7 @@ public class User implements Cloneable, Serializable {
                 .add("theKeyGuid", this.getTheKeyGuid())
                 .add("relayGuid", this.getRelayGuid())
                 .add("firstName", firstName)
+                .add("preferredName", preferredName)
                 .add("lastName", lastName)
                 .add("emailVerified", emailVerified)
                 .add("allowPasswordChange", allowPasswordChange)
@@ -719,7 +736,6 @@ public class User implements Cloneable, Serializable {
                 .add("cruManagerID", cruManagerID)
                 .add("cruMinistryCode", cruMinistryCode)
                 .add("cruPayGroup", cruPayGroup)
-                .add("cruPreferredName", cruPreferredName)
                 .add("cruSubMinistryCode", cruSubMinistryCode)
                 .add("cruProxyAddresses", cruProxyAddresses)
                 .add("cruPasswordHistory", cruPasswordHistory)
@@ -741,7 +757,7 @@ public class User implements Cloneable, Serializable {
                 domainsVisited, groups, signupKey, changeEmailKey, resetPasswordKey, proposedEmail, facebookId,
                 facebookIdStrength, grPersonId, grStagePersonId, employeeId, departmentNumber, cruDesignation,
                 cruEmployeeStatus, cruGender, cruHrStatusCode, cruJobCode, cruManagerID, cruMinistryCode,
-                cruPayGroup, cruPreferredName, cruSubMinistryCode, cruProxyAddresses, cruPasswordHistory, city,
+                cruPayGroup, preferredName, cruSubMinistryCode, cruProxyAddresses, cruPasswordHistory, city,
                 state, postal, country, telephoneNumber, securityQuestion, securityAnswer);
     }
 
@@ -756,6 +772,7 @@ public class User implements Cloneable, Serializable {
                 Objects.equal(this.getTheKeyGuid(), other.getTheKeyGuid()) &&
                 Objects.equal(this.getRelayGuid(), other.getRelayGuid()) &&
                 Objects.equal(this.firstName, other.firstName) &&
+                Objects.equal(preferredName, other.preferredName) &&
                 Objects.equal(this.lastName, other.lastName) &&
                 Objects.equal(this.emailVerified, other.emailVerified) &&
                 Objects.equal(this.allowPasswordChange, other.allowPasswordChange) &&
@@ -783,7 +800,6 @@ public class User implements Cloneable, Serializable {
                 Objects.equal(this.cruManagerID, other.cruManagerID) &&
                 Objects.equal(this.cruMinistryCode, other.cruMinistryCode) &&
                 Objects.equal(this.cruPayGroup, other.cruPayGroup) &&
-                Objects.equal(this.cruPreferredName, other.cruPreferredName) &&
                 Objects.equal(this.cruSubMinistryCode, other.cruSubMinistryCode) &&
                 this.cruProxyAddresses.size() == other.cruProxyAddresses.size() && this.cruProxyAddresses.containsAll(other.cruProxyAddresses) &&
                 this.cruPasswordHistory.size() == other.cruPasswordHistory.size() &&
