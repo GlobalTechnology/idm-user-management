@@ -12,7 +12,6 @@ import static org.ccci.idm.user.dao.ldap.Constants.LDAP_ATTR_CRU_MANAGER_ID;
 import static org.ccci.idm.user.dao.ldap.Constants.LDAP_ATTR_CRU_MINISTRY_CODE;
 import static org.ccci.idm.user.dao.ldap.Constants.LDAP_ATTR_CRU_PASSWORD_HISTORY;
 import static org.ccci.idm.user.dao.ldap.Constants.LDAP_ATTR_CRU_PAY_GROUP;
-import static org.ccci.idm.user.dao.ldap.Constants.LDAP_ATTR_CRU_PREFERRED_NAME;
 import static org.ccci.idm.user.dao.ldap.Constants.LDAP_ATTR_CRU_PROXY_ADDRESSES;
 import static org.ccci.idm.user.dao.ldap.Constants.LDAP_ATTR_CRU_SUB_MINISTRY_CODE;
 import static org.ccci.idm.user.dao.ldap.Constants.LDAP_ATTR_DEPARTMENT_NUMBER;
@@ -28,6 +27,7 @@ import static org.ccci.idm.user.dao.ldap.Constants.LDAP_ATTR_LOGINTIME;
 import static org.ccci.idm.user.dao.ldap.Constants.LDAP_ATTR_OBJECTCLASS;
 import static org.ccci.idm.user.dao.ldap.Constants.LDAP_ATTR_PASSWORD;
 import static org.ccci.idm.user.dao.ldap.Constants.LDAP_ATTR_POSTAL_CODE;
+import static org.ccci.idm.user.dao.ldap.Constants.LDAP_ATTR_PREFERRED_NAME;
 import static org.ccci.idm.user.dao.ldap.Constants.LDAP_ATTR_PROPOSEDEMAIL;
 import static org.ccci.idm.user.dao.ldap.Constants.LDAP_ATTR_RESETPASSWORDKEY;
 import static org.ccci.idm.user.dao.ldap.Constants.LDAP_ATTR_SECURITY_ANSWER;
@@ -54,7 +54,8 @@ public abstract class AbstractLdapUserDao extends AbstractUserDao {
 
     private static final Map<Attr, Set<String>> MASK = ImmutableMap.<Attr, Set<String>>builder()
             .put(Attr.EMAIL, ImmutableSet.of(LDAP_ATTR_USERID, LDAP_FLAG_EMAILVERIFIED, LDAP_ATTR_OBJECTCLASS))
-            .put(Attr.NAME, ImmutableSet.of(LDAP_ATTR_FIRSTNAME, LDAP_ATTR_LASTNAME))
+            .put(Attr.NAME, ImmutableSet.of(LDAP_ATTR_FIRSTNAME, LDAP_ATTR_PREFERRED_NAME, LDAP_ATTR_LASTNAME,
+                    LDAP_ATTR_OBJECTCLASS))
             .put(Attr.PASSWORD, ImmutableSet.of(LDAP_ATTR_PASSWORD, LDAP_FLAG_FORCEPASSWORDCHANGE,
                     LDAP_ATTR_CRU_PASSWORD_HISTORY, LDAP_ATTR_OBJECTCLASS))
             .put(Attr.LOGINTIME, ImmutableSet.of(LDAP_ATTR_LOGINTIME))
@@ -76,7 +77,7 @@ public abstract class AbstractLdapUserDao extends AbstractUserDao {
             .put(Attr.EMPLOYEE_NUMBER, ImmutableSet.of(LDAP_ATTR_EMPLOYEE_NUMBER, LDAP_ATTR_OBJECTCLASS))
             .put(Attr.CRU_DESIGNATION, ImmutableSet.of(LDAP_ATTR_CRU_DESIGNATION, LDAP_ATTR_OBJECTCLASS))
             .put(Attr.CONTACT, ImmutableSet.of(LDAP_ATTR_TELEPHONE, LDAP_ATTR_OBJECTCLASS))
-            .put(Attr.CRU_PREFERRED_NAME, ImmutableSet.of(LDAP_ATTR_CRU_PREFERRED_NAME, LDAP_ATTR_OBJECTCLASS))
+            .put(Attr.CRU_PREFERRED_NAME, ImmutableSet.of(LDAP_ATTR_PREFERRED_NAME, LDAP_ATTR_OBJECTCLASS))
             .put(Attr.CRU_PROXY_ADDRESSES, ImmutableSet.of(LDAP_ATTR_CRU_PROXY_ADDRESSES, LDAP_ATTR_OBJECTCLASS))
             .put(Attr.HUMAN_RESOURCE, ImmutableSet.of(
                     LDAP_ATTR_DEPARTMENT_NUMBER,

@@ -16,6 +16,7 @@ public class Constants {
     public static final String LDAP_ATTR_THEKEY_GUID = "thekeyGuid";
     public static final String LDAP_ATTR_PASSWORD = "userPassword";
     public static final String LDAP_ATTR_FIRSTNAME = "givenName";
+    public static final String LDAP_ATTR_PREFERRED_NAME = "cruPreferredName";
     public static final String LDAP_ATTR_LASTNAME = "sn";
     public static final String LDAP_ATTR_LOGINTIME = "loginTime";
     public static final String LDAP_ATTR_PASSWORDCHANGEDTIME = "pwdChangedTime";
@@ -67,7 +68,6 @@ public class Constants {
     public static final String LDAP_ATTR_CRU_MANAGER_ID = "cruManagerID";
     public static final String LDAP_ATTR_CRU_MINISTRY_CODE = "cruMinistryCode";
     public static final String LDAP_ATTR_CRU_PAY_GROUP = "cruPayGroup";
-    public static final String LDAP_ATTR_CRU_PREFERRED_NAME = "cruPreferredName";
     public static final String LDAP_ATTR_CRU_SUB_MINISTRY_CODE = "cruSubMinistryCode";
     public static final String LDAP_ATTR_CRU_PROXY_ADDRESSES = "cruProxyAddresses";
     public static final String LDAP_ATTR_CRU_PASSWORD_HISTORY = "cruPasswordHistory";
