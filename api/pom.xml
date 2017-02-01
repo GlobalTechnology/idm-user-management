@@ -53,7 +53,7 @@
     <dependency>
       <groupId>commons-validator</groupId>
       <artifactId>commons-validator</artifactId>
-      <version>1.4.0</version>
+      <version>1.5.1</version>
       <!-- Email Validation doesn't take any transitive dependencies -->
       <exclusions>
         <exclusion>
@@ -78,6 +78,12 @@
     </dependency>
 
     <!-- Test Dependencies -->
+    <dependency>
+      <groupId>pl.pragmatists</groupId>
+      <artifactId>JUnitParams</artifactId>
+      <version>1.0.4</version>
+      <scope>test</scope>
+    </dependency>
     <dependency>
       <groupId>commons-collections</groupId>
       <artifactId>commons-collections</artifactId>
