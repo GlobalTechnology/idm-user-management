@@ -10,7 +10,7 @@ import org.junit.Test;
 public class GroupTest {
     @Test
     public void verifyEquals() throws Exception {
-        final Dn dn = new Dn(new Dn.Component("ou", "group"));
+        final AbsoluteDn dn = AbsoluteDn.ROOT.child("ou", "group");
         assertThat(dn.asGroup(), is(not(dn)));
         assertNotEquals(dn, dn.asGroup());
     }

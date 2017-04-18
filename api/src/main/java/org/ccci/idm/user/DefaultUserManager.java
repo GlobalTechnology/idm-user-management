@@ -401,7 +401,7 @@ public class DefaultUserManager implements UserManager {
      */
     @Nonnull
     @Override
-    public List<Group> getAllGroups(@Nullable final Dn baseSearchDn) throws DaoException {
+    public List<Group> getAllGroups(@Nullable final AbsoluteDn baseSearchDn) throws DaoException {
         return this.userDao.getAllGroups(baseSearchDn);
     }
 

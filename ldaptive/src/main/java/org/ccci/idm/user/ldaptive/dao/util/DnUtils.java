@@ -2,6 +2,7 @@ package org.ccci.idm.user.ldaptive.dao.util;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
+import org.ccci.idm.user.AbsoluteDn;
 import org.ccci.idm.user.Dn;
 import org.ldaptive.DnParser;
 import org.ldaptive.LdapAttribute;
@@ -21,16 +22,16 @@ public class DnUtils {
      * @throws IllegalArgumentException when the rawDn isn't a well formed DN
      */
     @Nonnull
-    public static Dn toDn(@Nullable final String rawDn) {
+    public static AbsoluteDn toDn(@Nullable final String rawDn) {
         if (rawDn == null) {
-            return Dn.ROOT;
+            return AbsoluteDn.ROOT;
         }
 
         final ImmutableList.Builder<Dn.Component> builder = ImmutableList.builder();
         for (final LdapAttribute attribute : Lists.reverse(DnParser.convertDnToAttributes(rawDn))) {
             builder.add(new Dn.Component(attribute.getName(), attribute.getStringValue()));
         }
-        return new Dn(builder.build());
+        return new AbsoluteDn(builder.build());
     }
 
     /**
@@ -41,7 +42,7 @@ public class DnUtils {
      * @return the parsed {@link Dn} or null if the rawDn was not well-formed
      */
     @Nullable
-    public static Dn toDnSafe(@Nullable final String rawDn) {
+    public static AbsoluteDn toDnSafe(@Nullable final String rawDn) {
         try {
             return toDn(rawDn);
         } catch (final Exception e) {
@@ -50,7 +51,7 @@ public class DnUtils {
     }
 
     @Nonnull
-    public static String toString(@Nonnull final Dn dn) {
+    public static String toString(@Nonnull final Dn<?> dn) {
         final StringBuilder sb = new StringBuilder();
 
         // append components

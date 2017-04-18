@@ -293,5 +293,5 @@ public interface UserManager {
      * @return list of all available groups under base search dn
      */
     @Nonnull
-    List<Group> getAllGroups(@Nullable Dn baseSearchDn) throws DaoException;
+    List<Group> getAllGroups(@Nullable AbsoluteDn baseSearchDn) throws DaoException;
 }

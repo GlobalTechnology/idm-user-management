@@ -55,6 +55,7 @@ import com.google.common.base.Strings;
 import com.google.common.base.Throwables;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Sets;
+import org.ccci.idm.user.AbsoluteDn;
 import org.ccci.idm.user.Dn;
 import org.ccci.idm.user.Group;
 import org.ccci.idm.user.User;
@@ -384,7 +385,7 @@ public abstract class AbstractUserLdapEntryMapper<O extends User> implements Lda
 
         final ImmutableSet.Builder<Group> groups = ImmutableSet.builder();
         for (final String rawDn : getStringValues(entry, attribute)) {
-            final Dn dn = DnUtils.toDnSafe(rawDn);
+            final AbsoluteDn dn = DnUtils.toDnSafe(rawDn);
             if (dn != null && dn.isDescendantOfOrEqualTo(baseGroupDn)) {
                 if (dn.getComponents().size() > 0) {
                     groups.add(dn.asGroup());

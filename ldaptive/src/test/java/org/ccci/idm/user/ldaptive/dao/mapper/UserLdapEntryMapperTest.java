@@ -8,7 +8,7 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
 import com.google.common.collect.ImmutableSet;
-import org.ccci.idm.user.Dn;
+import org.ccci.idm.user.AbsoluteDn;
 import org.ccci.idm.user.Group;
 import org.ccci.idm.user.User;
 import org.junit.Test;
@@ -46,7 +46,7 @@ public class UserLdapEntryMapperTest {
 
         // test resolution using a base Group DN resolver
         {
-            mapper.setBaseGroupDn(Dn.ROOT);
+            mapper.setBaseGroupDn(AbsoluteDn.ROOT);
             final Collection<Group> groups = mapper.getGroupValues(entry, name);
             assertNotNull(groups);
             assertEquals(2, groups.size());
