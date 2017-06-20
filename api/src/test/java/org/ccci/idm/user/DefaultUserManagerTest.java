@@ -11,7 +11,12 @@ import javax.annotation.Nonnull;
 @RunWith(JUnitParamsRunner.class)
 public class DefaultUserManagerTest {
     @Test
-    @Parameters({"test@example.com", "user@theharbor.life"})
+    @Parameters({
+            "test@example.com",
+            "user@theharbor.life",
+            "Dörte@Sörensen.example.com",
+            "researcher@goodperson.cancerresearch"
+    })
     public void verifyValidateEmailValid(final String email) throws Exception {
         final DefaultUserManager manager = new DefaultUserManager();
         manager.validateEmail(newUser(email));
