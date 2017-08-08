@@ -4,7 +4,7 @@ import static org.ccci.idm.user.inspektr.util.InspektrSerializationUtils.userToS
 
 import com.google.common.base.MoreObjects.ToStringHelper;
 import org.ccci.idm.user.User;
-import org.apereo.inspektr.audit.spi.support.AbstractAuditResourceResolver;
+import org.jasig.inspektr.audit.spi.support.AbstractAuditResourceResolver;
 
 import javax.annotation.Nonnull;
 
