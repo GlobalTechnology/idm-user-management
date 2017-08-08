@@ -15,6 +15,7 @@
   <modules>
     <module>api</module>
     <module>inspektr</module>
+    <module>inspektr-legacy</module>
     <module>ldaptive</module>
   </modules>
 
