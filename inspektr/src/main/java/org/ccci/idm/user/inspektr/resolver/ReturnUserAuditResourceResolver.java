@@ -2,9 +2,9 @@ package org.ccci.idm.user.inspektr.resolver;
 
 import static org.ccci.idm.user.inspektr.util.InspektrSerializationUtils.userToStringHelper;
 
+import org.apereo.inspektr.audit.spi.AuditResourceResolver;
 import org.aspectj.lang.JoinPoint;
 import org.ccci.idm.user.User;
-import org.jasig.inspektr.audit.spi.AuditResourceResolver;
 
 public class ReturnUserAuditResourceResolver implements AuditResourceResolver {
     @Override
