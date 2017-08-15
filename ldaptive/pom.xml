@@ -10,6 +10,12 @@
 
   <artifactId>idm-user-management-ldaptive</artifactId>
 
+  <properties>
+    <!-- ldaptive 1.2.x requires java 8 -->
+    <maven.compiler.source>1.8</maven.compiler.source>
+    <maven.compiler.target>1.8</maven.compiler.target>
+  </properties>
+
   <dependencies>
     <dependency>
       <groupId>org.ccci.gto</groupId>

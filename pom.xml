@@ -30,7 +30,7 @@
     <maven.compiler.target>1.6</maven.compiler.target>
     <commons-validator.version>1.6</commons-validator.version>
     <inspektr.version>1.2.GA</inspektr.version>
-    <ldaptive.version>1.0.6</ldaptive.version>
+    <ldaptive.version>1.2.1</ldaptive.version>
   </properties>
 
   <dependencyManagement>
