@@ -15,9 +15,7 @@
       <bean class="org.ldaptive.ConnectionConfig"
           p:ldapUrl="${ldap.url}"
           p:useSSL="true"
-          p:sslConfig-ref="ldap.config.ssl"
-          p:connectTimeout="${ldap.connectTimeout:5000}"
-          p:responseTimeout="${ldap.responseTimeout:5000}">
+          p:sslConfig-ref="ldap.config.ssl">
         <property name="connectionInitializer">
           <bean class="org.ldaptive.BindConnectionInitializer"
               p:bindDn="${ldap.userdn}">
@@ -34,18 +32,12 @@
 
   <bean id="ldap.connection.pool.management" class="org.ldaptive.pool.BlockingConnectionPool" init-method="initialize"
       destroy-method="close"
-      p:blockWaitTime="${ldap.pool.blockWaitTime:30000}"
       p:connectionFactory-ref="ldap.connection.factory.management"
       p:failFastInitialize="false">
     <property name="poolConfig">
       <bean class="org.ldaptive.pool.PoolConfig"
           p:minPoolSize="${ldap.pool.minSize:3}"
           p:maxPoolSize="${ldap.pool.maxSize:10}" />
-    </property>
-    <property name="pruneStrategy">
-      <bean class="org.ldaptive.pool.IdlePruneStrategy"
-          p:prunePeriod="${ldap.pool.prunePeriod:300}"
-          p:idleTime="${ldap.pool.idleTime:600}" />
     </property>
   </bean>
 
