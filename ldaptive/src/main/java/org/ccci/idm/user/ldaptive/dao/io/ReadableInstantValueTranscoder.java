@@ -19,7 +19,7 @@ public class ReadableInstantValueTranscoder extends AbstractStringValueTranscode
 
     @Override
     public ReadableInstant decodeStringValue(final String value) {
-        return new Instant(TRANSCODER.decodeStringValue(value));
+        return new Instant(TRANSCODER.decodeStringValue(value).toInstant().toEpochMilli());
     }
 
     @Override

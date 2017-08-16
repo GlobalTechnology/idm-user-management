@@ -122,7 +122,7 @@ public abstract class AbstractUserLdapEntryMapper<O extends User> implements Lda
                 uid = LDAP_DEACTIVATED_PREFIX + user.getGuid();
                 user.setImplMeta(META_DEACTIVATED_UID, uid);
             }
-            return this.dnResolver.resolve(uid);
+            return dnResolver.resolve(new org.ldaptive.auth.User(uid));
         } catch (final LdapException e) {
             LOG.error("unexpected exception generating DN", e);
             throw Throwables.propagate(e);
