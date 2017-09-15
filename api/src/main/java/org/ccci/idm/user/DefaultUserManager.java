@@ -27,6 +27,7 @@ import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import javax.inject.Inject;
 import javax.validation.constraints.NotNull;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Locale;
 import java.util.UUID;
@@ -166,7 +167,8 @@ public class DefaultUserManager implements UserManager {
         }
 
         // add password to history (if you have password and caller intends to set)
-        if(StringUtils.hasText(user.getPassword()) && FluentIterable.of(attrs).contains(User.Attr.PASSWORD)) {
+        if (StringUtils.hasText(user.getPassword()) && FluentIterable.from(Arrays.asList(attrs))
+                .contains(User.Attr.PASSWORD)) {
             user.setCruPasswordHistory(passwordHistoryManager.add(user.getPassword(), original.getCruPasswordHistory()));
         }
 
@@ -184,7 +186,7 @@ public class DefaultUserManager implements UserManager {
         this.validateUser(user);
 
         // validate user based on attributes being updated
-        final FluentIterable<User.Attr> fluentAttrs = FluentIterable.of(attrs);
+        final FluentIterable<User.Attr> fluentAttrs = FluentIterable.from(Arrays.asList(attrs));
         if (fluentAttrs.contains(User.Attr.EMAIL)) {
             validateEmail(user);
         }
