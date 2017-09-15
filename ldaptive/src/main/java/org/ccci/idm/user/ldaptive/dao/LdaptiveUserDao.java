@@ -75,6 +75,7 @@ import javax.annotation.Nullable;
 import javax.naming.InterruptedNamingException;
 import javax.validation.constraints.NotNull;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Iterator;
@@ -481,7 +482,7 @@ public class LdaptiveUserDao extends AbstractLdapUserDao {
 
             final String originalDn = this.userMapper.mapDn(original);
             final String dn;
-            if (FluentIterable.of(attrs).contains(User.Attr.EMAIL)) {
+            if (FluentIterable.from(Arrays.asList(attrs)).contains(User.Attr.EMAIL)) {
                 // modify the DN if we are updating the user's email and it changed
                 dn = this.userMapper.mapDn(user);
                 if (!Objects.equal(originalDn, dn)) {
