@@ -21,8 +21,10 @@ import static org.ccci.idm.user.dao.ldap.Constants.LDAP_ATTR_EMPLOYEE_NUMBER;
 import static org.ccci.idm.user.dao.ldap.Constants.LDAP_ATTR_FACEBOOKID;
 import static org.ccci.idm.user.dao.ldap.Constants.LDAP_ATTR_FACEBOOKIDSTRENGTH;
 import static org.ccci.idm.user.dao.ldap.Constants.LDAP_ATTR_FIRSTNAME;
+import static org.ccci.idm.user.dao.ldap.Constants.LDAP_ATTR_GRMASTERPERSONID;
 import static org.ccci.idm.user.dao.ldap.Constants.LDAP_ATTR_GROUPS;
 import static org.ccci.idm.user.dao.ldap.Constants.LDAP_ATTR_GRPERSONID;
+import static org.ccci.idm.user.dao.ldap.Constants.LDAP_ATTR_GRSTAGEMASTERPERSONID;
 import static org.ccci.idm.user.dao.ldap.Constants.LDAP_ATTR_GRSTAGEPERSONID;
 import static org.ccci.idm.user.dao.ldap.Constants.LDAP_ATTR_GUID;
 import static org.ccci.idm.user.dao.ldap.Constants.LDAP_ATTR_LASTNAME;
@@ -178,6 +180,8 @@ public abstract class AbstractUserLdapEntryMapper<O extends User> implements Lda
                 user.getFacebookIdStrengthFor(facebookId))));
 
         // Global Registry attributes
+        entry.addAttribute(attr(LDAP_ATTR_GRMASTERPERSONID, user.getGrMasterPersonId()));
+        entry.addAttribute(attr(LDAP_ATTR_GRSTAGEMASTERPERSONID, user.getGrStageMasterPersonId()));
         entry.addAttribute(attr(LDAP_ATTR_GRPERSONID, user.getGrPersonId()));
         entry.addAttribute(attr(LDAP_ATTR_GRSTAGEPERSONID, user.getGrStagePersonId()));
 
@@ -244,6 +248,8 @@ public abstract class AbstractUserLdapEntryMapper<O extends User> implements Lda
         }
 
         // Global Registry attributes
+        user.setGrMasterPersonId(getStringValue(entry, LDAP_ATTR_GRMASTERPERSONID));
+        user.setGrStageMasterPersonId(getStringValue(entry, LDAP_ATTR_GRSTAGEMASTERPERSONID));
         user.setGrPersonId(getStringValue(entry, LDAP_ATTR_GRPERSONID));
         user.setGrStagePersonId(getStringValue(entry, LDAP_ATTR_GRSTAGEPERSONID));
 

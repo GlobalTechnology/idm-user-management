@@ -20,7 +20,9 @@ import static org.ccci.idm.user.dao.ldap.Constants.LDAP_ATTR_EMPLOYEE_NUMBER;
 import static org.ccci.idm.user.dao.ldap.Constants.LDAP_ATTR_FACEBOOKID;
 import static org.ccci.idm.user.dao.ldap.Constants.LDAP_ATTR_FACEBOOKIDSTRENGTH;
 import static org.ccci.idm.user.dao.ldap.Constants.LDAP_ATTR_FIRSTNAME;
+import static org.ccci.idm.user.dao.ldap.Constants.LDAP_ATTR_GRMASTERPERSONID;
 import static org.ccci.idm.user.dao.ldap.Constants.LDAP_ATTR_GRPERSONID;
+import static org.ccci.idm.user.dao.ldap.Constants.LDAP_ATTR_GRSTAGEMASTERPERSONID;
 import static org.ccci.idm.user.dao.ldap.Constants.LDAP_ATTR_GRSTAGEPERSONID;
 import static org.ccci.idm.user.dao.ldap.Constants.LDAP_ATTR_LASTNAME;
 import static org.ccci.idm.user.dao.ldap.Constants.LDAP_ATTR_LOGINTIME;
@@ -67,6 +69,8 @@ public abstract class AbstractLdapUserDao extends AbstractUserDao {
             .put(Attr.FACEBOOK, ImmutableSet.of(LDAP_ATTR_FACEBOOKID, LDAP_ATTR_FACEBOOKIDSTRENGTH,
                     LDAP_ATTR_OBJECTCLASS))
             .put(Attr.GLOBALREGISTRY, ImmutableSet.of(
+                    LDAP_ATTR_GRMASTERPERSONID,
+                    LDAP_ATTR_GRSTAGEMASTERPERSONID,
                     LDAP_ATTR_GRPERSONID,
                     LDAP_ATTR_GRSTAGEPERSONID,
                     LDAP_ATTR_OBJECTCLASS))
