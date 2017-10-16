@@ -22,6 +22,8 @@ public class Constants {
     public static final String LDAP_ATTR_PASSWORDCHANGEDTIME = "pwdChangedTime";
     public static final String LDAP_ATTR_FACEBOOKID = "thekeyFacebookId";
     public static final String LDAP_ATTR_FACEBOOKIDSTRENGTH = "thekeyFacebookIdStrength";
+    public static final String LDAP_ATTR_GRMASTERPERSONID = "thekeyGrMasterPersonId";
+    public static final String LDAP_ATTR_GRSTAGEMASTERPERSONID = "thekeyGrStageMasterPersonId";
     public static final String LDAP_ATTR_GRPERSONID = "thekeyGrPersonId";
     public static final String LDAP_ATTR_GRSTAGEPERSONID = "thekeyGrStagePersonId";
     public static final String LDAP_ATTR_DOMAINSVISITED = "thekeyDomainVisited";
