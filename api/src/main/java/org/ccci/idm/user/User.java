@@ -72,6 +72,10 @@ public class User implements Cloneable, Serializable {
 
     // Global Registry ID
     @Nullable
+    private String grMasterPersonId;
+    @Nullable
+    private String grStageMasterPersonId;
+    @Nullable
     private String grPersonId;
     @Nullable
     private String grStagePersonId;
@@ -136,6 +140,8 @@ public class User implements Cloneable, Serializable {
         this.facebookId = source.facebookId;
         this.facebookIdStrength = source.facebookIdStrength;
 
+        grMasterPersonId = source.grMasterPersonId;
+        grStageMasterPersonId = source.grStageMasterPersonId;
         grPersonId = source.grPersonId;
         grStagePersonId = source.grStagePersonId;
 
@@ -653,6 +659,24 @@ public class User implements Cloneable, Serializable {
     }
 
     @Nullable
+    public String getGrMasterPersonId() {
+        return grMasterPersonId;
+    }
+
+    public void setGrMasterPersonId(@Nullable final String id) {
+        grMasterPersonId = id;
+    }
+
+    @Nullable
+    public String getGrStageMasterPersonId() {
+        return grStageMasterPersonId;
+    }
+
+    public void setGrStageMasterPersonId(@Nullable final String id) {
+        grStageMasterPersonId = id;
+    }
+
+    @Nullable
     public String getGrPersonId() {
         return grPersonId;
     }
@@ -755,10 +779,10 @@ public class User implements Cloneable, Serializable {
         return Objects.hashCode(email, password, guid, getTheKeyGuid(), getRelayGuid(), firstName, lastName,
                 emailVerified, allowPasswordChange, forcePasswordChange, deactivated, loginDisabled, locked,
                 domainsVisited, groups, signupKey, changeEmailKey, resetPasswordKey, proposedEmail, facebookId,
-                facebookIdStrength, grPersonId, grStagePersonId, employeeId, departmentNumber, cruDesignation,
-                cruEmployeeStatus, cruGender, cruHrStatusCode, cruJobCode, cruManagerID, cruMinistryCode,
-                cruPayGroup, preferredName, cruSubMinistryCode, cruProxyAddresses, cruPasswordHistory, city,
-                state, postal, country, telephoneNumber, securityQuestion, securityAnswer);
+                facebookIdStrength, grMasterPersonId, grStageMasterPersonId, grPersonId, grStagePersonId, employeeId,
+                departmentNumber, cruDesignation, cruEmployeeStatus, cruGender, cruHrStatusCode, cruJobCode,
+                cruManagerID, cruMinistryCode, cruPayGroup, preferredName, cruSubMinistryCode, cruProxyAddresses,
+                cruPasswordHistory, city, state, postal, country, telephoneNumber, securityQuestion, securityAnswer);
     }
 
     @Override
@@ -788,6 +812,8 @@ public class User implements Cloneable, Serializable {
                 Objects.equal(this.proposedEmail, other.proposedEmail) &&
                 Objects.equal(this.facebookId, other.facebookId) &&
                 Objects.equal(this.facebookIdStrength, other.facebookIdStrength) &&
+                Objects.equal(grMasterPersonId, other.grMasterPersonId) &&
+                Objects.equal(grStageMasterPersonId, other.grStageMasterPersonId) &&
                 Objects.equal(grPersonId, other.grPersonId) &&
                 Objects.equal(grStagePersonId, other.grStagePersonId) &&
                 Objects.equal(this.employeeId, other.employeeId) &&
