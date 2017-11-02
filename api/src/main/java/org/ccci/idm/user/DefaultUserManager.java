@@ -1,10 +1,25 @@
 package org.ccci.idm.user;
 
+import static org.ccci.idm.user.Constants.AUDIT_ACTION_ADD_TO_GROUP;
+import static org.ccci.idm.user.Constants.AUDIT_ACTION_CREATE_USER;
+import static org.ccci.idm.user.Constants.AUDIT_ACTION_DEACTIVATE_USER;
+import static org.ccci.idm.user.Constants.AUDIT_ACTION_REACTIVATE_USER;
+import static org.ccci.idm.user.Constants.AUDIT_ACTION_REMOVE_FROM_GROUP;
+import static org.ccci.idm.user.Constants.AUDIT_ACTION_RESOLVER_USER_MANAGER;
+import static org.ccci.idm.user.Constants.AUDIT_ACTION_UPDATE_USER;
+import static org.ccci.idm.user.Constants.AUDIT_RESOURCE_RESOLVER_ADD_TO_GROUP;
+import static org.ccci.idm.user.Constants.AUDIT_RESOURCE_RESOLVER_CREATE_USER;
+import static org.ccci.idm.user.Constants.AUDIT_RESOURCE_RESOLVER_DEACTIVATE_USER;
+import static org.ccci.idm.user.Constants.AUDIT_RESOURCE_RESOLVER_REACTIVATE_USER;
+import static org.ccci.idm.user.Constants.AUDIT_RESOURCE_RESOLVER_REMOVE_FROM_GROUP;
+import static org.ccci.idm.user.Constants.AUDIT_RESOURCE_RESOLVER_UPDATE_USER;
+
 import com.google.common.annotations.Beta;
 import com.google.common.base.CharMatcher;
 import com.google.common.collect.FluentIterable;
 import com.google.common.collect.ImmutableList;
 import org.apache.commons.validator.routines.EmailValidator;
+import org.apereo.inspektr.audit.annotation.Audit;
 import org.ccci.idm.user.dao.UserDao;
 import org.ccci.idm.user.dao.exception.DaoException;
 import org.ccci.idm.user.dao.exception.ExceededMaximumAllowedResultsException;
@@ -17,7 +32,6 @@ import org.ccci.idm.user.exception.UserNotFoundException;
 import org.ccci.idm.user.util.DefaultRandomPasswordGenerator;
 import org.ccci.idm.user.util.PasswordHistoryManager;
 import org.ccci.idm.user.util.RandomPasswordGenerator;
-import org.jasig.inspektr.audit.annotation.Audit;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -35,8 +49,6 @@ import java.util.concurrent.BlockingQueue;
 
 public class DefaultUserManager implements UserManager {
     private static final Logger LOG = LoggerFactory.getLogger(DefaultUserManager.class);
-
-    private static final String AUDIT_ACTION_RESOLVER = "IDM_USER_MANAGER_ACTION_RESOLVER";
 
     private static final EmailValidator VALIDATOR_EMAIL = EmailValidator.getInstance();
 
@@ -89,8 +101,8 @@ public class DefaultUserManager implements UserManager {
     }
 
     @Override
-    @Audit(action = "IDM_CREATE_USER", actionResolverName = AUDIT_ACTION_RESOLVER, resourceResolverName =
-            "IDM_USER_MANAGER_CREATE_USER_RESOURCE_RESOLVER")
+    @Audit(action = AUDIT_ACTION_CREATE_USER, actionResolverName = AUDIT_ACTION_RESOLVER_USER_MANAGER,
+            resourceResolverName = AUDIT_RESOURCE_RESOLVER_CREATE_USER)
     public void createUser(final User user) throws DaoException, UserException {
         // validate user being created
         this.validateNewUser(user);
@@ -154,8 +166,8 @@ public class DefaultUserManager implements UserManager {
     }
 
     @Override
-    @Audit(action = "IDM_UPDATE_USER", actionResolverName = AUDIT_ACTION_RESOLVER, resourceResolverName =
-            "IDM_USER_MANAGER_UPDATE_USER_RESOURCE_RESOLVER")
+    @Audit(action = AUDIT_ACTION_UPDATE_USER, actionResolverName = AUDIT_ACTION_RESOLVER_USER_MANAGER,
+            resourceResolverName = AUDIT_RESOURCE_RESOLVER_UPDATE_USER)
     public void updateUser(final User user, final User.Attr... attrs) throws DaoException, UserException {
         // validate user object before trying to update it
         this.validateUpdateUser(user, attrs);
@@ -193,8 +205,8 @@ public class DefaultUserManager implements UserManager {
     }
 
     @Override
-    @Audit(action = "IDM_DEACTIVATE_USER", actionResolverName = AUDIT_ACTION_RESOLVER, resourceResolverName =
-            "IDM_USER_MANAGER_DEACTIVATE_USER_RESOURCE_RESOLVER")
+    @Audit(action = AUDIT_ACTION_DEACTIVATE_USER, actionResolverName = AUDIT_ACTION_RESOLVER_USER_MANAGER,
+            resourceResolverName = AUDIT_RESOURCE_RESOLVER_DEACTIVATE_USER)
     public void deactivateUser(final User user) throws DaoException, UserException {
         // Create a deep clone copy before proceeding
         final User original = user.clone();
@@ -216,8 +228,8 @@ public class DefaultUserManager implements UserManager {
     }
 
     @Override
-    @Audit(action = "IDM_REACTIVATE_USER", actionResolverName = AUDIT_ACTION_RESOLVER, resourceResolverName =
-            "IDM_USER_MANAGER_REACTIVATE_USER_RESOURCE_RESOLVER")
+    @Audit(action = AUDIT_ACTION_REACTIVATE_USER, actionResolverName = AUDIT_ACTION_RESOLVER_USER_MANAGER,
+            resourceResolverName = AUDIT_RESOURCE_RESOLVER_REACTIVATE_USER)
     public void reactivateUser(final User user) throws DaoException, UserException {
         // Determine if the user already exists, and can't be reactivated
         if (this.doesEmailExist(user.getEmail())) {
@@ -369,23 +381,23 @@ public class DefaultUserManager implements UserManager {
     }
 
     @Override
-    @Audit(action = "IDM_ADD_TO_GROUP", actionResolverName = AUDIT_ACTION_RESOLVER, resourceResolverName =
-            "IDM_USER_MANAGER_ADD_TO_GROUP_RESOURCE_RESOLVER")
+    @Audit(action = AUDIT_ACTION_ADD_TO_GROUP, actionResolverName = AUDIT_ACTION_RESOLVER_USER_MANAGER,
+            resourceResolverName = AUDIT_RESOURCE_RESOLVER_ADD_TO_GROUP)
     public void addToGroup(@Nonnull final User user, @Nonnull final Group group) throws DaoException {
         this.userDao.addToGroup(user, group);
     }
 
     @Override
-    @Audit(action = "IDM_ADD_TO_GROUP", actionResolverName = AUDIT_ACTION_RESOLVER, resourceResolverName =
-            "IDM_USER_MANAGER_ADD_TO_GROUP_RESOURCE_RESOLVER")
+    @Audit(action = AUDIT_ACTION_ADD_TO_GROUP, actionResolverName = AUDIT_ACTION_RESOLVER_USER_MANAGER,
+            resourceResolverName = AUDIT_RESOURCE_RESOLVER_ADD_TO_GROUP)
     public void addToGroup(@Nonnull final User user, @Nonnull final Group group, final boolean addSecurity)
             throws DaoException {
         userDao.addToGroup(user, group, addSecurity);
     }
 
     @Override
-    @Audit(action = "IDM_REMOVE_FROM_GROUP", actionResolverName = AUDIT_ACTION_RESOLVER, resourceResolverName =
-            "IDM_USER_MANAGER_REMOVE_FROM_GROUP_RESOURCE_RESOLVER")
+    @Audit(action = AUDIT_ACTION_REMOVE_FROM_GROUP, actionResolverName = AUDIT_ACTION_RESOLVER_USER_MANAGER,
+            resourceResolverName = AUDIT_RESOURCE_RESOLVER_REMOVE_FROM_GROUP)
     public void removeFromGroup(@Nonnull final User user, @Nonnull final Group group) throws DaoException {
         this.userDao.removeFromGroup(user, group);
     }

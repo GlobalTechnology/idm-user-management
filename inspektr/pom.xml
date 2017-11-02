@@ -10,10 +10,6 @@
 
   <artifactId>idm-user-management-inspektr</artifactId>
 
-  <properties>
-    <inspektr.version>1.7.GA</inspektr.version>
-  </properties>
-
   <dependencies>
     <dependency>
       <groupId>org.ccci.gto</groupId>
