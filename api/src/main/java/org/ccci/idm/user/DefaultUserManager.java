@@ -323,7 +323,7 @@ public class DefaultUserManager implements UserManager {
 
     @Nullable
     @Override
-    public final User findUserByDesignation(@Nullable final String designation) {
+    public User findUserByDesignation(@Nullable final String designation) {
         return findUserByDesignation(designation, false);
     }
 
