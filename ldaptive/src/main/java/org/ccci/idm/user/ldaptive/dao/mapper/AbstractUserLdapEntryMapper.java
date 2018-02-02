@@ -29,6 +29,7 @@ import static org.ccci.idm.user.dao.ldap.Constants.LDAP_ATTR_GRSTAGEPERSONID;
 import static org.ccci.idm.user.dao.ldap.Constants.LDAP_ATTR_GUID;
 import static org.ccci.idm.user.dao.ldap.Constants.LDAP_ATTR_LASTNAME;
 import static org.ccci.idm.user.dao.ldap.Constants.LDAP_ATTR_LOGINTIME;
+import static org.ccci.idm.user.dao.ldap.Constants.LDAP_ATTR_MFA_SECRET;
 import static org.ccci.idm.user.dao.ldap.Constants.LDAP_ATTR_OBJECTCLASS;
 import static org.ccci.idm.user.dao.ldap.Constants.LDAP_ATTR_PASSWORD;
 import static org.ccci.idm.user.dao.ldap.Constants.LDAP_ATTR_PASSWORDCHANGEDTIME;
@@ -155,6 +156,9 @@ public abstract class AbstractUserLdapEntryMapper<O extends User> implements Lda
         // the lockedByIntruder flag is handled differently to maintain consistency with how LDAP updates the attribute
         entry.addAttribute(user.isLocked() ? this.attr(LDAP_FLAG_LOCKED, true) : this.attr(LDAP_FLAG_LOCKED));
 
+        // set MFA attributes
+        entry.addAttribute(attr(LDAP_ATTR_MFA_SECRET, user.getMfaSecret()));
+
         // set the multi-valued attributes
         entry.addAttribute(this.attr(LDAP_ATTR_DOMAINSVISITED, user.getDomainsVisited()));
 
@@ -240,6 +244,9 @@ public abstract class AbstractUserLdapEntryMapper<O extends User> implements Lda
         // Meta-data
         user.setLoginTime(this.getTimeValue(entry, LDAP_ATTR_LOGINTIME));
         user.setPasswordChangedTime(this.getTimeValue(entry, LDAP_ATTR_PASSWORDCHANGEDTIME));
+
+        // MFA attributes
+        user.setMfaSecret(getStringValue(entry, LDAP_ATTR_MFA_SECRET));
 
         // federated identities
         final Map<String, Double> facebookIdStrengths = this.getStrengthValues(entry, LDAP_ATTR_FACEBOOKIDSTRENGTH);
