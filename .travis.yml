@@ -2,6 +2,9 @@ language: java
 sudo: false
 jdk:
   - oraclejdk8
+branches:
+  only:
+    - master
 
 after_success:
   - mvn jacoco:report coveralls:report -DrepoToken=$COVERALLS_REPO_TOKEN
