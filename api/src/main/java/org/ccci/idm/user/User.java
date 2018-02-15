@@ -635,6 +635,10 @@ public class User implements Cloneable, Serializable {
         this.proposedEmail = email;
     }
 
+    public boolean isMfaEnabled() {
+        return mfaSecret != null;
+    }
+
     @Nullable
     public String getMfaSecret() {
         return mfaSecret;
