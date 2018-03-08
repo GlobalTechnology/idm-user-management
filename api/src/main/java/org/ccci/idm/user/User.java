@@ -336,7 +336,6 @@ public class User implements Cloneable, Serializable {
         this.locked = locked;
     }
 
-
     public String getEmployeeId() {
         return employeeId;
     }
