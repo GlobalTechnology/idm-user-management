@@ -69,7 +69,7 @@ public class User implements Cloneable, Serializable {
 
     // mfa properties
     @Nullable
-    private String mfaSecret;
+    private String mfaEncryptedSecret;
 
     // federated identities
     private String facebookId = null;
@@ -133,6 +133,9 @@ public class User implements Cloneable, Serializable {
         this.deactivated = source.deactivated;
         this.loginDisabled = source.loginDisabled;
         this.locked = source.locked;
+
+        // mfa attributes
+        mfaEncryptedSecret = source.mfaEncryptedSecret;
 
         this.domainsVisited.addAll(source.domainsVisited);
         this.groups.addAll(source.groups);
@@ -636,16 +639,16 @@ public class User implements Cloneable, Serializable {
     }
 
     public boolean isMfaEnabled() {
-        return mfaSecret != null;
+        return mfaEncryptedSecret != null;
     }
 
     @Nullable
-    public String getMfaSecret() {
-        return mfaSecret;
+    public String getMfaEncryptedSecret() {
+        return mfaEncryptedSecret;
     }
 
-    public void setMfaSecret(@Nullable final String secret) {
-        mfaSecret = secret;
+    public void setMfaEncryptedSecret(@Nullable final String encryptedSecret) {
+        mfaEncryptedSecret = encryptedSecret;
     }
 
     public void setFacebookId(final String id, final Number strength) {

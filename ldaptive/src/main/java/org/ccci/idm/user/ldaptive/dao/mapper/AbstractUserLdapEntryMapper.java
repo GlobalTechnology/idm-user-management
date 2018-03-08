@@ -157,7 +157,7 @@ public abstract class AbstractUserLdapEntryMapper<O extends User> implements Lda
         entry.addAttribute(user.isLocked() ? this.attr(LDAP_FLAG_LOCKED, true) : this.attr(LDAP_FLAG_LOCKED));
 
         // set MFA attributes
-        entry.addAttribute(attr(LDAP_ATTR_MFA_SECRET, user.getMfaSecret()));
+        entry.addAttribute(attr(LDAP_ATTR_MFA_SECRET, user.getMfaEncryptedSecret()));
 
         // set the multi-valued attributes
         entry.addAttribute(this.attr(LDAP_ATTR_DOMAINSVISITED, user.getDomainsVisited()));
@@ -246,7 +246,7 @@ public abstract class AbstractUserLdapEntryMapper<O extends User> implements Lda
         user.setPasswordChangedTime(this.getTimeValue(entry, LDAP_ATTR_PASSWORDCHANGEDTIME));
 
         // MFA attributes
-        user.setMfaSecret(getStringValue(entry, LDAP_ATTR_MFA_SECRET));
+        user.setMfaEncryptedSecret(getStringValue(entry, LDAP_ATTR_MFA_SECRET));
 
         // federated identities
         final Map<String, Double> facebookIdStrengths = this.getStrengthValues(entry, LDAP_ATTR_FACEBOOKIDSTRENGTH);
