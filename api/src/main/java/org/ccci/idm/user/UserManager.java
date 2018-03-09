@@ -63,6 +63,29 @@ public interface UserManager {
     void reactivateUser(User user) throws DaoException, UserException;
 
     /**
+     * Returns if the specified user is currently locked for MFA intruder detection.
+     *
+     * @param user the User to check for an MFA intruder lock
+     * @return true if the specified User is locked, false otherwise.
+     */
+    boolean isMfaIntruderLocked(@Nonnull final User user);
+
+    /**
+     * Track a failed MFA login attempt.
+     *
+     * @param user the User to track a failed MFA login attempt for.
+     * @throws UserNotFoundException The specified user cannot be found to be updated
+     */
+    void trackFailedMfaLogin(@Nonnull final User user) throws DaoException, UserException;
+
+    /**
+     * Reset the MFA intruder lock state for the specified User.
+     *
+     * @param user the User to reset the MFA intruder lock on
+     */
+    void resetMfaIntruderLock(@Nonnull final User user) throws DaoException, UserException;
+
+    /**
      * @param user the {@link User} to retrieve a fresh instance of
      * @return a fresh copy of the {@link User} object
      * @throws UserNotFoundException if the user can't be found
