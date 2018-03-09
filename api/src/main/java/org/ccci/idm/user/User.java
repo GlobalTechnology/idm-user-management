@@ -31,7 +31,7 @@ public class User implements Cloneable, Serializable {
     public enum Attr {
         EMAIL, PASSWORD, NAME, LOGINTIME, FLAGS, SELFSERVICEKEYS, DOMAINSVISITED, FACEBOOK, GLOBALREGISTRY, LOCATION,
         EMPLOYEE_NUMBER, CRU_DESIGNATION, CONTACT, CRU_PREFERRED_NAME, CRU_PROXY_ADDRESSES, HUMAN_RESOURCE, SECURITYQA,
-        MFA_SECRET
+        MFA_SECRET, MFA_INTRUDER_DETECTION
     }
 
     @Nullable
@@ -70,6 +70,11 @@ public class User implements Cloneable, Serializable {
     // mfa properties
     @Nullable
     private String mfaEncryptedSecret;
+    private boolean mfaIntruderLocked = false;
+    @Nullable
+    private Integer mfaIntruderAttempts;
+    @Nullable
+    private ReadableInstant mfaIntruderResetTime;
 
     // federated identities
     private String facebookId = null;
@@ -136,6 +141,9 @@ public class User implements Cloneable, Serializable {
 
         // mfa attributes
         mfaEncryptedSecret = source.mfaEncryptedSecret;
+        mfaIntruderLocked = source.mfaIntruderLocked;
+        mfaIntruderAttempts = source.mfaIntruderAttempts;
+        mfaIntruderResetTime = source.mfaIntruderResetTime;
 
         this.domainsVisited.addAll(source.domainsVisited);
         this.groups.addAll(source.groups);
@@ -637,6 +645,8 @@ public class User implements Cloneable, Serializable {
         this.proposedEmail = email;
     }
 
+    // MFA related methods
+
     public boolean isMfaEnabled() {
         return mfaEncryptedSecret != null;
     }
@@ -648,6 +658,54 @@ public class User implements Cloneable, Serializable {
 
     public void setMfaEncryptedSecret(@Nullable final String encryptedSecret) {
         mfaEncryptedSecret = encryptedSecret;
+    }
+
+    public boolean isMfaIntruderLocked() {
+        return mfaIntruderLocked;
+    }
+
+    /**
+     * @return true if mfaIntruderLocked changed, false if it stayed the same.
+     */
+    public boolean setMfaIntruderLocked(final boolean state) {
+        if (mfaIntruderLocked != state) {
+            mfaIntruderLocked = state;
+            return true;
+        }
+        return false;
+    }
+
+    @Nullable
+    public Integer getMfaIntruderAttempts() {
+        return mfaIntruderAttempts;
+    }
+
+    /**
+     * @return true if mfaIntruderAttempts changed, false if it stayed the same.
+     */
+    public boolean setMfaIntruderAttempts(@Nullable final Integer attempts) {
+        if (!Objects.equal(mfaIntruderAttempts, attempts)) {
+            mfaIntruderAttempts = attempts;
+            return true;
+        }
+        return false;
+    }
+
+    @Nullable
+    public ReadableInstant getMfaIntruderResetTime() {
+        return mfaIntruderResetTime;
+    }
+
+    /**
+     * @return true if mfaIntruderResetTime changed, false if it stayed the same.
+     */
+    public boolean setMfaIntruderResetTime(@Nullable final ReadableInstant time) {
+        if (time == null ? mfaIntruderResetTime != null :
+                (mfaIntruderResetTime == null || !time.isEqual(mfaIntruderResetTime))) {
+            mfaIntruderResetTime = time;
+            return true;
+        }
+        return false;
     }
 
     public void setFacebookId(final String id, final Number strength) {
@@ -768,6 +826,9 @@ public class User implements Cloneable, Serializable {
                 .add("changeEmailKey", changeEmailKey)
                 .add("resetPasswordKey", resetPasswordKey)
                 .add("proposedEmail", proposedEmail)
+                .add("mfaIntruderLocked", mfaIntruderLocked)
+                .add("mfaIntruderAttempts", mfaIntruderAttempts)
+                .add("mfaIntruderResetTime", mfaIntruderResetTime)
                 .add("facebookId", facebookId)
                 .add("facebookIdStrength", facebookIdStrength)
                 .add("employeeId", employeeId)
@@ -798,11 +859,12 @@ public class User implements Cloneable, Serializable {
     public int hashCode() {
         return Objects.hashCode(email, password, guid, getTheKeyGuid(), getRelayGuid(), firstName, lastName,
                 emailVerified, allowPasswordChange, forcePasswordChange, deactivated, loginDisabled, locked,
-                domainsVisited, groups, signupKey, changeEmailKey, resetPasswordKey, proposedEmail, facebookId,
-                facebookIdStrength, grMasterPersonId, grStageMasterPersonId, grPersonId, grStagePersonId, employeeId,
-                departmentNumber, cruDesignation, cruEmployeeStatus, cruGender, cruHrStatusCode, cruJobCode,
-                cruManagerID, cruMinistryCode, cruPayGroup, preferredName, cruSubMinistryCode, cruProxyAddresses,
-                cruPasswordHistory, city, state, postal, country, telephoneNumber, securityQuestion, securityAnswer);
+                domainsVisited, groups, signupKey, changeEmailKey, resetPasswordKey, proposedEmail, mfaEncryptedSecret,
+                mfaIntruderLocked, mfaIntruderAttempts, mfaIntruderResetTime, facebookId, facebookIdStrength,
+                grMasterPersonId, grStageMasterPersonId, grPersonId, grStagePersonId, employeeId, departmentNumber,
+                cruDesignation, cruEmployeeStatus, cruGender, cruHrStatusCode, cruJobCode, cruManagerID,
+                cruMinistryCode, cruPayGroup, preferredName, cruSubMinistryCode, cruProxyAddresses, cruPasswordHistory,
+                city, state, postal, country, telephoneNumber, securityQuestion, securityAnswer);
     }
 
     @Override
@@ -830,6 +892,10 @@ public class User implements Cloneable, Serializable {
                 Objects.equal(this.changeEmailKey, other.changeEmailKey) &&
                 Objects.equal(this.resetPasswordKey, other.resetPasswordKey) &&
                 Objects.equal(this.proposedEmail, other.proposedEmail) &&
+                Objects.equal(mfaEncryptedSecret, other.mfaEncryptedSecret) &&
+                mfaIntruderLocked == other.mfaIntruderLocked &&
+                Objects.equal(mfaIntruderAttempts, other.mfaIntruderAttempts) &&
+                Objects.equal(mfaIntruderResetTime, other.mfaIntruderResetTime) &&
                 Objects.equal(this.facebookId, other.facebookId) &&
                 Objects.equal(this.facebookIdStrength, other.facebookIdStrength) &&
                 Objects.equal(grMasterPersonId, other.grMasterPersonId) &&

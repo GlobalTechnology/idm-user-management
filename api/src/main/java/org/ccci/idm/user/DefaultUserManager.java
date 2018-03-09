@@ -3,6 +3,8 @@ package org.ccci.idm.user;
 import static org.ccci.idm.user.Constants.AUDIT_ACTION_ADD_TO_GROUP;
 import static org.ccci.idm.user.Constants.AUDIT_ACTION_CREATE_USER;
 import static org.ccci.idm.user.Constants.AUDIT_ACTION_DEACTIVATE_USER;
+import static org.ccci.idm.user.Constants.AUDIT_ACTION_MFA_RESET_INTRUDER;
+import static org.ccci.idm.user.Constants.AUDIT_ACTION_MFA_TRACK_FAILED_LOGIN;
 import static org.ccci.idm.user.Constants.AUDIT_ACTION_REACTIVATE_USER;
 import static org.ccci.idm.user.Constants.AUDIT_ACTION_REMOVE_FROM_GROUP;
 import static org.ccci.idm.user.Constants.AUDIT_ACTION_RESOLVER_USER_MANAGER;
@@ -10,12 +12,15 @@ import static org.ccci.idm.user.Constants.AUDIT_ACTION_UPDATE_USER;
 import static org.ccci.idm.user.Constants.AUDIT_RESOURCE_RESOLVER_ADD_TO_GROUP;
 import static org.ccci.idm.user.Constants.AUDIT_RESOURCE_RESOLVER_CREATE_USER;
 import static org.ccci.idm.user.Constants.AUDIT_RESOURCE_RESOLVER_DEACTIVATE_USER;
+import static org.ccci.idm.user.Constants.AUDIT_RESOURCE_RESOLVER_MFA_RESET_INTRUDER;
+import static org.ccci.idm.user.Constants.AUDIT_RESOURCE_RESOLVER_MFA_TRACK_FAILED_LOGIN;
 import static org.ccci.idm.user.Constants.AUDIT_RESOURCE_RESOLVER_REACTIVATE_USER;
 import static org.ccci.idm.user.Constants.AUDIT_RESOURCE_RESOLVER_REMOVE_FROM_GROUP;
 import static org.ccci.idm.user.Constants.AUDIT_RESOURCE_RESOLVER_UPDATE_USER;
 
 import com.google.common.annotations.Beta;
 import com.google.common.base.CharMatcher;
+import com.google.common.base.MoreObjects;
 import com.google.common.collect.FluentIterable;
 import com.google.common.collect.ImmutableList;
 import org.apache.commons.validator.routines.EmailValidator;
@@ -32,6 +37,11 @@ import org.ccci.idm.user.exception.UserNotFoundException;
 import org.ccci.idm.user.util.DefaultRandomPasswordGenerator;
 import org.ccci.idm.user.util.PasswordHistoryManager;
 import org.ccci.idm.user.util.RandomPasswordGenerator;
+import org.joda.time.Duration;
+import org.joda.time.Instant;
+import org.joda.time.Period;
+import org.joda.time.ReadableDuration;
+import org.joda.time.ReadableInstant;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -52,6 +62,12 @@ public class DefaultUserManager implements UserManager {
 
     private static final EmailValidator VALIDATOR_EMAIL = EmailValidator.getInstance();
 
+    private int mfaIntruderAttempts = 10;
+    @Nonnull
+    private ReadableDuration mfaIntruderResetInterval = Duration.standardMinutes(10);
+    @Nonnull
+    private ReadableDuration mfaIntruderLockDuration = Duration.standardMinutes(15);
+
     @NotNull
     @Autowired(required = false)
     private List<? extends UserManagerListener> listeners = ImmutableList.of();
@@ -65,6 +81,26 @@ public class DefaultUserManager implements UserManager {
     @Inject
     @NotNull
     protected UserDao userDao;
+
+    public void setMfaIntruderAttempts(final int attempts) {
+        mfaIntruderAttempts = attempts;
+    }
+
+    public void setMfaIntruderResetInterval(@Nonnull final String period) {
+        setMfaIntruderResetInterval(Period.parse(period).toStandardDuration());
+    }
+
+    public void setMfaIntruderResetInterval(@Nonnull final ReadableDuration interval) {
+        mfaIntruderResetInterval = interval;
+    }
+
+    public void setMfaIntruderLockDuration(@Nonnull final String period) {
+        setMfaIntruderLockDuration(Period.parse(period).toStandardDuration());
+    }
+
+    public void setMfaIntruderLockDuration(@Nonnull final ReadableDuration duration) {
+        mfaIntruderLockDuration = duration;
+    }
 
     public void setListeners(@Nonnull final List<? extends UserManagerListener> listeners) {
         this.listeners = listeners;
@@ -254,6 +290,62 @@ public class DefaultUserManager implements UserManager {
         for (final UserManagerListener listener : listeners) {
             listener.onPostReactivateUser(user);
         }
+    }
+
+    @Override
+    public boolean isMfaIntruderLocked(@Nonnull final User user) {
+        final ReadableInstant resetTime = user.getMfaIntruderResetTime();
+        return user.isMfaIntruderLocked() && resetTime != null && resetTime.isAfter(Instant.now());
+    }
+
+    @Override
+    @Audit(action = AUDIT_ACTION_MFA_TRACK_FAILED_LOGIN, actionResolverName = AUDIT_ACTION_RESOLVER_USER_MANAGER,
+            resourceResolverName = AUDIT_RESOURCE_RESOLVER_MFA_TRACK_FAILED_LOGIN)
+    public void trackFailedMfaLogin(@Nonnull final User user) throws DaoException, UserException {
+        // short-circuit if the user is already locked
+        if (isMfaIntruderLocked(user)) {
+            return;
+        }
+
+        // reset intruder state if we have passed the reset time
+        final Instant now = Instant.now();
+        final ReadableInstant resetTime = user.getMfaIntruderResetTime();
+        if (resetTime != null && resetTime.isBefore(now)) {
+            clearMfaIntruderState(user);
+        }
+
+        // update intruder detection failed login attempts
+        final int attempts = MoreObjects.firstNonNull(user.getMfaIntruderAttempts(), 0) + 1;
+        user.setMfaIntruderAttempts(attempts);
+        if (user.getMfaIntruderResetTime() == null) {
+            user.setMfaIntruderResetTime(now.plus(mfaIntruderResetInterval));
+        }
+
+        // should we lock the user?
+        if (attempts >= mfaIntruderAttempts) {
+            user.setMfaIntruderResetTime(now.plus(mfaIntruderLockDuration));
+            user.setMfaIntruderLocked(true);
+        }
+
+        // update the user model
+        updateUser(user, User.Attr.MFA_INTRUDER_DETECTION);
+    }
+
+    @Override
+    @Audit(action = AUDIT_ACTION_MFA_RESET_INTRUDER, actionResolverName = AUDIT_ACTION_RESOLVER_USER_MANAGER,
+            resourceResolverName = AUDIT_RESOURCE_RESOLVER_MFA_RESET_INTRUDER)
+    public void resetMfaIntruderLock(@Nonnull final User user) throws DaoException, UserException {
+        final boolean updated = clearMfaIntruderState(user);
+        if (updated) {
+            updateUser(user, User.Attr.MFA_INTRUDER_DETECTION);
+        }
+    }
+
+    private boolean clearMfaIntruderState(@Nonnull final User user) {
+        boolean changed = user.setMfaIntruderAttempts(null);
+        changed = user.setMfaIntruderLocked(false) || changed;
+        changed = user.setMfaIntruderResetTime(null) || changed;
+        return changed;
     }
 
     @Nonnull

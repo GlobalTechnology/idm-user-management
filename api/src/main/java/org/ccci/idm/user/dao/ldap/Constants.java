@@ -30,6 +30,9 @@ public class Constants {
 
     // LDAP MFA attributes
     public static final String LDAP_ATTR_MFA_SECRET = "thekeyMfaSecret";
+    public static final String LDAP_ATTR_MFA_INTRUDER_LOCKED = "thekeyMfaIntruderLocked";
+    public static final String LDAP_ATTR_MFA_INTRUDER_ATTEMPTS = "thekeyMfaIntruderAttempts";
+    public static final String LDAP_ATTR_MFA_INTRUDER_RESET_TIME = "thekeyMfaIntruderResetTime";
 
     // LDAP group membership attributes
     public static final String LDAP_ATTR_GROUPS = "groupMembership";

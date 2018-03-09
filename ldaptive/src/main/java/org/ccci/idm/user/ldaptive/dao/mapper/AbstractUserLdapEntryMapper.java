@@ -29,6 +29,9 @@ import static org.ccci.idm.user.dao.ldap.Constants.LDAP_ATTR_GRSTAGEPERSONID;
 import static org.ccci.idm.user.dao.ldap.Constants.LDAP_ATTR_GUID;
 import static org.ccci.idm.user.dao.ldap.Constants.LDAP_ATTR_LASTNAME;
 import static org.ccci.idm.user.dao.ldap.Constants.LDAP_ATTR_LOGINTIME;
+import static org.ccci.idm.user.dao.ldap.Constants.LDAP_ATTR_MFA_INTRUDER_ATTEMPTS;
+import static org.ccci.idm.user.dao.ldap.Constants.LDAP_ATTR_MFA_INTRUDER_LOCKED;
+import static org.ccci.idm.user.dao.ldap.Constants.LDAP_ATTR_MFA_INTRUDER_RESET_TIME;
 import static org.ccci.idm.user.dao.ldap.Constants.LDAP_ATTR_MFA_SECRET;
 import static org.ccci.idm.user.dao.ldap.Constants.LDAP_ATTR_OBJECTCLASS;
 import static org.ccci.idm.user.dao.ldap.Constants.LDAP_ATTR_PASSWORD;
@@ -63,6 +66,7 @@ import org.ccci.idm.user.Group;
 import org.ccci.idm.user.User;
 import org.ccci.idm.user.ldaptive.dao.io.ReadableInstantValueTranscoder;
 import org.ccci.idm.user.ldaptive.dao.util.DnUtils;
+import org.jetbrains.annotations.Contract;
 import org.joda.time.ReadableInstant;
 import org.ldaptive.LdapAttribute;
 import org.ldaptive.LdapEntry;
@@ -70,6 +74,7 @@ import org.ldaptive.LdapException;
 import org.ldaptive.auth.DnResolver;
 import org.ldaptive.beans.LdapEntryMapper;
 import org.ldaptive.io.BooleanValueTranscoder;
+import org.ldaptive.io.IntegerValueTranscoder;
 import org.ldaptive.io.ValueTranscoder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -93,6 +98,7 @@ public abstract class AbstractUserLdapEntryMapper<O extends User> implements Lda
     private static final Joiner JOINER_STRENGTH = Joiner.on("$").useForNull("");
 
     private static final ValueTranscoder<Boolean> TRANSCODER_BOOLEAN = new BooleanValueTranscoder(true);
+    private static final ValueTranscoder<Integer> TRANSCODER_INTEGER = new IntegerValueTranscoder(false);
     private static final ValueTranscoder<ReadableInstant> TRANSCODER_INSTANT = new ReadableInstantValueTranscoder();
 
     @NotNull
@@ -158,6 +164,9 @@ public abstract class AbstractUserLdapEntryMapper<O extends User> implements Lda
 
         // set MFA attributes
         entry.addAttribute(attr(LDAP_ATTR_MFA_SECRET, user.getMfaEncryptedSecret()));
+        entry.addAttribute(attr(LDAP_ATTR_MFA_INTRUDER_LOCKED, user.isMfaIntruderLocked()));
+        entry.addAttribute(attr(LDAP_ATTR_MFA_INTRUDER_ATTEMPTS, user.getMfaIntruderAttempts()));
+        entry.addAttribute(attr(LDAP_ATTR_MFA_INTRUDER_RESET_TIME, user.getMfaIntruderResetTime()));
 
         // set the multi-valued attributes
         entry.addAttribute(this.attr(LDAP_ATTR_DOMAINSVISITED, user.getDomainsVisited()));
@@ -247,6 +256,9 @@ public abstract class AbstractUserLdapEntryMapper<O extends User> implements Lda
 
         // MFA attributes
         user.setMfaEncryptedSecret(getStringValue(entry, LDAP_ATTR_MFA_SECRET));
+        user.setMfaIntruderLocked(getBooleanValue(entry, LDAP_ATTR_MFA_INTRUDER_LOCKED, false));
+        user.setMfaIntruderAttempts(getIntegerValue(entry, LDAP_ATTR_MFA_INTRUDER_ATTEMPTS, null));
+        user.setMfaIntruderResetTime(getTimeValue(entry, LDAP_ATTR_MFA_INTRUDER_RESET_TIME, null));
 
         // federated identities
         final Map<String, Double> facebookIdStrengths = this.getStrengthValues(entry, LDAP_ATTR_FACEBOOKIDSTRENGTH);
@@ -330,6 +342,14 @@ public abstract class AbstractUserLdapEntryMapper<O extends User> implements Lda
         return attr;
     }
 
+    protected final LdapAttribute attr(final String name, final Integer value) {
+        final LdapAttribute attr = new LdapAttribute(name);
+        if (value != null) {
+            attr.addValue(TRANSCODER_INTEGER, value);
+        }
+        return attr;
+    }
+
     protected final LdapAttribute attr(final String name, final ReadableInstant... values) {
         final LdapAttribute attr = new LdapAttribute(name);
         attr.addValue(TRANSCODER_INSTANT, values);
@@ -380,6 +400,20 @@ public abstract class AbstractUserLdapEntryMapper<O extends User> implements Lda
         final LdapAttribute attr = entry.getAttribute(attribute);
         if (attr != null) {
             final Boolean value = attr.getValue(TRANSCODER_BOOLEAN);
+            if (value != null) {
+                return value;
+            }
+        }
+
+        return defaultValue;
+    }
+
+    @Nullable
+    @Contract("_,_,!null -> !null")
+    protected final Integer getIntegerValue(final LdapEntry entry, final String attribute, final Integer defaultValue) {
+        final LdapAttribute attr = entry.getAttribute(attribute);
+        if (attr != null) {
+            final Integer value = attr.getValue(TRANSCODER_INTEGER);
             if (value != null) {
                 return value;
             }
