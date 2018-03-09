@@ -28,6 +28,9 @@ public class Constants {
     public static final String LDAP_ATTR_GRSTAGEPERSONID = "thekeyGrStagePersonId";
     public static final String LDAP_ATTR_DOMAINSVISITED = "thekeyDomainVisited";
 
+    // LDAP MFA attributes
+    public static final String LDAP_ATTR_MFA_SECRET = "thekeyMfaSecret";
+
     // LDAP group membership attributes
     public static final String LDAP_ATTR_GROUPS = "groupMembership";
     public static final String LDAP_ATTR_SECURITY_EQUALS = "securityEquals";

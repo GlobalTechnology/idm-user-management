@@ -26,6 +26,7 @@ import static org.ccci.idm.user.dao.ldap.Constants.LDAP_ATTR_GRSTAGEMASTERPERSON
 import static org.ccci.idm.user.dao.ldap.Constants.LDAP_ATTR_GRSTAGEPERSONID;
 import static org.ccci.idm.user.dao.ldap.Constants.LDAP_ATTR_LASTNAME;
 import static org.ccci.idm.user.dao.ldap.Constants.LDAP_ATTR_LOGINTIME;
+import static org.ccci.idm.user.dao.ldap.Constants.LDAP_ATTR_MFA_SECRET;
 import static org.ccci.idm.user.dao.ldap.Constants.LDAP_ATTR_OBJECTCLASS;
 import static org.ccci.idm.user.dao.ldap.Constants.LDAP_ATTR_PASSWORD;
 import static org.ccci.idm.user.dao.ldap.Constants.LDAP_ATTR_POSTAL_CODE;
@@ -76,6 +77,9 @@ public abstract class AbstractLdapUserDao extends AbstractUserDao {
                     LDAP_ATTR_OBJECTCLASS))
             .put(Attr.LOCATION, ImmutableSet.of(LDAP_ATTR_CITY, LDAP_ATTR_STATE, LDAP_ATTR_POSTAL_CODE,
                     LDAP_ATTR_COUNTRY, LDAP_ATTR_OBJECTCLASS))
+
+            // MFA attribute sets
+            .put(Attr.MFA_SECRET, ImmutableSet.of(LDAP_ATTR_MFA_SECRET, LDAP_ATTR_OBJECTCLASS))
 
             // Cru Relay Attributes
             .put(Attr.EMPLOYEE_NUMBER, ImmutableSet.of(LDAP_ATTR_EMPLOYEE_NUMBER, LDAP_ATTR_OBJECTCLASS))

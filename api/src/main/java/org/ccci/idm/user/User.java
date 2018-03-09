@@ -30,7 +30,8 @@ public class User implements Cloneable, Serializable {
 
     public enum Attr {
         EMAIL, PASSWORD, NAME, LOGINTIME, FLAGS, SELFSERVICEKEYS, DOMAINSVISITED, FACEBOOK, GLOBALREGISTRY, LOCATION,
-        EMPLOYEE_NUMBER, CRU_DESIGNATION, CONTACT, CRU_PREFERRED_NAME, CRU_PROXY_ADDRESSES, HUMAN_RESOURCE, SECURITYQA
+        EMPLOYEE_NUMBER, CRU_DESIGNATION, CONTACT, CRU_PREFERRED_NAME, CRU_PROXY_ADDRESSES, HUMAN_RESOURCE, SECURITYQA,
+        MFA_SECRET
     }
 
     @Nullable
@@ -65,6 +66,10 @@ public class User implements Cloneable, Serializable {
     private String changeEmailKey = null;
     private String resetPasswordKey = null;
     private String proposedEmail = null;
+
+    // mfa properties
+    @Nullable
+    private String mfaEncryptedSecret;
 
     // federated identities
     private String facebookId = null;
@@ -128,6 +133,9 @@ public class User implements Cloneable, Serializable {
         this.deactivated = source.deactivated;
         this.loginDisabled = source.loginDisabled;
         this.locked = source.locked;
+
+        // mfa attributes
+        mfaEncryptedSecret = source.mfaEncryptedSecret;
 
         this.domainsVisited.addAll(source.domainsVisited);
         this.groups.addAll(source.groups);
@@ -627,6 +635,19 @@ public class User implements Cloneable, Serializable {
 
     public void setProposedEmail(final String email) {
         this.proposedEmail = email;
+    }
+
+    public boolean isMfaEnabled() {
+        return mfaEncryptedSecret != null;
+    }
+
+    @Nullable
+    public String getMfaEncryptedSecret() {
+        return mfaEncryptedSecret;
+    }
+
+    public void setMfaEncryptedSecret(@Nullable final String encryptedSecret) {
+        mfaEncryptedSecret = encryptedSecret;
     }
 
     public void setFacebookId(final String id, final Number strength) {
