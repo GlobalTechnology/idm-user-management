@@ -26,9 +26,9 @@ import org.mockito.MockitoAnnotations;
 
 public class DefaultUserManagerMfaTest {
     private static final long TIME_INTERVAL = 1000;
-    private static final int MFA_INTRUDER_ATTEMPTS = 20;
-    private static final Duration MFA_RESET_INTERVAL = Duration.standardMinutes(10);
-    private static final Duration MFA_LOCK_DURATION = Duration.standardMinutes(15);
+    private static final int MFA_INTRUDER_ATTEMPTS = 11;
+    private static final Duration MFA_RESET_INTERVAL = Duration.standardMinutes(7);
+    private static final Duration MFA_LOCK_DURATION = Duration.standardMinutes(14);
 
     private DefaultUserManager userManager;
     @Mock
@@ -41,6 +41,7 @@ public class DefaultUserManagerMfaTest {
         userManager = new DefaultUserManager();
         userManager.setUserDao(userDao);
         userManager.setMfaIntruderAttempts(MFA_INTRUDER_ATTEMPTS);
+        userManager.setMfaIntruderResetInterval(MFA_RESET_INTERVAL);
         userManager.setMfaIntruderLockDuration(MFA_LOCK_DURATION);
     }
 
