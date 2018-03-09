@@ -62,7 +62,7 @@ public class DefaultUserManager implements UserManager {
 
     private static final EmailValidator VALIDATOR_EMAIL = EmailValidator.getInstance();
 
-    private int mfaIntruderAttempts = 20;
+    private int mfaIntruderAttempts = 10;
     @Nonnull
     private ReadableDuration mfaIntruderResetInterval = Duration.standardMinutes(10);
     @Nonnull
