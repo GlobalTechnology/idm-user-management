@@ -26,6 +26,9 @@ import static org.ccci.idm.user.dao.ldap.Constants.LDAP_ATTR_GRSTAGEMASTERPERSON
 import static org.ccci.idm.user.dao.ldap.Constants.LDAP_ATTR_GRSTAGEPERSONID;
 import static org.ccci.idm.user.dao.ldap.Constants.LDAP_ATTR_LASTNAME;
 import static org.ccci.idm.user.dao.ldap.Constants.LDAP_ATTR_LOGINTIME;
+import static org.ccci.idm.user.dao.ldap.Constants.LDAP_ATTR_MFA_INTRUDER_ATTEMPTS;
+import static org.ccci.idm.user.dao.ldap.Constants.LDAP_ATTR_MFA_INTRUDER_LOCKED;
+import static org.ccci.idm.user.dao.ldap.Constants.LDAP_ATTR_MFA_INTRUDER_RESET_TIME;
 import static org.ccci.idm.user.dao.ldap.Constants.LDAP_ATTR_MFA_SECRET;
 import static org.ccci.idm.user.dao.ldap.Constants.LDAP_ATTR_OBJECTCLASS;
 import static org.ccci.idm.user.dao.ldap.Constants.LDAP_ATTR_PASSWORD;
@@ -80,6 +83,8 @@ public abstract class AbstractLdapUserDao extends AbstractUserDao {
 
             // MFA attribute sets
             .put(Attr.MFA_SECRET, ImmutableSet.of(LDAP_ATTR_MFA_SECRET, LDAP_ATTR_OBJECTCLASS))
+            .put(Attr.MFA_INTRUDER_DETECTION, ImmutableSet.of(LDAP_ATTR_MFA_INTRUDER_LOCKED,
+                    LDAP_ATTR_MFA_INTRUDER_ATTEMPTS, LDAP_ATTR_MFA_INTRUDER_RESET_TIME, LDAP_ATTR_OBJECTCLASS))
 
             // Cru Relay Attributes
             .put(Attr.EMPLOYEE_NUMBER, ImmutableSet.of(LDAP_ATTR_EMPLOYEE_NUMBER, LDAP_ATTR_OBJECTCLASS))
