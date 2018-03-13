@@ -37,6 +37,7 @@ import org.ccci.idm.user.exception.UserNotFoundException;
 import org.ccci.idm.user.util.DefaultRandomPasswordGenerator;
 import org.ccci.idm.user.util.PasswordHistoryManager;
 import org.ccci.idm.user.util.RandomPasswordGenerator;
+import org.ccci.idm.user.util.UserUtil;
 import org.joda.time.Duration;
 import org.joda.time.Instant;
 import org.joda.time.Period;
@@ -184,8 +185,8 @@ public class DefaultUserManager implements UserManager {
         // generate a guid for the user if there isn't a valid one already set
         int count = 0;
         String guid = user.getGuid();
-        while (!StringUtils.hasText(guid) || this.doesGuidExist(guid) || this.doesRelayGuidExist(guid) || this
-                .doesTheKeyGuidExist(guid)) {
+        while (!UserUtil.isValidGuid(guid) || doesGuidExist(guid) || doesRelayGuidExist(guid) ||
+                doesTheKeyGuidExist(guid)) {
             guid = UUID.randomUUID().toString().toUpperCase(Locale.US);
             user.setGuid(guid);
 
