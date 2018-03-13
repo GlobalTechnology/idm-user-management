@@ -16,7 +16,7 @@ import java.util.UUID;
 public class UserUtilTest {
     @Test
     public void verifyIsValidGuidValid() {
-        for(int i = 0; i < 100; i++) {
+        for (int i = 0; i < 100; i++) {
             final String guid = UUID.randomUUID().toString();
             assertTrue(guid + " should be a valid guid", isValidGuid(guid));
             assertTrue(guid.toUpperCase() + " should be a valid guid", isValidGuid(guid.toUpperCase()));
