@@ -352,7 +352,11 @@ public abstract class AbstractUserLdapEntryMapper<O extends User> implements Lda
 
     protected final LdapAttribute attr(final String name, final ReadableInstant... values) {
         final LdapAttribute attr = new LdapAttribute(name);
-        attr.addValue(TRANSCODER_INSTANT, values);
+        for (final ReadableInstant value : values) {
+            if (value != null) {
+                attr.addValue(TRANSCODER_INSTANT, value);
+            }
+        }
         return attr;
     }
 
