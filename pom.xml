@@ -20,8 +20,8 @@
   </modules>
 
   <scm>
-    <connection>scm:git:git@github.com:GlobalTechnology/idm-user-management.git</connection>
-    <developerConnection>scm:git:git@github.com:GlobalTechnology/idm-user-management.git</developerConnection>
+    <connection>scm:git:git@github.com:CruGlobal/idm-user-management.git</connection>
+    <developerConnection>scm:git:git@github.com:CruGlobal/idm-user-management.git</developerConnection>
     <tag>HEAD</tag>
   </scm>
 
