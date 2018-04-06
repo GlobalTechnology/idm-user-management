@@ -24,6 +24,16 @@
     <developerConnection>scm:git:git@github.com:CruGlobal/idm-user-management.git</developerConnection>
     <tag>HEAD</tag>
   </scm>
+  <distributionManagement>
+    <repository>
+      <id>cruglobal.jfrog.io</id>
+      <url>https://cruglobal.jfrog.io/cruglobal/list/maven-cru-public-releases-local/</url>
+    </repository>
+    <snapshotRepository>
+      <id>cruglobal.jfrog.io</id>
+      <url>https://cruglobal.jfrog.io/cruglobal/list/maven-cru-public-snapshots-local/</url>
+    </snapshotRepository>
+  </distributionManagement>
 
   <properties>
     <maven.compiler.source>1.6</maven.compiler.source>
@@ -162,6 +172,7 @@
 
   <build>
     <plugins>
+      <!-- Coveralls code coverage plugins -->
       <plugin>
         <groupId>org.eluder.coveralls</groupId>
         <artifactId>coveralls-maven-plugin</artifactId>
@@ -177,20 +188,6 @@
             <goals>
               <goal>prepare-agent</goal>
             </goals>
-          </execution>
-        </executions>
-      </plugin>
-      <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-deploy-plugin</artifactId>
-        <executions>
-          <execution>
-            <id>default-deploy</id>
-            <phase>none</phase>
-          </execution>
-          <execution>
-            <id>public-deploy</id>
-            <phase>deploy</phase>
           </execution>
         </executions>
       </plugin>
