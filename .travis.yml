@@ -2,6 +2,10 @@ language: java
 sudo: false
 jdk:
   - oraclejdk8
+env:
+  global:
+    - DEPLOY_USERNAME=travis-ci-idm-user-manager
+    - secure: TaNZdGIEmsdv9p9xcyolbbFANMfCaPDoI1OaTkfRG92Qy+J1x/IDqokqlG2RCXSRSFG/MaSAgoWuU6Xza7VXmaVBHKlFHiS9EqzzvUnkkrGY4qZJDMRV1EC+NBiDbKMGzp97oL8cg2cc8g0wr9ZmzA6QnY8JLcTSFpeFoa+xXUQ=
 branches:
   only:
     - master
@@ -9,9 +13,20 @@ branches:
 cache:
   directories:
     - $HOME/.m2/repository
+before_cache:
+  - rm -rf $HOME/.m2/repository/org/ccci/gto/idm-user-management*
 
 after_success:
   - mvn jacoco:report coveralls:report -DrepoToken=$COVERALLS_REPO_TOKEN
+
+deploy:
+  provider: script
+  skip_cleanup: true
+  script: "cp .travis.settings.xml $HOME/.m2/settings.xml && mvn deploy -DskipTests=true"
+  on:
+    repo: CruGlobal/idm-user-management
+    branch: master
+    jdk: oraclejdk8
 
 notifications:
   email: false
