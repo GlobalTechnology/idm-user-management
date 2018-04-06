@@ -38,6 +38,9 @@
   <properties>
     <maven.compiler.source>1.6</maven.compiler.source>
     <maven.compiler.target>1.6</maven.compiler.target>
+    <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+    <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
+
     <commons-collections.version>3.2.1</commons-collections.version>
     <commons-validator.version>1.6</commons-validator.version>
     <google-guava.version>18.0</google-guava.version>
