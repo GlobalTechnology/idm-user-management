@@ -22,11 +22,11 @@
   <distributionManagement>
     <repository>
       <id>cruglobal.jfrog.io</id>
-      <url>https://cruglobal.jfrog.io/cruglobal/list/maven-cru-public-releases-local/</url>
+      <url>https://cruglobal.jfrog.io/cruglobal/list/maven-cru-private-releases-local/</url>
     </repository>
     <snapshotRepository>
       <id>cruglobal.jfrog.io</id>
-      <url>https://cruglobal.jfrog.io/cruglobal/list/maven-cru-public-snapshots-local/</url>
+      <url>https://cruglobal.jfrog.io/cruglobal/list/maven-cru-private-snapshots-local/</url>
     </snapshotRepository>
   </distributionManagement>
 
