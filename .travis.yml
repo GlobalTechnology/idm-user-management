@@ -4,8 +4,8 @@ jdk:
   - oraclejdk8
 env:
   global:
-    - DEPLOY_USERNAME=travis-ci-idm-user-manager
-    - secure: TaNZdGIEmsdv9p9xcyolbbFANMfCaPDoI1OaTkfRG92Qy+J1x/IDqokqlG2RCXSRSFG/MaSAgoWuU6Xza7VXmaVBHKlFHiS9EqzzvUnkkrGY4qZJDMRV1EC+NBiDbKMGzp97oL8cg2cc8g0wr9ZmzA6QnY8JLcTSFpeFoa+xXUQ=
+    - DEPLOY_USERNAME=travis-ci-idm-user-management
+    - secure: PxWADglXd2eOJ6YrpuILdlZfW7B3RDIj8hXTfNzk26cojXND/AwqERKXbHXuE0/qjsZ2alLhPsCKFZLyGKeII9pKc1g2q66BqBOV4rN4xioRB27qHoOC/ZPsnF96eyeXIBmF/Lw92xkja4rWOB8e3T7f0+eJBUI4r5wyxlqem4A=
 branches:
   only:
     - master
