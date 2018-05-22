@@ -13,7 +13,7 @@
   <bean id="ldap.connection.factory.management" class="org.ldaptive.DefaultConnectionFactory">
     <property name="connectionConfig">
       <bean class="org.ldaptive.ConnectionConfig"
-          p:ldapUrl="${ldap.url:#{null}}"
+          p:ldapUrl="${ldap.url:ldaps://localhost}"
           p:useSSL="true"
           p:sslConfig-ref="ldap.config.ssl">
         <property name="connectionInitializer">
