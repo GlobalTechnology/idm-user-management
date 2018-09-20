@@ -29,6 +29,7 @@ public class Constants {
     public static final String LDAP_ATTR_DOMAINSVISITED = "thekeyDomainVisited";
 
     // LDAP MFA attributes
+    public static final String LDAP_ATTR_MFA_BYPASS = "thekeyMfaBypass";
     public static final String LDAP_ATTR_MFA_SECRET = "thekeyMfaSecret";
     public static final String LDAP_ATTR_MFA_INTRUDER_LOCKED = "thekeyMfaIntruderLocked";
     public static final String LDAP_ATTR_MFA_INTRUDER_ATTEMPTS = "thekeyMfaIntruderAttempts";

@@ -68,6 +68,7 @@ public class User implements Cloneable, Serializable {
     private String proposedEmail = null;
 
     // mfa properties
+    private boolean mfaBypassed = false;
     @Nullable
     private String mfaEncryptedSecret;
     private boolean mfaIntruderLocked = false;
@@ -645,10 +646,18 @@ public class User implements Cloneable, Serializable {
         this.proposedEmail = email;
     }
 
-    // MFA related methods
+    // region MFA related methods
 
     public boolean isMfaEnabled() {
         return mfaEncryptedSecret != null;
+    }
+
+    public boolean isMfaBypassed() {
+        return mfaBypassed;
+    }
+
+    public void setMfaBypassed(final boolean bypassed) {
+        mfaBypassed = bypassed;
     }
 
     @Nullable
@@ -707,6 +716,8 @@ public class User implements Cloneable, Serializable {
         }
         return false;
     }
+
+    // endregion MFA related methods
 
     public void setFacebookId(final String id, final Number strength) {
         this.facebookId = id;

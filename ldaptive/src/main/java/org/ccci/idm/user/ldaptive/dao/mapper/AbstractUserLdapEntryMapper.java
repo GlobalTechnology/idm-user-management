@@ -29,6 +29,7 @@ import static org.ccci.idm.user.dao.ldap.Constants.LDAP_ATTR_GRSTAGEPERSONID;
 import static org.ccci.idm.user.dao.ldap.Constants.LDAP_ATTR_GUID;
 import static org.ccci.idm.user.dao.ldap.Constants.LDAP_ATTR_LASTNAME;
 import static org.ccci.idm.user.dao.ldap.Constants.LDAP_ATTR_LOGINTIME;
+import static org.ccci.idm.user.dao.ldap.Constants.LDAP_ATTR_MFA_BYPASS;
 import static org.ccci.idm.user.dao.ldap.Constants.LDAP_ATTR_MFA_INTRUDER_ATTEMPTS;
 import static org.ccci.idm.user.dao.ldap.Constants.LDAP_ATTR_MFA_INTRUDER_LOCKED;
 import static org.ccci.idm.user.dao.ldap.Constants.LDAP_ATTR_MFA_INTRUDER_RESET_TIME;
@@ -163,6 +164,7 @@ public abstract class AbstractUserLdapEntryMapper<O extends User> implements Lda
         entry.addAttribute(user.isLocked() ? this.attr(LDAP_FLAG_LOCKED, true) : this.attr(LDAP_FLAG_LOCKED));
 
         // set MFA attributes
+        entry.addAttribute(attr(LDAP_ATTR_MFA_BYPASS, user.isMfaBypassed()));
         entry.addAttribute(attr(LDAP_ATTR_MFA_SECRET, user.getMfaEncryptedSecret()));
         entry.addAttribute(attr(LDAP_ATTR_MFA_INTRUDER_LOCKED, user.isMfaIntruderLocked()));
         entry.addAttribute(attr(LDAP_ATTR_MFA_INTRUDER_ATTEMPTS, user.getMfaIntruderAttempts()));
@@ -255,6 +257,7 @@ public abstract class AbstractUserLdapEntryMapper<O extends User> implements Lda
         user.setPasswordChangedTime(this.getTimeValue(entry, LDAP_ATTR_PASSWORDCHANGEDTIME));
 
         // MFA attributes
+        user.setMfaBypassed(getBooleanValue(entry, LDAP_ATTR_MFA_BYPASS, user.isMfaBypassed()));
         user.setMfaEncryptedSecret(getStringValue(entry, LDAP_ATTR_MFA_SECRET));
         user.setMfaIntruderLocked(getBooleanValue(entry, LDAP_ATTR_MFA_INTRUDER_LOCKED, false));
         user.setMfaIntruderAttempts(getIntegerValue(entry, LDAP_ATTR_MFA_INTRUDER_ATTEMPTS, null));
