@@ -90,6 +90,10 @@ public class User implements Cloneable, Serializable {
     private String grPersonId;
     @Nullable
     private String grStagePersonId;
+    @Nullable
+    private String grSyncChecksum;
+    @Nullable
+    private String grStageSyncChecksum;
 
     // miscellaneous implementation meta-data
     @Nonnull
@@ -747,6 +751,8 @@ public class User implements Cloneable, Serializable {
         }
     }
 
+    // region Global Registry related methods
+
     @Nullable
     public String getGrMasterPersonId() {
         return grMasterPersonId;
@@ -782,6 +788,26 @@ public class User implements Cloneable, Serializable {
     public void setGrStagePersonId(@Nullable final String id) {
         grStagePersonId = id;
     }
+
+    @Nullable
+    public String getGrSyncChecksum() {
+        return grSyncChecksum;
+    }
+
+    public void setGrSyncChecksum(@Nullable final String checksum) {
+        grSyncChecksum = checksum;
+    }
+
+    @Nullable
+    public String getGrStageSyncChecksum() {
+        return grStageSyncChecksum;
+    }
+
+    public void setGrStageSyncChecksum(@Nullable final String checksum) {
+        grStageSyncChecksum = checksum;
+    }
+
+    // endregion Global Registry related methods
 
     /**
      * This method is for use by UserDao &amp; UserManager implementations only and is not meant for public use.

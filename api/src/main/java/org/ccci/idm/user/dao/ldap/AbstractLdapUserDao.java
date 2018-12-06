@@ -24,6 +24,8 @@ import static org.ccci.idm.user.dao.ldap.Constants.LDAP_ATTR_GRMASTERPERSONID;
 import static org.ccci.idm.user.dao.ldap.Constants.LDAP_ATTR_GRPERSONID;
 import static org.ccci.idm.user.dao.ldap.Constants.LDAP_ATTR_GRSTAGEMASTERPERSONID;
 import static org.ccci.idm.user.dao.ldap.Constants.LDAP_ATTR_GRSTAGEPERSONID;
+import static org.ccci.idm.user.dao.ldap.Constants.LDAP_ATTR_GR_SYNC_CHECKSUM;
+import static org.ccci.idm.user.dao.ldap.Constants.LDAP_ATTR_GR_SYNC_CHECKSUM_STAGE;
 import static org.ccci.idm.user.dao.ldap.Constants.LDAP_ATTR_LASTNAME;
 import static org.ccci.idm.user.dao.ldap.Constants.LDAP_ATTR_LOGINTIME;
 import static org.ccci.idm.user.dao.ldap.Constants.LDAP_ATTR_MFA_INTRUDER_ATTEMPTS;
@@ -77,6 +79,8 @@ public abstract class AbstractLdapUserDao extends AbstractUserDao {
                     LDAP_ATTR_GRSTAGEMASTERPERSONID,
                     LDAP_ATTR_GRPERSONID,
                     LDAP_ATTR_GRSTAGEPERSONID,
+                    LDAP_ATTR_GR_SYNC_CHECKSUM,
+                    LDAP_ATTR_GR_SYNC_CHECKSUM_STAGE,
                     LDAP_ATTR_OBJECTCLASS))
             .put(Attr.LOCATION, ImmutableSet.of(LDAP_ATTR_CITY, LDAP_ATTR_STATE, LDAP_ATTR_POSTAL_CODE,
                     LDAP_ATTR_COUNTRY, LDAP_ATTR_OBJECTCLASS))
