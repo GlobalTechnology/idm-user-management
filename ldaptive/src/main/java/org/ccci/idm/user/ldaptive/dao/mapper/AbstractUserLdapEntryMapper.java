@@ -26,6 +26,8 @@ import static org.ccci.idm.user.dao.ldap.Constants.LDAP_ATTR_GROUPS;
 import static org.ccci.idm.user.dao.ldap.Constants.LDAP_ATTR_GRPERSONID;
 import static org.ccci.idm.user.dao.ldap.Constants.LDAP_ATTR_GRSTAGEMASTERPERSONID;
 import static org.ccci.idm.user.dao.ldap.Constants.LDAP_ATTR_GRSTAGEPERSONID;
+import static org.ccci.idm.user.dao.ldap.Constants.LDAP_ATTR_GR_SYNC_CHECKSUM;
+import static org.ccci.idm.user.dao.ldap.Constants.LDAP_ATTR_GR_SYNC_CHECKSUM_STAGE;
 import static org.ccci.idm.user.dao.ldap.Constants.LDAP_ATTR_GUID;
 import static org.ccci.idm.user.dao.ldap.Constants.LDAP_ATTR_LASTNAME;
 import static org.ccci.idm.user.dao.ldap.Constants.LDAP_ATTR_LOGINTIME;
@@ -199,6 +201,8 @@ public abstract class AbstractUserLdapEntryMapper<O extends User> implements Lda
         entry.addAttribute(attr(LDAP_ATTR_GRSTAGEMASTERPERSONID, user.getGrStageMasterPersonId()));
         entry.addAttribute(attr(LDAP_ATTR_GRPERSONID, user.getGrPersonId()));
         entry.addAttribute(attr(LDAP_ATTR_GRSTAGEPERSONID, user.getGrStagePersonId()));
+        entry.addAttribute(attr(LDAP_ATTR_GR_SYNC_CHECKSUM, user.getGrSyncChecksum()));
+        entry.addAttribute(attr(LDAP_ATTR_GR_SYNC_CHECKSUM_STAGE, user.getGrStageSyncChecksum()));
 
         // cru person attributes
         entry.addAttribute(this.attr(LDAP_ATTR_CRU_DESIGNATION, user.getCruDesignation()));
@@ -274,6 +278,8 @@ public abstract class AbstractUserLdapEntryMapper<O extends User> implements Lda
         user.setGrStageMasterPersonId(getStringValue(entry, LDAP_ATTR_GRSTAGEMASTERPERSONID));
         user.setGrPersonId(getStringValue(entry, LDAP_ATTR_GRPERSONID));
         user.setGrStagePersonId(getStringValue(entry, LDAP_ATTR_GRSTAGEPERSONID));
+        user.setGrSyncChecksum(getStringValue(entry, LDAP_ATTR_GR_SYNC_CHECKSUM));
+        user.setGrStageSyncChecksum(getStringValue(entry, LDAP_ATTR_GR_SYNC_CHECKSUM_STAGE));
 
         // Multi-value attributes
         user.setGroups(this.getGroupValues(entry, LDAP_ATTR_GROUPS));
