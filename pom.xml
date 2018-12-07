@@ -10,7 +10,6 @@
   <modules>
     <module>api</module>
     <module>inspektr</module>
-    <module>inspektr-legacy</module>
     <module>ldaptive</module>
   </modules>
 
@@ -40,7 +39,6 @@
     <commons-validator.version>1.6</commons-validator.version>
     <google-guava.version>18.0</google-guava.version>
     <inspektr.version>1.7.GA</inspektr.version>
-    <inspektr-jasig.version>1.2.GA</inspektr-jasig.version>
     <javax.validation.version>1.0.0.GA</javax.validation.version>
     <joda-time.version>2.4</joda-time.version>
     <jsr305.version>3.0.0</jsr305.version>
