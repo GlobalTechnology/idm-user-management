@@ -39,6 +39,7 @@ import org.ccci.idm.user.dao.exception.ExceededMaximumAllowedResultsException;
 import org.ccci.idm.user.dao.exception.InterruptedDaoException;
 import org.ccci.idm.user.dao.ldap.AbstractLdapUserDao;
 import org.ccci.idm.user.ldaptive.dao.exception.LdaptiveDaoException;
+import org.ccci.idm.user.ldaptive.dao.exception.RuntimeLdaptiveException;
 import org.ccci.idm.user.ldaptive.dao.filter.AndFilter;
 import org.ccci.idm.user.ldaptive.dao.filter.BaseFilter;
 import org.ccci.idm.user.ldaptive.dao.filter.EqualsFilter;
@@ -81,7 +82,11 @@ import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
+import java.util.Spliterator;
+import java.util.Spliterators;
 import java.util.concurrent.BlockingQueue;
+import java.util.stream.Stream;
+import java.util.stream.StreamSupport;
 
 public class LdaptiveUserDao extends AbstractLdapUserDao {
     private static final Logger LOG = LoggerFactory.getLogger(LdaptiveUserDao.class);
@@ -284,6 +289,39 @@ public class LdaptiveUserDao extends AbstractLdapUserDao {
         }
     }
 
+    @Nonnull
+    private Stream<User> streamAllByFilter(@Nullable BaseFilter filter,  final boolean includeDeactivated) {
+        // restrict filter as necessary
+        filter = filter != null ? filter.and(FILTER_PERSON) : FILTER_PERSON;
+        if (!includeDeactivated) {
+            filter = filter.and(FILTER_NOT_DEACTIVATED);
+        }
+
+        // build search request
+        final SearchRequest request = new SearchRequest(baseSearchDn, filter);
+        request.setReturnAttributes("*", LDAP_ATTR_PASSWORDCHANGEDTIME);
+
+        // open connection
+        Connection conn = null;
+        try {
+            conn = connectionFactory.getConnection();
+            conn.open();
+        } catch (LdapException e) {
+            LdapUtils.closeConnection(conn);
+            throw new RuntimeLdaptiveException(e);
+        }
+
+        // create the iterator and Stream
+        final Iterator<LdapEntry> iterator = new SearchRequestIterator(conn, request, maxPageSize);
+        return StreamSupport.stream(Spliterators.spliteratorUnknownSize(iterator, Spliterator.NONNULL), false)
+                .onClose(conn::close)
+                .map(e -> {
+                    final User user = new User();
+                    userMapper.map(e, user);
+                    return user;
+                });
+    }
+
     private User findByFilter(final BaseFilter filter, final boolean includeDeactivated) {
         try {
             final List<User> results = findAllByFilter(filter, includeDeactivated, 1, false);
@@ -428,6 +466,12 @@ public class LdaptiveUserDao extends AbstractLdapUserDao {
     public int enqueueAll(@Nonnull final BlockingQueue<User> queue, final boolean includeDeactivated)
             throws DaoException {
         return enqueueAllByFilter(queue, null, includeDeactivated, SEARCH_NO_LIMIT, false);
+    }
+
+    @Nonnull
+    @Override
+    public Stream<User> streamUsers(final boolean includeDeactivated) {
+        return streamAllByFilter(null, includeDeactivated);
     }
 
     @Override

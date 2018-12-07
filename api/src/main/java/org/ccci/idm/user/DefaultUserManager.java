@@ -57,6 +57,7 @@ import java.util.List;
 import java.util.Locale;
 import java.util.UUID;
 import java.util.concurrent.BlockingQueue;
+import java.util.stream.Stream;
 
 public class DefaultUserManager implements UserManager {
     private static final Logger LOG = LoggerFactory.getLogger(DefaultUserManager.class);
@@ -471,6 +472,11 @@ public class DefaultUserManager implements UserManager {
     public int enqueueAll(@Nonnull final BlockingQueue<User> queue, final boolean includeDeactivated)
             throws DaoException {
         return this.userDao.enqueueAll(queue, includeDeactivated);
+    }
+
+    @Override
+    public Stream<User> streamUsers(final boolean includeDeactivated) {
+        return userDao.streamUsers(includeDeactivated);
     }
 
     @Override

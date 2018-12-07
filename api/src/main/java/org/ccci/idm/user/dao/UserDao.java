@@ -12,6 +12,7 @@ import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.util.List;
 import java.util.concurrent.BlockingQueue;
+import java.util.stream.Stream;
 
 public interface UserDao {
     /**
@@ -171,6 +172,15 @@ public interface UserDao {
      * @return number of users enqueued
      */
     int enqueueAll(@Nonnull BlockingQueue<User> queue, boolean includeDeactivated) throws DaoException;
+
+    /**
+     * Provide a Java 8 Stream over all the users. This stream needs to be closed after use.
+     *
+     * @param includeDeactivated Whether deactivated users should be included in the Stream
+     * @return a Stream of all users
+     */
+    @Nonnull
+    Stream<User> streamUsers(boolean includeDeactivated);
 
     /**
      * Add user to group
