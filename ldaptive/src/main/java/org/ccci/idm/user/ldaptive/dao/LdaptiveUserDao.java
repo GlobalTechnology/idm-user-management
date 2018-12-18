@@ -289,8 +289,16 @@ public class LdaptiveUserDao extends AbstractLdapUserDao {
         }
     }
 
+    /**
+     * @param filter             the LDAP search filter to use when searching
+     * @param includeDeactivated whether deactivated users should be included with the results
+     * @param limit              the maximum number of results to return, a limit of 0 indicates that all results should
+     *                           be returned
+     * @return a stream with User's matching the specified filters
+     */
     @Nonnull
-    private Stream<User> streamAllByFilter(@Nullable BaseFilter filter,  final boolean includeDeactivated) {
+    private Stream<User> streamAllByFilter(@Nullable BaseFilter filter, final boolean includeDeactivated,
+                                           final int limit) {
         // restrict filter as necessary
         filter = filter != null ? filter.and(FILTER_PERSON) : FILTER_PERSON;
         if (!includeDeactivated) {
@@ -300,6 +308,12 @@ public class LdaptiveUserDao extends AbstractLdapUserDao {
         // build search request
         final SearchRequest request = new SearchRequest(baseSearchDn, filter);
         request.setReturnAttributes("*", LDAP_ATTR_PASSWORDCHANGEDTIME);
+
+        // calculate the page size based on the provided limit & maxPageSize
+        int pageSize = maxPageSize;
+        if (limit != SEARCH_NO_LIMIT && pageSize > limit) {
+            pageSize = limit;
+        }
 
         // open connection
         Connection conn = null;
@@ -312,9 +326,13 @@ public class LdaptiveUserDao extends AbstractLdapUserDao {
         }
 
         // create the iterator and Stream
-        final Iterator<LdapEntry> iterator = new SearchRequestIterator(conn, request, maxPageSize);
-        return StreamSupport.stream(Spliterators.spliteratorUnknownSize(iterator, Spliterator.NONNULL), false)
-                .onClose(conn::close)
+        final Iterator<LdapEntry> iterator = new SearchRequestIterator(conn, request, pageSize);
+        Stream<LdapEntry> raw = StreamSupport.stream(Spliterators.spliteratorUnknownSize(iterator, Spliterator.NONNULL), false)
+                .onClose(conn::close);
+        if (limit != SEARCH_NO_LIMIT) {
+            raw = raw.limit(limit);
+        }
+        return raw
                 .map(e -> {
                     final User user = new User();
                     userMapper.map(e, user);
@@ -471,7 +489,7 @@ public class LdaptiveUserDao extends AbstractLdapUserDao {
     @Nonnull
     @Override
     public Stream<User> streamUsers(final boolean includeDeactivated) {
-        return streamAllByFilter(null, includeDeactivated);
+        return streamAllByFilter(null, includeDeactivated, SEARCH_NO_LIMIT);
     }
 
     @Override
