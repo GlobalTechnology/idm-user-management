@@ -84,6 +84,7 @@ import java.util.Set;
 import java.util.Spliterator;
 import java.util.Spliterators;
 import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
 
@@ -289,15 +290,16 @@ public class LdaptiveUserDao extends AbstractLdapUserDao {
     }
 
     /**
-     * @param filter             the LDAP search filter to use when searching
-     * @param includeDeactivated whether deactivated users should be included with the results
-     * @param limit              the maximum number of results to return, a limit of 0 indicates that all results should
-     *                           be returned
+     * @param filter                    the LDAP search filter to use when searching
+     * @param includeDeactivated        whether deactivated users should be included with the results
+     * @param limit                     the maximum number of results to return, a limit of 0 indicates that all results
+     *                                  should be returned
+     * @param restrictMaxAllowedResults a flag indicating if maxSearchResults should be observed
      * @return a stream with User's matching the specified filters
      */
     @Nonnull
     private Stream<User> streamAllByFilter(@Nullable BaseFilter filter, final boolean includeDeactivated,
-                                           final int limit) {
+                                           final int limit, final boolean restrictMaxAllowedResults) {
         // restrict filter as necessary
         filter = filter != null ? filter.and(FILTER_PERSON) : FILTER_PERSON;
         if (!includeDeactivated) {
@@ -308,10 +310,13 @@ public class LdaptiveUserDao extends AbstractLdapUserDao {
         final SearchRequest request = new SearchRequest(baseSearchDn, filter);
         request.setReturnAttributes("*", LDAP_ATTR_PASSWORDCHANGEDTIME);
 
-        // calculate the page size based on the provided limit & maxPageSize
+        // calculate the page size based on the provided limit, maxPageSize, and maxSearchResults
         int pageSize = maxPageSize;
         if (limit != SEARCH_NO_LIMIT && pageSize > limit) {
             pageSize = limit;
+        }
+        if (restrictMaxAllowedResults && maxSearchResults != SEARCH_NO_LIMIT && pageSize > maxSearchResults + 1) {
+            pageSize = maxSearchResults + 1;
         }
 
         // open connection
@@ -328,6 +333,17 @@ public class LdaptiveUserDao extends AbstractLdapUserDao {
         final Iterator<LdapEntry> iterator = new SearchRequestIterator(conn, request, pageSize);
         Stream<LdapEntry> raw = StreamSupport.stream(Spliterators.spliteratorUnknownSize(iterator, Spliterator.NONNULL), false)
                 .onClose(conn::close);
+        if (restrictMaxAllowedResults && maxSearchResults != SEARCH_NO_LIMIT) {
+            final AtomicInteger count = new AtomicInteger(0);
+            final BaseFilter finalFilter = filter;
+            raw = raw.peek(entry -> {
+                if (count.incrementAndGet() > maxSearchResults) {
+                    LOG.debug("Search exceeds maxSearchResults of {}: Filter: {} Limit: {}", maxSearchResults,
+                            finalFilter.format(), limit);
+                    throw new ExceededMaximumAllowedResultsException();
+                }
+            });
+        }
         if (limit != SEARCH_NO_LIMIT) {
             raw = raw.limit(limit);
         }
@@ -488,7 +504,7 @@ public class LdaptiveUserDao extends AbstractLdapUserDao {
     @Nonnull
     @Override
     public Stream<User> streamUsers(final boolean includeDeactivated) {
-        return streamAllByFilter(null, includeDeactivated, SEARCH_NO_LIMIT);
+        return streamAllByFilter(null, includeDeactivated, SEARCH_NO_LIMIT, false);
     }
 
     @Override
