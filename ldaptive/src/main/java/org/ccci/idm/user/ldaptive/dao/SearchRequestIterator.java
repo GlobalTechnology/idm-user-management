@@ -1,6 +1,6 @@
 package org.ccci.idm.user.ldaptive.dao;
 
-import org.ccci.idm.user.ldaptive.dao.exception.RuntimeLdaptiveException;
+import org.ccci.idm.user.ldaptive.dao.exception.LdaptiveDaoException;
 import org.ldaptive.Connection;
 import org.ldaptive.LdapEntry;
 import org.ldaptive.LdapException;
@@ -80,7 +80,7 @@ public class SearchRequestIterator implements Iterator<LdapEntry> {
         try {
             response = search.execute(searchRequest);
         } catch (LdapException e) {
-            throw new RuntimeLdaptiveException(e);
+            throw new LdaptiveDaoException(e);
         }
 
         // process the PRC in the response

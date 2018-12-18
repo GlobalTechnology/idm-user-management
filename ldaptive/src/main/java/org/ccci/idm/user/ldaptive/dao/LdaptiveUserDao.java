@@ -39,7 +39,6 @@ import org.ccci.idm.user.dao.exception.ExceededMaximumAllowedResultsException;
 import org.ccci.idm.user.dao.exception.InterruptedDaoException;
 import org.ccci.idm.user.dao.ldap.AbstractLdapUserDao;
 import org.ccci.idm.user.ldaptive.dao.exception.LdaptiveDaoException;
-import org.ccci.idm.user.ldaptive.dao.exception.RuntimeLdaptiveException;
 import org.ccci.idm.user.ldaptive.dao.filter.AndFilter;
 import org.ccci.idm.user.ldaptive.dao.filter.BaseFilter;
 import org.ccci.idm.user.ldaptive.dao.filter.EqualsFilter;
@@ -322,7 +321,7 @@ public class LdaptiveUserDao extends AbstractLdapUserDao {
             conn.open();
         } catch (LdapException e) {
             LdapUtils.closeConnection(conn);
-            throw new RuntimeLdaptiveException(e);
+            throw new LdaptiveDaoException(e);
         }
 
         // create the iterator and Stream
