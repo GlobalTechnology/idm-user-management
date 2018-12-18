@@ -1,5 +1,6 @@
 package org.ccci.idm.user.ldaptive.dao;
 
+import org.ccci.idm.user.dao.exception.InterruptedDaoException;
 import org.ccci.idm.user.ldaptive.dao.exception.LdaptiveDaoException;
 import org.ldaptive.Connection;
 import org.ldaptive.LdapEntry;
@@ -10,13 +11,18 @@ import org.ldaptive.SearchRequest;
 import org.ldaptive.SearchResult;
 import org.ldaptive.control.PagedResultsControl;
 import org.ldaptive.control.ResponseControl;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+import javax.naming.InterruptedNamingException;
 import java.util.Collections;
 import java.util.Iterator;
 
 public class SearchRequestIterator implements Iterator<LdapEntry> {
+    private static final Logger LOG = LoggerFactory.getLogger(SearchRequestIterator.class);
+
     @Nonnull
     private final Connection conn;
     @Nonnull
@@ -80,7 +86,12 @@ public class SearchRequestIterator implements Iterator<LdapEntry> {
         try {
             response = search.execute(searchRequest);
         } catch (LdapException e) {
-            throw new LdaptiveDaoException(e);
+            LOG.debug("error performing Ldap SearchRequest, wrapping & propagating exception", e);
+            if (e.getCause() instanceof InterruptedNamingException) {
+                throw new InterruptedDaoException(e);
+            } else {
+                throw new LdaptiveDaoException(e);
+            }
         }
 
         // process the PRC in the response
