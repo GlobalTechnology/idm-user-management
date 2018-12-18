@@ -277,7 +277,9 @@ public interface UserManager {
      * @param queue              The {@link BlockingQueue} to add all users to.
      * @param includeDeactivated If <tt>true</tt> then deactivated accounts are included.
      * @return number of users enqueued
+     * @deprecated Since 1.0.0, use {@link UserManager#streamUsers(boolean)} instead.
      */
+    @Deprecated
     int enqueueAll(@Nonnull BlockingQueue<User> queue, boolean includeDeactivated) throws DaoException;
 
     /**

@@ -384,6 +384,7 @@ public class LdaptiveUserDao extends AbstractLdapUserDao {
     }
 
     @Override
+    @Deprecated
     public int enqueueAll(@Nonnull final BlockingQueue<User> queue, final boolean includeDeactivated)
             throws DaoException {
         try (Stream<User> users = streamUsersByFilter(null, includeDeactivated, SEARCH_NO_LIMIT, false)) {

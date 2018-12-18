@@ -469,6 +469,7 @@ public class DefaultUserManager implements UserManager {
     }
 
     @Override
+    @Deprecated
     public int enqueueAll(@Nonnull final BlockingQueue<User> queue, final boolean includeDeactivated)
             throws DaoException {
         return this.userDao.enqueueAll(queue, includeDeactivated);
