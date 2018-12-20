@@ -21,6 +21,7 @@ import static org.ccci.idm.user.dao.ldap.Constants.LDAP_OBJECTCLASS_GROUP_OF_NAM
 import static org.ccci.idm.user.dao.ldap.Constants.LDAP_OBJECTCLASS_PERSON;
 
 import com.google.common.annotations.Beta;
+import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.MoreObjects;
 import com.google.common.base.Objects;
 import com.google.common.base.Predicate;
@@ -205,15 +206,6 @@ public class LdaptiveUserDao extends AbstractLdapUserDao {
         final SearchRequest request = new SearchRequest(baseSearchDn, filter);
         request.setReturnAttributes("*", LDAP_ATTR_PASSWORDCHANGEDTIME);
 
-        // calculate the page size based on the provided limit, maxPageSize, and maxSearchResults
-        int pageSize = maxPageSize;
-        if (limit != SEARCH_NO_LIMIT && pageSize > limit) {
-            pageSize = limit;
-        }
-        if (restrictMaxAllowedResults && maxSearchResults != SEARCH_NO_LIMIT && pageSize > maxSearchResults + 1) {
-            pageSize = maxSearchResults + 1;
-        }
-
         // open connection
         Connection conn = null;
         try {
@@ -225,6 +217,7 @@ public class LdaptiveUserDao extends AbstractLdapUserDao {
         }
 
         // create the iterator and Stream
+        final int pageSize = calculatePageSize(limit, restrictMaxAllowedResults);
         final Iterator<LdapEntry> iterator = new SearchRequestIterator(conn, request, pageSize);
         Stream<LdapEntry> raw = StreamSupport.stream(Spliterators.spliteratorUnknownSize(iterator, Spliterator.NONNULL), false)
                 .onClose(conn::close);
@@ -557,15 +550,9 @@ public class LdaptiveUserDao extends AbstractLdapUserDao {
             SearchOperation search = new SearchOperation(conn);
             final SearchRequest request = new SearchRequest(DnUtils.toString(searchDn), filter);
 
-            // calculate the page size based on the provided limit & maxPageSize
-            int pageSize = maxPageSize;
-            if (limit != SEARCH_NO_LIMIT && pageSize > limit) {
-                pageSize = limit;
-            }
-            if (restrictMaxAllowedResults && maxPageSize != SEARCH_NO_LIMIT && pageSize > maxPageSize + 1) {
-                pageSize = maxPageSize + 1;
-            }
-            final PagedResultsControl prc = new PagedResultsControl(pageSize);
+            // restrict results to the specified page size
+            final PagedResultsControl prc =
+                    new PagedResultsControl(calculatePageSize(limit, restrictMaxAllowedResults));
             request.setControls(prc);
 
             // retrieve results
@@ -699,6 +686,19 @@ public class LdaptiveUserDao extends AbstractLdapUserDao {
         // execute the ModifyOperation
         new ModifyOperation(conn).execute(new ModifyRequest(dn, modifications.toArray(new
                 AttributeModification[modifications.size()])));
+    }
+
+    @VisibleForTesting
+    int calculatePageSize(final int limit, final boolean restrictMaxAllowedResults) {
+        // calculate the page size based on the provided limit, maxPageSize, and maxSearchResults
+        int pageSize = maxPageSize;
+        if (limit != SEARCH_NO_LIMIT && pageSize > limit) {
+            pageSize = limit;
+        }
+        if (restrictMaxAllowedResults && maxSearchResults != SEARCH_NO_LIMIT && pageSize > maxSearchResults + 1) {
+            pageSize = maxSearchResults + 1;
+        }
+        return pageSize;
     }
 
     private DaoException convertLdapException(@Nonnull final LdapException e) {
