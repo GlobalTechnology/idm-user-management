@@ -1,5 +1,6 @@
 package org.ccci.idm.user.ldaptive.dao;
 
+import com.google.common.annotations.VisibleForTesting;
 import com.google.common.collect.AbstractIterator;
 import org.ccci.idm.user.dao.exception.InterruptedDaoException;
 import org.ccci.idm.user.ldaptive.dao.exception.LdaptiveDaoException;
@@ -25,7 +26,7 @@ class SearchRequestIterator extends AbstractIterator<LdapEntry> {
     private static final Logger LOG = LoggerFactory.getLogger(SearchRequestIterator.class);
 
     @Nonnull
-    private final SearchOperation search;
+    private final SearchOperation searchOperation;
     @Nonnull
     private final SearchRequest searchRequest;
     @Nonnull
@@ -36,15 +37,14 @@ class SearchRequestIterator extends AbstractIterator<LdapEntry> {
     private Iterator<LdapEntry> currentPage = null;
     private boolean hasAnotherPage = true;
 
-    public SearchRequestIterator(@Nonnull final Connection conn, @Nonnull final SearchRequest request) {
-        this(conn, request, 100);
+    SearchRequestIterator(@Nonnull final Connection connection, @Nonnull final SearchRequest request, int pageSize) {
+        this(buildOperation(connection), request, pageSize);
     }
 
-    SearchRequestIterator(@Nonnull final Connection connection, @Nonnull final SearchRequest request, int pageSize) {
-        if (!connection.isOpen()) {
-            throw new IllegalStateException("provided connection needs to already be open");
-        }
-        search = new SearchOperation(connection);
+    @VisibleForTesting
+    SearchRequestIterator(@Nonnull final SearchOperation operation, @Nonnull final SearchRequest request,
+                          final int pageSize) {
+        searchOperation = operation;
         searchRequest = request;
         pagedResultsControl = new PagedResultsControl(pageSize);
         searchRequest.setControls(pagedResultsControl);
@@ -75,7 +75,7 @@ class SearchRequestIterator extends AbstractIterator<LdapEntry> {
         cookie = null;
         final Response<SearchResult> response;
         try {
-            response = search.execute(searchRequest);
+            response = searchOperation.execute(searchRequest);
         } catch (LdapException e) {
             LOG.debug("error performing Ldap SearchRequest, wrapping & propagating exception", e);
             if (e.getCause() instanceof InterruptedNamingException) {
@@ -95,5 +95,12 @@ class SearchRequestIterator extends AbstractIterator<LdapEntry> {
 
         // get an iterator for the current page
         return response.getResult().getEntries().iterator();
+    }
+
+    private static SearchOperation buildOperation(@Nonnull final Connection connection) {
+        if (!connection.isOpen()) {
+            throw new IllegalStateException("provided connection needs to already be open");
+        }
+        return new SearchOperation(connection);
     }
 }
