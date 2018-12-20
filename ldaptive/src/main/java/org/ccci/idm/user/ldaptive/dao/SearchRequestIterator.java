@@ -20,18 +20,17 @@ import javax.naming.InterruptedNamingException;
 import java.util.Collections;
 import java.util.Iterator;
 
-public class SearchRequestIterator implements Iterator<LdapEntry> {
+class SearchRequestIterator implements Iterator<LdapEntry> {
     private static final Logger LOG = LoggerFactory.getLogger(SearchRequestIterator.class);
 
     @Nonnull
-    private final Connection conn;
+    private final SearchOperation search;
     @Nonnull
     private final SearchRequest searchRequest;
     @Nonnull
     private final PagedResultsControl pagedResultsControl;
 
-    private SearchOperation search = null;
-    byte[] cookie = null;
+    private byte[] cookie = null;
     @Nullable
     private Iterator<LdapEntry> currentPage = null;
     private boolean hasAnotherPage = true;
@@ -40,20 +39,14 @@ public class SearchRequestIterator implements Iterator<LdapEntry> {
         this(conn, request, 100);
     }
 
-    public SearchRequestIterator(@Nonnull final Connection connection, @Nonnull final SearchRequest request,
-                                 int pageSize) {
+    SearchRequestIterator(@Nonnull final Connection connection, @Nonnull final SearchRequest request, int pageSize) {
         if (!connection.isOpen()) {
             throw new IllegalStateException("provided connection needs to already be open");
         }
-        conn = connection;
+        search = new SearchOperation(connection);
         searchRequest = request;
         pagedResultsControl = new PagedResultsControl(pageSize);
         searchRequest.setControls(pagedResultsControl);
-        init();
-    }
-
-    private void init() {
-        search = new SearchOperation(conn);
     }
 
     @Override
@@ -67,12 +60,14 @@ public class SearchRequestIterator implements Iterator<LdapEntry> {
 
     @Override
     public LdapEntry next() {
-        if (hasNext() && currentPage != null) {
+        if (hasNext()) {
+            assert currentPage != null : "hasNext() guarantees currentPage is non-null";
             return currentPage.next();
         }
         return null;
     }
 
+    @Nonnull
     private Iterator<LdapEntry> loadNextPage() {
         // short-circuit if we have reached the end of the results already
         if (!hasAnotherPage) {
