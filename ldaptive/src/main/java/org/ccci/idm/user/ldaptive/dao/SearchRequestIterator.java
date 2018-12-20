@@ -1,5 +1,6 @@
 package org.ccci.idm.user.ldaptive.dao;
 
+import com.google.common.collect.AbstractIterator;
 import org.ccci.idm.user.dao.exception.InterruptedDaoException;
 import org.ccci.idm.user.ldaptive.dao.exception.LdaptiveDaoException;
 import org.ldaptive.Connection;
@@ -19,9 +20,8 @@ import javax.annotation.Nullable;
 import javax.naming.InterruptedNamingException;
 import java.util.Collections;
 import java.util.Iterator;
-import java.util.NoSuchElementException;
 
-class SearchRequestIterator implements Iterator<LdapEntry> {
+class SearchRequestIterator extends AbstractIterator<LdapEntry> {
     private static final Logger LOG = LoggerFactory.getLogger(SearchRequestIterator.class);
 
     @Nonnull
@@ -51,21 +51,16 @@ class SearchRequestIterator implements Iterator<LdapEntry> {
     }
 
     @Override
-    public boolean hasNext() {
+    protected LdapEntry computeNext() {
         if (currentPage == null || !currentPage.hasNext()) {
             currentPage = loadNextPage();
         }
 
-        return currentPage.hasNext();
-    }
-
-    @Override
-    public LdapEntry next() {
-        if (hasNext()) {
-            assert currentPage != null : "hasNext() guarantees currentPage is non-null";
-            return currentPage.next();
+        if (!currentPage.hasNext()) {
+            return endOfData();
         }
-        throw new NoSuchElementException();
+
+        return currentPage.next();
     }
 
     @Nonnull
@@ -90,11 +85,11 @@ class SearchRequestIterator implements Iterator<LdapEntry> {
             }
         }
 
-        // process the PRC in the response
-        final ResponseControl ctl = response.getControl(PagedResultsControl.OID);
-        if (ctl instanceof PagedResultsControl) {
+        // check the response to see if there is another page of results
+        final ResponseControl pagedResults = response.getControl(PagedResultsControl.OID);
+        if (pagedResults instanceof PagedResultsControl) {
             // get cookie for next page of results
-            cookie = ((PagedResultsControl) ctl).getCookie();
+            cookie = ((PagedResultsControl) pagedResults).getCookie();
         }
         hasAnotherPage = cookie != null && cookie.length > 0;
 
