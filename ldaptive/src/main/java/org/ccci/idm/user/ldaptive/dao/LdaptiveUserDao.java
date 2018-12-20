@@ -206,21 +206,8 @@ public class LdaptiveUserDao extends AbstractLdapUserDao {
         final SearchRequest request = new SearchRequest(baseSearchDn, filter);
         request.setReturnAttributes("*", LDAP_ATTR_PASSWORDCHANGEDTIME);
 
-        // open connection
-        Connection conn = null;
-        try {
-            conn = connectionFactory.getConnection();
-            conn.open();
-        } catch (LdapException e) {
-            LdapUtils.closeConnection(conn);
-            throw new LdaptiveDaoException(e);
-        }
-
-        // create the iterator and Stream
-        final int pageSize = calculatePageSize(limit, restrictMaxAllowedResults);
-        final Iterator<LdapEntry> iterator = new SearchRequestIterator(conn, request, pageSize);
-        Stream<LdapEntry> raw = StreamSupport.stream(Spliterators.spliteratorUnknownSize(iterator, Spliterator.NONNULL), false)
-                .onClose(conn::close);
+        // Stream search request
+        Stream<LdapEntry> raw = streamSearchRequest(request, calculatePageSize(limit, restrictMaxAllowedResults));
         if (restrictMaxAllowedResults && maxSearchResults != SEARCH_NO_LIMIT) {
             final AtomicInteger count = new AtomicInteger(0);
             final BaseFilter finalFilter = filter;
@@ -699,6 +686,24 @@ public class LdaptiveUserDao extends AbstractLdapUserDao {
             pageSize = maxSearchResults + 1;
         }
         return pageSize;
+    }
+
+    @VisibleForTesting
+    Stream<LdapEntry> streamSearchRequest(@Nonnull final SearchRequest request, final int pageSize) {
+        // open connection
+        Connection conn = null;
+        try {
+            conn = connectionFactory.getConnection();
+            conn.open();
+        } catch (LdapException e) {
+            LdapUtils.closeConnection(conn);
+            throw new LdaptiveDaoException(e);
+        }
+
+        // create the iterator and Stream
+        final Iterator<LdapEntry> iterator = new SearchRequestIterator(conn, request, pageSize);
+        return StreamSupport.stream(Spliterators.spliteratorUnknownSize(iterator, Spliterator.NONNULL), false)
+                .onClose(conn::close);
     }
 
     private DaoException convertLdapException(@Nonnull final LdapException e) {
