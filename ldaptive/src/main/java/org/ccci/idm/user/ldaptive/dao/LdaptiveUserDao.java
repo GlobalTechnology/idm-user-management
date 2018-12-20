@@ -207,11 +207,11 @@ public class LdaptiveUserDao extends AbstractLdapUserDao {
         request.setReturnAttributes("*", LDAP_ATTR_PASSWORDCHANGEDTIME);
 
         // Stream search request
-        Stream<LdapEntry> raw = streamSearchRequest(request, calculatePageSize(limit, restrictMaxAllowedResults));
+        Stream<LdapEntry> stream = streamSearchRequest(request, calculatePageSize(limit, restrictMaxAllowedResults));
         if (restrictMaxAllowedResults && maxSearchResults != SEARCH_NO_LIMIT) {
             final AtomicInteger count = new AtomicInteger(0);
             final BaseFilter finalFilter = filter;
-            raw = raw.peek(entry -> {
+            stream = stream.peek(entry -> {
                 if (count.incrementAndGet() > maxSearchResults) {
                     LOG.debug("Search exceeds maxSearchResults of {}: Filter: {} Limit: {}", maxSearchResults,
                             finalFilter.format(), limit);
@@ -220,14 +220,13 @@ public class LdaptiveUserDao extends AbstractLdapUserDao {
             });
         }
         if (limit != SEARCH_NO_LIMIT) {
-            raw = raw.limit(limit);
+            stream = stream.limit(limit);
         }
-        return raw
-                .map(e -> {
-                    final User user = new User();
-                    userMapper.map(e, user);
-                    return user;
-                });
+        return stream.map(e -> {
+            final User user = new User();
+            userMapper.map(e, user);
+            return user;
+        });
     }
 
     private User findByFilter(final BaseFilter filter, final boolean includeDeactivated) {
