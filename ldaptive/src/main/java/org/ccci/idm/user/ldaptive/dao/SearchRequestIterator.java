@@ -22,6 +22,10 @@ import javax.naming.InterruptedNamingException;
 import java.util.Collections;
 import java.util.Iterator;
 
+/**
+ * This class will iterate over all LdapEntries returned for the specified SearchRequest. The iterator will load entries
+ * in pages to restrict memory usage.
+ */
 class SearchRequestIterator extends AbstractIterator<LdapEntry> {
     private static final Logger LOG = LoggerFactory.getLogger(SearchRequestIterator.class);
 
@@ -63,6 +67,9 @@ class SearchRequestIterator extends AbstractIterator<LdapEntry> {
         return currentPage.next();
     }
 
+    /**
+     * Load the next page of entries.
+     */
     @Nonnull
     private Iterator<LdapEntry> loadNextPage() {
         // short-circuit if we have reached the end of the results already
@@ -98,6 +105,9 @@ class SearchRequestIterator extends AbstractIterator<LdapEntry> {
         }
     }
 
+    /**
+     * Track if there is another page of results after the current page.
+     */
     private void checkForAnotherPage(final Response<SearchResult> response) {
         // check the response to see if there is another page of results
         final ResponseControl pagedResults = response.getControl(PagedResultsControl.OID);
