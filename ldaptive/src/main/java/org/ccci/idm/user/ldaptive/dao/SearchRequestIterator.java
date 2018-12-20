@@ -19,6 +19,7 @@ import javax.annotation.Nullable;
 import javax.naming.InterruptedNamingException;
 import java.util.Collections;
 import java.util.Iterator;
+import java.util.NoSuchElementException;
 
 class SearchRequestIterator implements Iterator<LdapEntry> {
     private static final Logger LOG = LoggerFactory.getLogger(SearchRequestIterator.class);
@@ -64,7 +65,7 @@ class SearchRequestIterator implements Iterator<LdapEntry> {
             assert currentPage != null : "hasNext() guarantees currentPage is non-null";
             return currentPage.next();
         }
-        return null;
+        throw new NoSuchElementException();
     }
 
     @Nonnull
