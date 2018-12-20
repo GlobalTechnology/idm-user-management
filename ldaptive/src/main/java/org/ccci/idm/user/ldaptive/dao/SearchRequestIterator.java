@@ -70,30 +70,9 @@ class SearchRequestIterator extends AbstractIterator<LdapEntry> {
             return Collections.emptyIterator();
         }
 
-        // execute request
-        pagedResultsControl.setCookie(cookie);
-        cookie = null;
-        final Response<SearchResult> response;
-        try {
-            response = searchOperation.execute(searchRequest);
-        } catch (LdapException e) {
-            LOG.debug("error performing Ldap SearchRequest, wrapping & propagating exception", e);
-            if (e.getCause() instanceof InterruptedNamingException) {
-                throw new InterruptedDaoException(e);
-            } else {
-                throw new LdaptiveDaoException(e);
-            }
-        }
-
-        // check the response to see if there is another page of results
-        final ResponseControl pagedResults = response.getControl(PagedResultsControl.OID);
-        if (pagedResults instanceof PagedResultsControl) {
-            // get cookie for next page of results
-            cookie = ((PagedResultsControl) pagedResults).getCookie();
-        }
-        hasAnotherPage = cookie != null && cookie.length > 0;
-
-        // get an iterator for the current page
+        // perform search and process response
+        final Response<SearchResult> response = performSearch();
+        checkForAnotherPage(response);
         return response.getResult().getEntries().iterator();
     }
 
@@ -102,5 +81,30 @@ class SearchRequestIterator extends AbstractIterator<LdapEntry> {
             throw new IllegalStateException("provided connection needs to already be open");
         }
         return new SearchOperation(connection);
+    }
+
+    private Response<SearchResult> performSearch() {
+        pagedResultsControl.setCookie(cookie);
+        cookie = null;
+        try {
+            return searchOperation.execute(searchRequest);
+        } catch (LdapException e) {
+            LOG.debug("error performing Ldap SearchRequest, wrapping & propagating exception", e);
+            if (e.getCause() instanceof InterruptedNamingException) {
+                throw new InterruptedDaoException(e);
+            } else {
+                throw new LdaptiveDaoException(e);
+            }
+        }
+    }
+
+    private void checkForAnotherPage(final Response<SearchResult> response) {
+        // check the response to see if there is another page of results
+        final ResponseControl pagedResults = response.getControl(PagedResultsControl.OID);
+        if (pagedResults instanceof PagedResultsControl) {
+            // get cookie for next page of results
+            cookie = ((PagedResultsControl) pagedResults).getCookie();
+        }
+        hasAnotherPage = cookie != null && cookie.length > 0;
     }
 }
