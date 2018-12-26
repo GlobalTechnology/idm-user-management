@@ -196,11 +196,7 @@ public class LdaptiveUserDao extends AbstractLdapUserDao {
     @Nonnull
     private Stream<User> streamUsersByFilter(@Nullable BaseFilter filter, final boolean includeDeactivated,
                                              final int limit, final boolean restrictMaxAllowedResults) {
-        // restrict filter as necessary
-        filter = filter != null ? filter.and(FILTER_PERSON) : FILTER_PERSON;
-        if (!includeDeactivated) {
-            filter = filter.and(FILTER_NOT_DEACTIVATED);
-        }
+        final BaseFilter restrictedFilter = restrictFilterAsNecessary(filter, includeDeactivated);
 
         // build search request
         final SearchRequest request = new SearchRequest(baseSearchDn, filter);
@@ -210,11 +206,10 @@ public class LdaptiveUserDao extends AbstractLdapUserDao {
         Stream<LdapEntry> stream = streamSearchRequest(request, calculatePageSize(limit, restrictMaxAllowedResults));
         if (restrictMaxAllowedResults && maxSearchResults != SEARCH_NO_LIMIT) {
             final AtomicInteger count = new AtomicInteger(0);
-            final BaseFilter finalFilter = filter;
             stream = stream.peek(entry -> {
                 if (count.incrementAndGet() > maxSearchResults) {
                     LOG.debug("Search exceeds maxSearchResults of {}: Filter: {} Limit: {}", maxSearchResults,
-                            finalFilter.format(), limit);
+                            restrictedFilter.format(), limit);
                     throw new ExceededMaximumAllowedResultsException();
                 }
             });
@@ -227,6 +222,14 @@ public class LdaptiveUserDao extends AbstractLdapUserDao {
             userMapper.map(e, user);
             return user;
         });
+    }
+
+    private BaseFilter restrictFilterAsNecessary(@Nullable BaseFilter filter, boolean includeDeactivated) {
+        filter = filter != null ? filter.and(FILTER_PERSON) : FILTER_PERSON;
+        if (!includeDeactivated) {
+            filter = filter.and(FILTER_NOT_DEACTIVATED);
+        }
+        return filter;
     }
 
     private User findByFilter(final BaseFilter filter, final boolean includeDeactivated) {
