@@ -51,9 +51,11 @@ public class LdaptiveUserDaoTest extends AbstractUserDaoTest {
         assertThat(dao.calculatePageSize(1, false), is(1));
         assertThat(dao.calculatePageSize(10, false), is(10));
         assertThat(dao.calculatePageSize(20, false), is(10));
+        assertThat(dao.calculatePageSize(0, false), is(10));
         assertThat(dao.calculatePageSize(1, true), is(1));
         assertThat(dao.calculatePageSize(5, true), is(5));
         assertThat(dao.calculatePageSize(10, true), is(5 + 1));
+        assertThat(dao.calculatePageSize(0, true), is(5 + 1));
     }
 
     @Test
