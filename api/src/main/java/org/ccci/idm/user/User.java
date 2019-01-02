@@ -437,16 +437,6 @@ public class User implements Cloneable, Serializable {
         this.cruPayGroup = cruPayGroup;
     }
 
-    @Deprecated
-    public String getCruPreferredName() {
-        return getPreferredName();
-    }
-
-    @Deprecated
-    public void setCruPreferredName(String cruPreferredName) {
-        setPreferredName(cruPreferredName);
-    }
-
     public String getCruSubMinistryCode() {
         return cruSubMinistryCode;
     }
