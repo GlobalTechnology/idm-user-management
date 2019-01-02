@@ -31,7 +31,7 @@ public class DnUtilsParameterizedTest {
     private final String groupSuffix;
 
     public DnUtilsParameterizedTest(@Nonnull final String baseDn) {
-        groupSuffix = "," + baseDn;
+        groupSuffix = baseDn.isEmpty() ? "" : ("," + baseDn);
         groupDn = "cn=" + NAME + ",ou=Cru,ou=Cru,ou=GoogleApps" + groupSuffix;
 
         Dn dn = DnUtils.toDn(baseDn);
