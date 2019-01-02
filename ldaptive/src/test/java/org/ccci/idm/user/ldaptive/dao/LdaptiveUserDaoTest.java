@@ -1,5 +1,6 @@
 package org.ccci.idm.user.ldaptive.dao;
 
+import static org.ccci.idm.user.dao.ldap.AbstractLdapUserDao.SEARCH_NO_LIMIT;
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.fail;
@@ -51,11 +52,11 @@ public class LdaptiveUserDaoTest extends AbstractUserDaoTest {
         assertThat(dao.calculatePageSize(1, false), is(1));
         assertThat(dao.calculatePageSize(10, false), is(10));
         assertThat(dao.calculatePageSize(20, false), is(10));
-        assertThat(dao.calculatePageSize(0, false), is(10));
+        assertThat(dao.calculatePageSize(SEARCH_NO_LIMIT, false), is(10));
         assertThat(dao.calculatePageSize(1, true), is(1));
         assertThat(dao.calculatePageSize(5, true), is(5));
         assertThat(dao.calculatePageSize(10, true), is(5 + 1));
-        assertThat(dao.calculatePageSize(0, true), is(5 + 1));
+        assertThat(dao.calculatePageSize(SEARCH_NO_LIMIT, true), is(5 + 1));
     }
 
     @Test
