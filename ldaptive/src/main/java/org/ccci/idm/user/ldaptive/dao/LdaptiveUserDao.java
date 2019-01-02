@@ -194,12 +194,12 @@ public class LdaptiveUserDao extends AbstractLdapUserDao {
      * @return a stream with User's matching the specified filters
      */
     @Nonnull
-    private Stream<User> streamUsersByFilter(@Nullable BaseFilter filter, final boolean includeDeactivated,
+    private Stream<User> streamUsersByFilter(@Nullable final BaseFilter filter, final boolean includeDeactivated,
                                              final int limit, final boolean restrictMaxAllowedResults) {
-        final BaseFilter restrictedFilter = restrictFilterAsNecessary(filter, includeDeactivated);
+        final BaseFilter preparedFilter = prepareUserFilter(filter, includeDeactivated);
 
         // build search request
-        final SearchRequest request = new SearchRequest(baseSearchDn, filter);
+        final SearchRequest request = new SearchRequest(baseSearchDn, preparedFilter);
         request.setReturnAttributes("*", LDAP_ATTR_PASSWORDCHANGEDTIME);
 
         // Stream search request
@@ -209,7 +209,7 @@ public class LdaptiveUserDao extends AbstractLdapUserDao {
             stream = stream.peek(entry -> {
                 if (count.incrementAndGet() > maxSearchResults) {
                     LOG.debug("Search exceeds maxSearchResults of {}: Filter: {} Limit: {}", maxSearchResults,
-                            restrictedFilter.format(), limit);
+                            preparedFilter.format(), limit);
                     throw new ExceededMaximumAllowedResultsException();
                 }
             });
@@ -224,7 +224,7 @@ public class LdaptiveUserDao extends AbstractLdapUserDao {
         });
     }
 
-    private BaseFilter restrictFilterAsNecessary(@Nullable BaseFilter filter, boolean includeDeactivated) {
+    private BaseFilter prepareUserFilter(@Nullable BaseFilter filter, final boolean includeDeactivated) {
         filter = filter != null ? filter.and(FILTER_PERSON) : FILTER_PERSON;
         if (!includeDeactivated) {
             filter = filter.and(FILTER_NOT_DEACTIVATED);
