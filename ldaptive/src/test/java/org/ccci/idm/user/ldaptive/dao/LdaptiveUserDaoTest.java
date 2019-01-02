@@ -74,10 +74,10 @@ public class LdaptiveUserDaoTest extends AbstractUserDaoTest {
     public void testStreamSearchRequestCantOpenConnection() throws Exception {
         when(connection.open()).thenThrow(LdapException.class);
 
-        try {
-            dao.streamSearchRequest(REQUEST, 1);
-            fail();
+        try (Stream<LdapEntry> ignored = dao.streamSearchRequest(REQUEST, 1)) {
+            fail("We shouldn't have received a stream because the LDAP connection couldn't be opened");
         } catch (LdaptiveDaoException expected) {}
         verify(connection).open();
+        verify(connection, never()).close();
     }
 }
