@@ -58,8 +58,8 @@ public class User implements Cloneable, Serializable {
     private boolean locked = false;
 
     // Multi-value attributes
-    private final Set<String> domainsVisited = new HashSet<String>();
-    private final Set<Group> groups = new HashSet<Group>();
+    private final Set<String> domainsVisited = new HashSet<>();
+    private final Set<Group> groups = new HashSet<>();
 
     // self-service verification keys
     private String signupKey = null;
