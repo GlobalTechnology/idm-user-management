@@ -16,6 +16,7 @@ import com.google.common.base.Function;
 import com.google.common.collect.FluentIterable;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Sets;
+import java.util.stream.Stream;
 import org.ccci.idm.user.Group;
 import org.ccci.idm.user.SearchQuery;
 import org.ccci.idm.user.User;
@@ -37,9 +38,6 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Random;
 import java.util.Set;
-import java.util.concurrent.BlockingQueue;
-import java.util.concurrent.LinkedBlockingQueue;
-import java.util.concurrent.atomic.AtomicInteger;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(locations = {"ldap.xml", "config.xml", "dao-default.xml"})
@@ -359,48 +357,20 @@ public class LdaptiveUserDaoIT {
     }
 
     @Test
-    public void testEnqueueAll() throws Exception {
+    public void testStreamUsers() throws Exception {
         assumeConfigured();
 
-        final BlockingQueue<User> queue = new LinkedBlockingQueue<User>(5);
-        final AtomicInteger seen = new AtomicInteger(0);
-        final User STOP = new User();
         try {
             // increase the max page size to reduce I/O delays
             this.dao.setMaxPageSize(50);
 
-            // start background processing thread
-            final Thread thread = new Thread(new Runnable() {
-                @Override
-                public void run() {
-                    try {
-                        while (true) {
-                            // quit processing if we encounter the stop user
-                            if (queue.take() == STOP) {
-                                return;
-                            }
+            // stream all users
+            try (Stream<User> users = dao.streamUsers(true)) {
+                final long count = users.count();
 
-                            // increment seen counter
-                            seen.incrementAndGet();
-                        }
-                    } catch (final InterruptedException e) {
-                        throw new RuntimeException(e);
-                    }
-                }
-            });
-            thread.start();
-
-            // enqueue all users
-            final int count = this.dao.enqueueAll(queue, true);
-
-            // stop processing and join thread
-            queue.add(STOP);
-            thread.join();
-
-            // check final state
-            assertTrue("No users were queued, something might be wrong", count > 0);
-            assertTrue(queue.isEmpty());
-            assertEquals(seen.get(), count);
+                // check final state
+                assertTrue("No users were queued, something might be wrong", count > 0);
+            }
         } finally {
             // reset maxPageSize to force paging for other tests
             this.dao.setMaxPageSize(1);

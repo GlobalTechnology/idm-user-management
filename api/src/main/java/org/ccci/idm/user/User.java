@@ -165,6 +165,8 @@ public class User implements Cloneable, Serializable {
         grStageMasterPersonId = source.grStageMasterPersonId;
         grPersonId = source.grPersonId;
         grStagePersonId = source.grStagePersonId;
+        grSyncChecksum = source.grSyncChecksum;
+        grStageSyncChecksum = source.grStageSyncChecksum;
 
         this.employeeId = source.employeeId;
         this.departmentNumber = source.departmentNumber;
@@ -894,14 +896,60 @@ public class User implements Cloneable, Serializable {
 
     @Override
     public int hashCode() {
-        return Objects.hashCode(email, password, guid, getTheKeyGuid(), getRelayGuid(), firstName, lastName,
-                emailVerified, allowPasswordChange, forcePasswordChange, deactivated, loginDisabled, locked,
-                domainsVisited, groups, signupKey, changeEmailKey, resetPasswordKey, proposedEmail, mfaEncryptedSecret,
-                mfaIntruderLocked, mfaIntruderAttempts, mfaIntruderResetTime, facebookId, facebookIdStrength,
-                grMasterPersonId, grStageMasterPersonId, grPersonId, grStagePersonId, employeeId, departmentNumber,
-                cruDesignation, cruEmployeeStatus, cruGender, cruHrStatusCode, cruJobCode, cruManagerID,
-                cruMinistryCode, cruPayGroup, preferredName, cruSubMinistryCode, cruProxyAddresses, cruPasswordHistory,
-                city, state, postal, country, telephoneNumber, securityQuestion, securityAnswer);
+        return Objects.hashCode(
+                email,
+                password,
+                guid,
+                getTheKeyGuid(),
+                getRelayGuid(),
+                firstName,
+                lastName,
+                emailVerified,
+                allowPasswordChange,
+                forcePasswordChange,
+                deactivated,
+                loginDisabled,
+                locked,
+                domainsVisited,
+                groups,
+                signupKey,
+                changeEmailKey,
+                resetPasswordKey,
+                proposedEmail,
+                mfaEncryptedSecret,
+                mfaIntruderLocked,
+                mfaIntruderAttempts,
+                mfaIntruderResetTime,
+                facebookId,
+                facebookIdStrength,
+                grMasterPersonId,
+                grStageMasterPersonId,
+                grPersonId,
+                grStagePersonId,
+                grSyncChecksum,
+                grStageSyncChecksum,
+                employeeId,
+                departmentNumber,
+                cruDesignation,
+                cruEmployeeStatus,
+                cruGender,
+                cruHrStatusCode,
+                cruJobCode,
+                cruManagerID,
+                cruMinistryCode,
+                cruPayGroup,
+                preferredName,
+                cruSubMinistryCode,
+                cruProxyAddresses,
+                cruPasswordHistory,
+                city,
+                state,
+                postal,
+                country,
+                telephoneNumber,
+                securityQuestion,
+                securityAnswer
+        );
     }
 
     @Override
@@ -939,6 +987,8 @@ public class User implements Cloneable, Serializable {
                 Objects.equal(grStageMasterPersonId, other.grStageMasterPersonId) &&
                 Objects.equal(grPersonId, other.grPersonId) &&
                 Objects.equal(grStagePersonId, other.grStagePersonId) &&
+                Objects.equal(grSyncChecksum, other.grSyncChecksum) &&
+                Objects.equal(grStageSyncChecksum, other.grStageSyncChecksum) &&
                 Objects.equal(this.employeeId, other.employeeId) &&
                 Objects.equal(this.departmentNumber, other.departmentNumber) &&
                 Objects.equal(this.cruDesignation, other.cruDesignation) &&

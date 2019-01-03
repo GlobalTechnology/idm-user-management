@@ -12,6 +12,7 @@ import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.util.List;
 import java.util.concurrent.BlockingQueue;
+import java.util.stream.Stream;
 
 public interface UserDao {
     /**
@@ -169,8 +170,19 @@ public interface UserDao {
      * @param queue              The {@link BlockingQueue} to add all users to.
      * @param includeDeactivated If <tt>true</tt> then deactivated accounts are included.
      * @return number of users enqueued
+     * @deprecated Since 1.0.0, use {@link UserDao#streamUsers(boolean)} instead.
      */
+    @Deprecated
     int enqueueAll(@Nonnull BlockingQueue<User> queue, boolean includeDeactivated) throws DaoException;
+
+    /**
+     * Provide a Java 8 Stream over all the users. This stream needs to be closed after use.
+     *
+     * @param includeDeactivated Whether deactivated users should be included in the Stream
+     * @return a Stream of all users
+     */
+    @Nonnull
+    Stream<User> streamUsers(boolean includeDeactivated);
 
     /**
      * Add user to group
