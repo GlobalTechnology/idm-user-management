@@ -354,7 +354,7 @@ public class LdaptiveUserDaoIT {
     }
 
     @Test
-    public void testStreamUsers() throws Exception {
+    public void testStreamUsersAll() throws Exception {
         assumeConfigured();
 
         try {
@@ -362,7 +362,7 @@ public class LdaptiveUserDaoIT {
             this.dao.setMaxPageSize(50);
 
             // stream all users
-            try (Stream<User> users = dao.streamUsers(true)) {
+            try (Stream<User> users = dao.streamUsers(null, true)) {
                 final long count = users.count();
 
                 // check final state

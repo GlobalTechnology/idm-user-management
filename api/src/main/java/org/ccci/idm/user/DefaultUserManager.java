@@ -34,6 +34,7 @@ import org.ccci.idm.user.exception.RelayGuidAlreadyExistsException;
 import org.ccci.idm.user.exception.TheKeyGuidAlreadyExistsException;
 import org.ccci.idm.user.exception.UserException;
 import org.ccci.idm.user.exception.UserNotFoundException;
+import org.ccci.idm.user.query.Expression;
 import org.ccci.idm.user.util.DefaultRandomPasswordGenerator;
 import org.ccci.idm.user.util.PasswordHistoryManager;
 import org.ccci.idm.user.util.RandomPasswordGenerator;
@@ -476,8 +477,8 @@ public class DefaultUserManager implements UserManager {
     }
 
     @Override
-    public Stream<User> streamUsers(final boolean includeDeactivated) {
-        return userDao.streamUsers(includeDeactivated);
+    public Stream<User> streamUsers(@Nullable final Expression expression, final boolean includeDeactivated) {
+        return userDao.streamUsers(expression, includeDeactivated);
     }
 
     @Override

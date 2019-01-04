@@ -7,6 +7,7 @@ import org.ccci.idm.user.exception.EmailAlreadyExistsException;
 import org.ccci.idm.user.exception.UserAlreadyExistsException;
 import org.ccci.idm.user.exception.UserException;
 import org.ccci.idm.user.exception.UserNotFoundException;
+import org.ccci.idm.user.query.Expression;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -288,7 +289,19 @@ public interface UserManager {
      * @param includeDeactivated Whether deactivated users should be included in the Stream
      * @return a Stream of all users
      */
-    Stream<User> streamUsers(boolean includeDeactivated);
+    default Stream<User> streamUsers(boolean includeDeactivated) {
+        return streamUsers(null, includeDeactivated);
+    }
+
+    /**
+     * Provide a Java 8 Stream over all the users that match the specified expression. This stream needs to be closed
+     * after use.
+     *
+     * @param expression         The search expression
+     * @param includeDeactivated Whether deactivated users should be included in the Stream
+     * @return a Stream of all users
+     */
+    Stream<User> streamUsers(@Nullable Expression expression, boolean includeDeactivated);
 
     /**
      * Add user to group
