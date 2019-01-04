@@ -18,6 +18,7 @@ import org.ccci.idm.user.Group;
 import org.ccci.idm.user.SearchQuery;
 import org.ccci.idm.user.User;
 import org.ccci.idm.user.dao.exception.ExceededMaximumAllowedResultsException;
+import org.ccci.idm.user.query.Attribute;
 import org.ccci.idm.user.util.HashUtility;
 import org.joda.time.DateTime;
 import org.joda.time.ReadableInstant;
@@ -370,6 +371,22 @@ public class LdaptiveUserDaoIT {
         } finally {
             // reset maxPageSize to force paging for other tests
             this.dao.setMaxPageSize(1);
+        }
+    }
+
+    @Test
+    public void testStreamUsersWithLastName() throws Exception {
+        final String lastName = "LastName-" + RAND.nextInt(Integer.MAX_VALUE);
+
+        for (int i = 0; i < 2; i++) {
+            final User user = newUser();
+            user.setLastName(lastName);
+            dao.save(user);
+        }
+        dao.save(newUser());
+
+        try (Stream<User> users = dao.streamUsers(Attribute.LAST_NAME.eq(lastName), true)) {
+            assertEquals(2, users.count());
         }
     }
 
