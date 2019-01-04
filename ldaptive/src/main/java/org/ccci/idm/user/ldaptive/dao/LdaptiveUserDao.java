@@ -39,9 +39,16 @@ import org.ccci.idm.user.ldaptive.dao.filter.AndFilter;
 import org.ccci.idm.user.ldaptive.dao.filter.BaseFilter;
 import org.ccci.idm.user.ldaptive.dao.filter.EqualsFilter;
 import org.ccci.idm.user.ldaptive.dao.filter.LikeFilter;
+import org.ccci.idm.user.ldaptive.dao.filter.NotFilter;
+import org.ccci.idm.user.ldaptive.dao.filter.OrFilter;
 import org.ccci.idm.user.ldaptive.dao.filter.PresentFilter;
 import org.ccci.idm.user.ldaptive.dao.util.DnUtils;
 import org.ccci.idm.user.ldaptive.dao.util.LdapUtils;
+import org.ccci.idm.user.query.BooleanExpression;
+import org.ccci.idm.user.query.ComparisonExpression;
+import org.ccci.idm.user.query.Expression;
+import org.ccci.idm.user.query.NotExpression;
+import org.jetbrains.annotations.Contract;
 import org.ldaptive.AddOperation;
 import org.ldaptive.AddRequest;
 import org.ldaptive.AttributeModification;
@@ -379,6 +386,11 @@ public class LdaptiveUserDao extends AbstractLdapUserDao {
     }
 
     @Override
+    public Stream<User> streamUsers(@Nullable final Expression expression, final boolean includeDeactivated) {
+        return streamUsersByFilter(convertExpressionToFilter(expression), includeDeactivated, SEARCH_NO_LIMIT, false);
+    }
+
+    @Override
     public void save(final User user) throws DaoException {
         assertWritable();
         assertValidUser(user);
@@ -663,6 +675,53 @@ public class LdaptiveUserDao extends AbstractLdapUserDao {
         // execute the ModifyOperation
         new ModifyOperation(conn).execute(new ModifyRequest(dn, modifications.toArray(new
                 AttributeModification[modifications.size()])));
+    }
+
+    @Nullable
+    @Contract("null -> null; !null -> !null")
+    private BaseFilter convertExpressionToFilter(@Nullable final Expression expression) {
+        if (expression == null) {
+            return null;
+        }
+
+        if (expression instanceof BooleanExpression) {
+            return convertBooleanExpressionToFilter((BooleanExpression) expression);
+        } else if (expression instanceof NotExpression) {
+            return new NotFilter(convertExpressionToFilter(((NotExpression) expression).getComponent()));
+        } else if (expression instanceof ComparisonExpression) {
+            return convertComparisonExpressionToFilter((ComparisonExpression) expression);
+        }
+
+        throw new IllegalArgumentException("Unsupported search expression specified");
+    }
+
+    private BaseFilter convertBooleanExpressionToFilter(@Nonnull final BooleanExpression expression) {
+        final BaseFilter[] filters = expression.getComponents().stream().map(this::convertExpressionToFilter)
+                .toArray(BaseFilter[]::new);
+        switch (expression.getType()) {
+            case AND:
+                return new AndFilter(filters);
+            case OR:
+                return new OrFilter(filters);
+            default:
+                throw new UnsupportedOperationException("Unrecognized BooleanExpression type: " + expression.getType());
+        }
+    }
+
+    private BaseFilter convertComparisonExpressionToFilter(@Nonnull final ComparisonExpression expression) {
+        final String attrName = expression.getAttribute().ldapAttr;
+        final Group group = expression.getGroup();
+        final String value = group != null ? DnUtils.toString(group) : expression.getValue();
+
+        switch (expression.getType()) {
+            case EQ:
+                return new EqualsFilter(attrName, value);
+            case LIKE:
+                return new LikeFilter(attrName, value);
+            default:
+                throw new UnsupportedOperationException("Unrecognized ComparisonExpression type: " + expression
+                        .getType());
+        }
     }
 
     @VisibleForTesting
