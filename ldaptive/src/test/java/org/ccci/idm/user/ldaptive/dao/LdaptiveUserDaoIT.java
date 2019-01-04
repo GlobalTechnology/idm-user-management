@@ -12,11 +12,8 @@ import static org.junit.Assert.fail;
 import static org.junit.Assume.assumeFalse;
 import static org.junit.Assume.assumeNotNull;
 
-import com.google.common.base.Function;
-import com.google.common.collect.FluentIterable;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Sets;
-import java.util.stream.Stream;
 import org.ccci.idm.user.Group;
 import org.ccci.idm.user.SearchQuery;
 import org.ccci.idm.user.User;
@@ -30,7 +27,6 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
-import javax.annotation.Nullable;
 import javax.inject.Inject;
 import javax.inject.Named;
 import java.security.SecureRandom;
@@ -38,19 +34,13 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Random;
 import java.util.Set;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(locations = {"ldap.xml", "config.xml", "dao-default.xml"})
 public class LdaptiveUserDaoIT {
     private static final Random RAND = new SecureRandom();
-
-    private static final Function<User, String> FUNCTION_GUID = new Function<User, String>() {
-        @Nullable
-        @Override
-        public String apply(final User user) {
-            return user != null ? user.getGuid() : null;
-        }
-    };
 
     @Inject
     private LdaptiveUserDao dao;
@@ -224,10 +214,12 @@ public class LdaptiveUserDaoIT {
 
         // test findAllByFirstName
         {
-            final Set<String> active = FluentIterable.from(this.dao.findAllByFirstName(user1.getFirstName(), false))
-                    .transform(FUNCTION_GUID).toSet();
-            final Set<String> all = FluentIterable.from(this.dao.findAllByFirstName(user1.getFirstName(), true))
-                    .transform(FUNCTION_GUID).toSet();
+            final Set<String> active = dao.findAllByFirstName(user1.getFirstName(), false).stream()
+                    .map(User::getGuid)
+                    .collect(Collectors.toSet());
+            final Set<String> all = dao.findAllByFirstName(user1.getFirstName(), true).stream()
+                    .map(User::getGuid)
+                    .collect(Collectors.toSet());
 
             assertEquals(1, active.size());
             assertEquals(2, all.size());
@@ -240,10 +232,12 @@ public class LdaptiveUserDaoIT {
 
         // test findAllByLastName
         {
-            final Set<String> active = FluentIterable.from(this.dao.findAllByLastName(user1.getLastName(), false))
-                    .transform(FUNCTION_GUID).toSet();
-            final Set<String> all = FluentIterable.from(this.dao.findAllByLastName(user1.getLastName(), true))
-                    .transform(FUNCTION_GUID).toSet();
+            final Set<String> active = dao.findAllByLastName(user1.getLastName(), false).stream()
+                    .map(User::getGuid)
+                    .collect(Collectors.toSet());
+            final Set<String> all = dao.findAllByLastName(user1.getLastName(), true).stream()
+                    .map(User::getGuid)
+                    .collect(Collectors.toSet());
 
             assertEquals(1, active.size());
             assertEquals(2, all.size());
@@ -256,10 +250,12 @@ public class LdaptiveUserDaoIT {
 
         // test findAllByEmail
         {
-            final Set<String> active = FluentIterable.from(this.dao.findAllByEmail(user1.getEmail(), false))
-                    .transform(FUNCTION_GUID).toSet();
-            final Set<String> all = FluentIterable.from(this.dao.findAllByEmail(user1.getEmail(), true)).transform
-                    (FUNCTION_GUID).toSet();
+            final Set<String> active = dao.findAllByEmail(user1.getEmail(), false).stream()
+                    .map(User::getGuid)
+                    .collect(Collectors.toSet());
+            final Set<String> all = this.dao.findAllByEmail(user1.getEmail(), true).stream()
+                    .map(User::getGuid)
+                    .collect(Collectors.toSet());
 
             assertEquals(1, active.size());
             assertEquals(2, all.size());
@@ -663,8 +659,9 @@ public class LdaptiveUserDaoIT {
 
         // assert the 2 users are not in the group
         {
-            final Set<String> guids = FluentIterable.from(this.dao.findAllByGroup(group1, true)).transform
-                    (FUNCTION_GUID).toSet();
+            final Set<String> guids = dao.findAllByGroup(group1, true).stream()
+                    .map(User::getGuid)
+                    .collect(Collectors.toSet());
             assertFalse(guids.contains(user1.getGuid()));
             assertFalse(guids.contains(user2.getGuid()));
         }
@@ -672,8 +669,9 @@ public class LdaptiveUserDaoIT {
         // add user1 to the group
         {
             this.dao.addToGroup(user1, group1);
-            final Set<String> guids = FluentIterable.from(this.dao.findAllByGroup(group1, true)).transform
-                    (FUNCTION_GUID).toSet();
+            final Set<String> guids = dao.findAllByGroup(group1, true).stream()
+                    .map(User::getGuid)
+                    .collect(Collectors.toSet());
             assertTrue(guids.contains(user1.getGuid()));
             assertFalse(guids.contains(user2.getGuid()));
         }
@@ -681,16 +679,18 @@ public class LdaptiveUserDaoIT {
         // add user2 to the group
         {
             this.dao.addToGroup(user2, group1);
-            final Set<String> guids = FluentIterable.from(this.dao.findAllByGroup(group1, true)).transform
-                    (FUNCTION_GUID).toSet();
+            final Set<String> guids = dao.findAllByGroup(group1, true).stream()
+                    .map(User::getGuid)
+                    .collect(Collectors.toSet());
             assertTrue(guids.contains(user1.getGuid()));
             assertTrue(guids.contains(user2.getGuid()));
         }
 
         // test includeDeactivated flag
         {
-            final Set<String> guids = FluentIterable.from(this.dao.findAllByGroup(group1, false)).transform
-                    (FUNCTION_GUID).toSet();
+            final Set<String> guids = dao.findAllByGroup(group1, false).stream()
+                    .map(User::getGuid)
+                    .collect(Collectors.toSet());
             assertTrue(guids.contains(user1.getGuid()));
             assertFalse(guids.contains(user2.getGuid()));
         }
