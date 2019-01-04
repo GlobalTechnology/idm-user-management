@@ -24,11 +24,7 @@ import com.google.common.annotations.Beta;
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.MoreObjects;
 import com.google.common.base.Objects;
-import com.google.common.base.Predicate;
-import com.google.common.base.Predicates;
 import com.google.common.base.Strings;
-import com.google.common.collect.Collections2;
-import com.google.common.collect.FluentIterable;
 import com.google.common.collect.Lists;
 import org.ccci.idm.user.Dn;
 import org.ccci.idm.user.Group;
@@ -98,14 +94,6 @@ public class LdaptiveUserDao extends AbstractLdapUserDao {
             new EqualsFilter(LDAP_ATTR_OBJECTCLASS, LDAP_OBJECTCLASS_GROUP_OF_NAMES);
     private static final BaseFilter FILTER_DEACTIVATED = new LikeFilter(LDAP_ATTR_CN, LDAP_DEACTIVATED_PREFIX + "*");
     private static final BaseFilter FILTER_NOT_DEACTIVATED = FILTER_DEACTIVATED.not();
-
-    // Predicates used for filtering objects
-    private static final Predicate<LdapAttribute> PREDICATE_EMPTY_ATTRIBUTE = new Predicate<LdapAttribute>() {
-        @Override
-        public boolean apply(final LdapAttribute input) {
-            return input.size() == 0;
-        }
-    };
 
     @NotNull
     protected ConnectionFactory connectionFactory;
@@ -403,8 +391,8 @@ public class LdaptiveUserDao extends AbstractLdapUserDao {
             final AddOperation add = new AddOperation(conn);
             final LdapEntry entry = new LdapEntry();
             this.userMapper.map(user, entry);
-            add.execute(new AddRequest(this.userMapper.mapDn(user), Collections2.filter(entry.getAttributes(),
-                    Predicates.not(PREDICATE_EMPTY_ATTRIBUTE))));
+            add.execute(new AddRequest(userMapper.mapDn(user),
+                    entry.getAttributes().stream().filter(a -> a.size() > 0).collect(Collectors.toList())));
         } catch (final LdapException e) {
             throw convertLdapException(e);
         } finally {
@@ -442,7 +430,7 @@ public class LdaptiveUserDao extends AbstractLdapUserDao {
 
             final String originalDn = this.userMapper.mapDn(original);
             final String dn;
-            if (FluentIterable.from(Arrays.asList(attrs)).contains(User.Attr.EMAIL)) {
+            if (Arrays.asList(attrs).contains(User.Attr.EMAIL)) {
                 // modify the DN if we are updating the user's email and it changed
                 dn = this.userMapper.mapDn(user);
                 if (!Objects.equal(originalDn, dn)) {
