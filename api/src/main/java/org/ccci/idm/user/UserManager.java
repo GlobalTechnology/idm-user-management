@@ -222,9 +222,11 @@ public interface UserManager {
      * @param query the users to find
      * @return {@link List} of {@link User} objects.
      * @throws DaoException
+     * @deprecated Since v1.0.0, use {@link UserManager#streamUsers} instead.
      */
     @Beta
     @Nonnull
+    @Deprecated
     List<User> findAllByQuery(@Nonnull SearchQuery query) throws DaoException;
 
     /**
@@ -234,7 +236,9 @@ public interface UserManager {
      * @param includeDeactivated If <tt>true</tt> then deactivated accounts are included.
      * @return {@link java.util.List} of {@link User} objects.
      * @throws ExceededMaximumAllowedResultsException
+     * @deprecated Since v1.0.0, use {@link UserManager#streamUsers} instead.
      */
+    @Deprecated
     List<User> findAllByFirstName(String pattern, boolean includeDeactivated) throws
             ExceededMaximumAllowedResultsException;
 
@@ -245,7 +249,9 @@ public interface UserManager {
      * @param includeDeactivated If <tt>true</tt> then deactivated accounts are included.
      * @return {@link List} of {@link User} objects.
      * @throws ExceededMaximumAllowedResultsException
+     * @deprecated Since v1.0.0, use {@link UserManager#streamUsers} instead.
      */
+    @Deprecated
     List<User> findAllByLastName(String pattern, boolean includeDeactivated) throws
             ExceededMaximumAllowedResultsException;
 
@@ -256,7 +262,9 @@ public interface UserManager {
      * @param includeDeactivated If <tt>true</tt> then deactivated accounts are included.
      * @return {@link List} of {@link User} objects.
      * @throws ExceededMaximumAllowedResultsException
+     * @deprecated Since v1.0.0, use {@link UserManager#streamUsers} instead.
      */
+    @Deprecated
     List<User> findAllByEmail(String pattern, boolean includeDeactivated) throws ExceededMaximumAllowedResultsException;
 
     /**
@@ -267,8 +275,10 @@ public interface UserManager {
      * @return {@link List} of {@link User} objects found.
      * @throws ExceededMaximumAllowedResultsException if there are too many users found
      * @throws DaoException
+     * @deprecated Since v1.0.0, use {@link UserManager#streamUsers} instead.
      */
     @Nonnull
+    @Deprecated
     List<User> findAllByGroup(@Nonnull Group group, boolean includeDeactivated) throws DaoException;
 
     /**

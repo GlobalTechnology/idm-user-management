@@ -241,6 +241,7 @@ public class LdaptiveUserDao extends AbstractLdapUserDao {
     @Beta
     @Nonnull
     @Override
+    @Deprecated
     public List<User> findAllByQuery(@Nonnull final SearchQuery query) throws DaoException {
         // build filter from search query
         final List<BaseFilter> filters = new ArrayList<BaseFilter>();
@@ -277,12 +278,14 @@ public class LdaptiveUserDao extends AbstractLdapUserDao {
     }
 
     @Override
+    @Deprecated
     public List<User> findAllByFirstName(final String pattern, final boolean includeDeactivated) throws
             ExceededMaximumAllowedResultsException {
         return findAllByFilter(new LikeFilter(LDAP_ATTR_FIRSTNAME, pattern), includeDeactivated, SEARCH_NO_LIMIT, true);
     }
 
     @Override
+    @Deprecated
     public List<User> findAllByLastName(final String pattern, final boolean includeDeactivated) throws
             ExceededMaximumAllowedResultsException {
         return findAllByFilter(new LikeFilter(LDAP_ATTR_LASTNAME, pattern), includeDeactivated, SEARCH_NO_LIMIT, true);
@@ -290,6 +293,7 @@ public class LdaptiveUserDao extends AbstractLdapUserDao {
 
     @Nonnull
     @Override
+    @Deprecated
     public List<User> findAllByEmail(final String pattern, final boolean includeDeactivated) throws
             ExceededMaximumAllowedResultsException {
         return findAllByFilter(new LikeFilter(LDAP_ATTR_USERID, pattern), includeDeactivated, SEARCH_NO_LIMIT, true);
@@ -309,6 +313,7 @@ public class LdaptiveUserDao extends AbstractLdapUserDao {
 
     @Nonnull
     @Override
+    @Deprecated
     public List<User> findAllByGroup(@Nonnull final Group group, final boolean includeDeactivated) throws DaoException {
         assertValidGroupDn(group);
 

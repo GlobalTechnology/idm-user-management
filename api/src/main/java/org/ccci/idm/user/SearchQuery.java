@@ -1,11 +1,16 @@
 package org.ccci.idm.user;
 
 import com.google.common.annotations.Beta;
+import org.ccci.idm.user.query.Expression;
 
 import javax.annotation.Nullable;
 import java.io.Serializable;
 
+/**
+ * @deprecated Since v1.0.0, use {@link UserManager#streamUsers(Expression, boolean)} instead.
+ */
 @Beta
+@Deprecated
 public final class SearchQuery implements Serializable {
     private static final long serialVersionUID = 1188289784574984992L;
 
