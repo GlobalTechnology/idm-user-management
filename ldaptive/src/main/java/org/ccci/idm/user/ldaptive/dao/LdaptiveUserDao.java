@@ -381,8 +381,9 @@ public class LdaptiveUserDao extends AbstractLdapUserDao {
 
     @Nonnull
     @Override
-    public Stream<User> streamUsers(@Nullable final Expression expression, final boolean includeDeactivated) {
-        return streamUsersByFilter(convertExpressionToFilter(expression), includeDeactivated, SEARCH_NO_LIMIT, false);
+    public Stream<User> streamUsers(@Nullable final Expression expression, final boolean includeDeactivated,
+                                    final boolean restrictMaxAllowed) {
+        return streamUsersByFilter(convertExpressionToFilter(expression), includeDeactivated, SEARCH_NO_LIMIT, restrictMaxAllowed);
     }
 
     @Override

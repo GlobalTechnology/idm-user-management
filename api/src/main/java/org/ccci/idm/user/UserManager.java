@@ -304,6 +304,19 @@ public interface UserManager {
     Stream<User> streamUsers(@Nullable Expression expression, boolean includeDeactivated);
 
     /**
+     * Provide a Java 8 Stream over all the users that match the specified expression. This stream needs to be closed
+     * after use.
+     *
+     * @param expression         The search expression
+     * @param includeDeactivated Whether deactivated users should be included in the Stream
+     * @param restrictMaxAllowed Throw an exception if the stream exceeds the maximum allowed results
+     * @return a Stream of all users
+     * @throws ExceededMaximumAllowedResultsException If restrictMaxAllowed is true and the stream exceeds the
+     *                                                configured limit.
+     */
+    Stream<User> streamUsers(@Nullable Expression expression, boolean includeDeactivated, boolean restrictMaxAllowed);
+
+    /**
      * Add user to group
      *
      * @param user to add

@@ -185,7 +185,21 @@ public interface UserDao {
      * @return a Stream of all users
      */
     @Nonnull
-    Stream<User> streamUsers(@Nullable Expression expression, boolean includeDeactivated);
+    default Stream<User> streamUsers(@Nullable Expression expression, boolean includeDeactivated) {
+        return streamUsers(expression, includeDeactivated, false);
+    }
+
+    /**
+     * Provide a Java 8 Stream over all the users that match the specified expression. This stream needs to be closed
+     * after use.
+     *
+     * @param expression         The search expression
+     * @param includeDeactivated Whether deactivated users should be included in the Stream
+     * @param restrictMaxAllowed A boolean indicating that the stream should be restricted to an upper search limit
+     * @return a Stream of all users
+     */
+    @Nonnull
+    Stream<User> streamUsers(@Nullable Expression expression, boolean includeDeactivated, boolean restrictMaxAllowed);
 
     /**
      * Add user to group
