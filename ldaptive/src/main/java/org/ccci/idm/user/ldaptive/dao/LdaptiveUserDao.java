@@ -154,6 +154,12 @@ public class LdaptiveUserDao extends AbstractLdapUserDao {
         }
     }
 
+    @Nonnull
+    private <T extends Dn> T checkValidGroupDn(@Nonnull final T dn) {
+        assertValidGroupDn(dn);
+        return dn;
+    }
+
     /**
      * find {@link User} objects that match the provided filter. This method should not be considered part of the public
      * API. This is currently exposed publicly as a quick path for advanced search in admin tools.
@@ -707,7 +713,7 @@ public class LdaptiveUserDao extends AbstractLdapUserDao {
     private BaseFilter convertComparisonExpressionToFilter(@Nonnull final ComparisonExpression expression) {
         final String attrName = expression.getAttribute().ldapAttr;
         final Group group = expression.getGroup();
-        final String value = group != null ? DnUtils.toString(group) : expression.getValue();
+        final String value = group != null ? DnUtils.toString(checkValidGroupDn(group)) : expression.getValue();
 
         switch (expression.getType()) {
             case EQ:
