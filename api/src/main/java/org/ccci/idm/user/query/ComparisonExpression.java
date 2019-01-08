@@ -17,7 +17,6 @@ public class ComparisonExpression implements Expression {
     @Nullable
     private final Group group;
 
-
     ComparisonExpression(@Nonnull final Type type, @Nonnull final Attribute attribute, @Nonnull final String value) {
         this.type = type;
         this.attribute = attribute;
