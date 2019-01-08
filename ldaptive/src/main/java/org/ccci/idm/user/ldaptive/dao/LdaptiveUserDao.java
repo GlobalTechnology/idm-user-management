@@ -686,7 +686,8 @@ public class LdaptiveUserDao extends AbstractLdapUserDao {
 
     @Nullable
     @Contract("null -> null; !null -> !null")
-    private BaseFilter convertExpressionToFilter(@Nullable final Expression expression) {
+    @VisibleForTesting
+    BaseFilter convertExpressionToFilter(@Nullable final Expression expression) {
         if (expression == null) {
             return null;
         }
