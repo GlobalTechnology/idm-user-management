@@ -1,8 +1,9 @@
 package org.ccci.idm.user.query;
 
 import javax.annotation.Nonnull;
+import java.io.Serializable;
 
-public interface Expression {
+public interface Expression extends Serializable {
     default Expression and(Expression... expressions) {
         return new BooleanExpression(BooleanExpression.Type.AND, this, expressions);
     }

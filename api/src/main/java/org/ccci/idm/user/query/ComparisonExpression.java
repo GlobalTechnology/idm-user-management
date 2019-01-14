@@ -6,6 +6,8 @@ import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
 public class ComparisonExpression implements Expression {
+    private static final long serialVersionUID = 6470937370962349745L;
+
     public enum Type {EQ, LIKE}
 
     @Nonnull

@@ -8,6 +8,8 @@ import java.util.List;
 
 @Immutable
 public final class BooleanExpression implements Expression {
+    private static final long serialVersionUID = 3884025571615906696L;
+
     public enum Type {AND, OR}
 
     @Nonnull

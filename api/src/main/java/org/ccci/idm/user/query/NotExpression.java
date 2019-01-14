@@ -3,6 +3,8 @@ package org.ccci.idm.user.query;
 import javax.annotation.Nonnull;
 
 public class NotExpression implements Expression {
+    private static final long serialVersionUID = -7321113440722414788L;
+
     @Nonnull
     private final Expression component;
 
