@@ -721,6 +721,14 @@ public class LdaptiveUserDao extends AbstractLdapUserDao {
         final Group group = expression.getGroup();
         final String value = group != null ? DnUtils.toString(checkValidGroupDn(group)) : expression.getValue();
 
+        // handle special case comparisons
+        switch (expression.getAttribute()) {
+            case GUID:
+                // attr == {value} || (ccciGuid == {value} && attr == null)
+                return new EqualsFilter(attrName, value)
+                        .or(new EqualsFilter(LDAP_ATTR_GUID, value).and(new PresentFilter(attrName).not()));
+        }
+
         switch (expression.getType()) {
             case EQ:
                 return new EqualsFilter(attrName, value);

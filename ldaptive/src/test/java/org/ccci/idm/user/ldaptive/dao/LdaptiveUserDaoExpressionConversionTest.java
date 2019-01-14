@@ -1,6 +1,7 @@
 package org.ccci.idm.user.ldaptive.dao;
 
 import static org.ccci.idm.user.query.Attribute.FIRST_NAME;
+import static org.ccci.idm.user.query.Attribute.GUID;
 import static org.ccci.idm.user.query.Attribute.LAST_NAME;
 import static org.hamcrest.CoreMatchers.containsString;
 import static org.hamcrest.Matchers.hasProperty;
@@ -46,6 +47,7 @@ public class LdaptiveUserDaoExpressionConversionTest {
         return new Object[] {
                 new Object[] {FIRST_NAME.eq("First"), "(givenName=First)"},
                 new Object[] {LAST_NAME.like("L*"), "(sn=L*)"},
+                new Object[] {GUID.eq("01234567-89AB-CDEF-0123-456789ABCDEF"), "(|(thekeyGuid=01234567-89AB-CDEF-0123-456789ABCDEF)(&(ccciGuid=01234567-89AB-CDEF-0123-456789ABCDEF)(!(thekeyGuid=*))))"}
         };
     }
 

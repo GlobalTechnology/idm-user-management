@@ -6,6 +6,7 @@ import static org.ccci.idm.user.dao.ldap.Constants.LDAP_ATTR_EMPLOYEE_NUMBER;
 import static org.ccci.idm.user.dao.ldap.Constants.LDAP_ATTR_FIRSTNAME;
 import static org.ccci.idm.user.dao.ldap.Constants.LDAP_ATTR_GROUPS;
 import static org.ccci.idm.user.dao.ldap.Constants.LDAP_ATTR_LASTNAME;
+import static org.ccci.idm.user.dao.ldap.Constants.LDAP_ATTR_THEKEY_GUID;
 import static org.ccci.idm.user.dao.ldap.Constants.LDAP_ATTR_USERID;
 
 import org.ccci.idm.user.Group;
@@ -13,6 +14,7 @@ import org.ccci.idm.user.Group;
 import javax.annotation.Nonnull;
 
 public enum Attribute {
+    GUID(LDAP_ATTR_THEKEY_GUID),
     EMAIL(LDAP_ATTR_USERID),
     EMAIL_ALIAS(LDAP_ATTR_CRU_PROXY_ADDRESSES),
     FIRST_NAME(LDAP_ATTR_FIRSTNAME),
@@ -39,6 +41,10 @@ public enum Attribute {
     }
 
     public Expression like(@Nonnull final String value) {
+        if (this == GUID) {
+            throw new UnsupportedOperationException("You can only do direct equality searches for guids");
+        }
+
         return new ComparisonExpression(ComparisonExpression.Type.LIKE, this, value);
     }
 }
