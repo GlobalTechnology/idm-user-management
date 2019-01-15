@@ -21,6 +21,7 @@ import static org.ccci.idm.user.Constants.AUDIT_RESOURCE_RESOLVER_UPDATE_USER;
 import com.google.common.annotations.Beta;
 import com.google.common.base.CharMatcher;
 import com.google.common.base.MoreObjects;
+import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableList;
 import org.apache.commons.validator.routines.EmailValidator;
 import org.apereo.inspektr.audit.annotation.Audit;
@@ -29,6 +30,8 @@ import org.ccci.idm.user.dao.exception.DaoException;
 import org.ccci.idm.user.dao.exception.ExceededMaximumAllowedResultsException;
 import org.ccci.idm.user.exception.EmailAlreadyExistsException;
 import org.ccci.idm.user.exception.InvalidEmailUserException;
+import org.ccci.idm.user.exception.InvalidUsDesignationUserException;
+import org.ccci.idm.user.exception.InvalidUsEmployeeIdUserException;
 import org.ccci.idm.user.exception.RelayGuidAlreadyExistsException;
 import org.ccci.idm.user.exception.TheKeyGuidAlreadyExistsException;
 import org.ccci.idm.user.exception.UserException;
@@ -160,11 +163,11 @@ public class DefaultUserManager implements UserManager {
     }
 
     protected void validateNewUser(final User user) throws UserException {
-        // perform base user validation
-        this.validateUser(user);
-
-        // validate user email
+        // perform user validation
+        validateUser(user);
         validateEmail(user);
+        validateUsDesignation(user);
+        validateUsEmployeeId(user);
 
         // throw an error if a user already exists for this email
         if (this.doesEmailExist(user.getEmail())) {
@@ -231,12 +234,18 @@ public class DefaultUserManager implements UserManager {
 
     protected void validateUpdateUser(final User user, final User.Attr... attrs) throws UserException {
         // perform base user validation
-        this.validateUser(user);
+        validateUser(user);
 
         // validate user based on attributes being updated
         final List<User.Attr> attrsList = ImmutableList.copyOf(attrs);
         if (attrsList.contains(User.Attr.EMAIL)) {
             validateEmail(user);
+        }
+        if (attrsList.contains(User.Attr.CRU_DESIGNATION)) {
+            validateUsDesignation(user);
+        }
+        if (attrsList.contains(User.Attr.EMPLOYEE_NUMBER)) {
+            validateUsEmployeeId(user);
         }
     }
 
@@ -538,6 +547,20 @@ public class DefaultUserManager implements UserManager {
 
     protected void validateUser(@Nonnull final User user) throws UserException {
         // keep as extension point
+    }
+
+    protected void validateUsEmployeeId(@Nonnull final User user) throws UserException {
+        final String employeeId = user.getEmployeeId();
+        if (!Strings.isNullOrEmpty(employeeId) && !UserUtil.isValidUsEmployeeId(employeeId)) {
+            throw new InvalidUsEmployeeIdUserException("Invalid Employee ID '" + employeeId + "' specified for user");
+        }
+    }
+
+    protected void validateUsDesignation(@Nonnull final User user) throws UserException {
+        final String designation = user.getCruDesignation();
+        if (!Strings.isNullOrEmpty(designation) && !UserUtil.isValidUsDesignation(designation)) {
+            throw new InvalidUsDesignationUserException("Invalid Designation '" + designation + "' specified for user");
+        }
     }
 
     public interface UserManagerListener {
