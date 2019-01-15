@@ -3,6 +3,8 @@ package org.ccci.idm.user.util;
 import static junit.framework.TestCase.assertFalse;
 import static junit.framework.TestCase.assertTrue;
 import static org.ccci.idm.user.util.UserUtil.isValidGuid;
+import static org.ccci.idm.user.util.UserUtil.isValidUsDesignation;
+import static org.ccci.idm.user.util.UserUtil.isValidUsEmployeeId;
 
 import junitparams.JUnitParamsRunner;
 import junitparams.Parameters;
@@ -35,5 +37,52 @@ public class UserUtilTest {
     })
     public void verifyIsValidGuidInvalid(@Nullable final String guid) {
         assertFalse(isValidGuid(guid));
+    }
+
+    @Test
+    @Parameters({
+            "0123456",
+            "1111111",
+            "0000000"
+    })
+    public void verifyIsValidUsDesignationValid(final String designation) {
+        assertTrue(isValidUsDesignation(designation));
+    }
+
+    @Test
+    @Parameters({
+            "null",
+            "012345",
+            "11111111",
+            "abcdefg",
+            "111111a"
+    })
+    public void verifyIsValidUsDesignationInvalid(@Nullable final String designation) {
+        assertFalse(isValidUsDesignation(designation));
+    }
+
+    @Test
+    @Parameters({
+            "012345678",
+            "111111111",
+            "111111111S",
+            "111111111D"
+    })
+    public void verifyIsValidUsEmployeeIdValid(final String employeeId) {
+        assertTrue(isValidUsEmployeeId(employeeId));
+    }
+
+    @Test
+    @Parameters({
+            "null",
+            "abcdefghi",
+            "01234567",
+            "1111111111",
+            "111111111s",
+            "111111111d",
+            "111111111T"
+    })
+    public void verifyIsValidUsEmployeeIdInvalid(@Nullable final String employeeId) {
+        assertFalse(isValidUsEmployeeId(employeeId));
     }
 }

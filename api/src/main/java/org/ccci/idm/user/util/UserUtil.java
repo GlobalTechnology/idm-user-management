@@ -7,10 +7,8 @@ public class UserUtil {
     private static final Pattern VALID_GUID =
             Pattern.compile("^[0-9a-f]{8}(?:-[0-9a-f]{4}){4}[0-9a-f]{8}$", Pattern.CASE_INSENSITIVE);
 
-    private static final Pattern VALID_US_DESIGNATION =
-            Pattern.compile("^[0-9]{7}$", Pattern.CASE_INSENSITIVE);
-    private static final Pattern VALID_US_EMPLOYEE_ID =
-            Pattern.compile("^[0-9]{9}[SD]?$", Pattern.CASE_INSENSITIVE);
+    private static final Pattern VALID_US_DESIGNATION = Pattern.compile("^[0-9]{7}$");
+    private static final Pattern VALID_US_EMPLOYEE_ID = Pattern.compile("^[0-9]{9}[SD]?$");
 
     public static boolean isValidGuid(@Nullable final String guid) {
         return guid != null && VALID_GUID.matcher(guid).matches();
