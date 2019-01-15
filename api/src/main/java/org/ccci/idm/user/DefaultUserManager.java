@@ -34,6 +34,7 @@ import org.ccci.idm.user.exception.RelayGuidAlreadyExistsException;
 import org.ccci.idm.user.exception.TheKeyGuidAlreadyExistsException;
 import org.ccci.idm.user.exception.UserException;
 import org.ccci.idm.user.exception.UserNotFoundException;
+import org.ccci.idm.user.query.Expression;
 import org.ccci.idm.user.util.DefaultRandomPasswordGenerator;
 import org.ccci.idm.user.util.PasswordHistoryManager;
 import org.ccci.idm.user.util.RandomPasswordGenerator;
@@ -440,23 +441,27 @@ public class DefaultUserManager implements UserManager {
     @Beta
     @Nonnull
     @Override
+    @Deprecated
     public List<User> findAllByQuery(@Nonnull final SearchQuery query) throws DaoException {
         return this.userDao.findAllByQuery(query);
     }
 
     @Override
+    @Deprecated
     public List<User> findAllByFirstName(final String pattern, final boolean includeDeactivated) throws
             ExceededMaximumAllowedResultsException {
         return this.userDao.findAllByFirstName(pattern, includeDeactivated);
     }
 
     @Override
+    @Deprecated
     public List<User> findAllByLastName(final String pattern, final boolean includeDeactivated) throws
             ExceededMaximumAllowedResultsException {
         return this.userDao.findAllByLastName(pattern, includeDeactivated);
     }
 
     @Override
+    @Deprecated
     public List<User> findAllByEmail(final String pattern, final boolean includeDeactivated) throws
             ExceededMaximumAllowedResultsException {
         return this.userDao.findAllByEmail(pattern, includeDeactivated);
@@ -464,6 +469,7 @@ public class DefaultUserManager implements UserManager {
 
     @Nonnull
     @Override
+    @Deprecated
     public List<User> findAllByGroup(@Nonnull final Group group, final boolean includeDeactivated) throws DaoException {
         return this.userDao.findAllByGroup(group, includeDeactivated);
     }
@@ -476,8 +482,14 @@ public class DefaultUserManager implements UserManager {
     }
 
     @Override
-    public Stream<User> streamUsers(final boolean includeDeactivated) {
-        return userDao.streamUsers(includeDeactivated);
+    public Stream<User> streamUsers(@Nullable final Expression expression, final boolean includeDeactivated) {
+        return userDao.streamUsers(expression, includeDeactivated);
+    }
+
+    @Override
+    public Stream<User> streamUsers(@Nullable final Expression expression, final boolean includeDeactivated,
+                                    final boolean restrictMaxAllowed) {
+        return userDao.streamUsers(expression, includeDeactivated, restrictMaxAllowed);
     }
 
     @Override

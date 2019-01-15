@@ -7,6 +7,7 @@ import org.ccci.idm.user.SearchQuery;
 import org.ccci.idm.user.User;
 import org.ccci.idm.user.dao.exception.DaoException;
 import org.ccci.idm.user.dao.exception.ExceededMaximumAllowedResultsException;
+import org.ccci.idm.user.query.Expression;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -94,9 +95,11 @@ public interface UserDao {
      * @param query the users to find
      * @return {@link List} of {@link User} objects.
      * @throws DaoException
+     * @deprecated Since v1.0.0, use {@link UserDao#streamUsers} instead.
      */
     @Beta
     @Nonnull
+    @Deprecated
     List<User> findAllByQuery(@Nonnull SearchQuery query) throws DaoException;
 
     /**
@@ -106,7 +109,9 @@ public interface UserDao {
      * @param includeDeactivated If <tt>true</tt> then deactivated accounts are included.
      * @return {@link java.util.List} of {@link User} objects, or <tt>null</tt> if none are found.
      * @throws ExceededMaximumAllowedResultsException
+     * @deprecated Since v1.0.0, use {@link UserDao#streamUsers} instead.
      */
+    @Deprecated
     List<User> findAllByFirstName(String pattern, boolean includeDeactivated) throws
             ExceededMaximumAllowedResultsException;
 
@@ -117,7 +122,9 @@ public interface UserDao {
      * @param includeDeactivated If <tt>true</tt> then deactivated accounts are included.
      * @return {@link List} of {@link User} objects, or <tt>null</tt> if none are found.
      * @throws ExceededMaximumAllowedResultsException
+     * @deprecated Since v1.0.0, use {@link UserDao#streamUsers} instead.
      */
+    @Deprecated
     List<User> findAllByLastName(String pattern, boolean includeDeactivated) throws
             ExceededMaximumAllowedResultsException;
 
@@ -128,8 +135,10 @@ public interface UserDao {
      * @param includeDeactivated If <tt>true</tt> then deactivated accounts are included.
      * @return {@link List} of {@link User} objects found.
      * @throws ExceededMaximumAllowedResultsException
+     * @deprecated Since v1.0.0, use {@link UserDao#streamUsers} instead.
      */
     @Nonnull
+    @Deprecated
     List<User> findAllByEmail(String pattern, boolean includeDeactivated) throws ExceededMaximumAllowedResultsException;
 
     /**
@@ -140,8 +149,10 @@ public interface UserDao {
      * @return {@link List} of {@link User} objects found.
      * @throws ExceededMaximumAllowedResultsException if there are too many users found
      * @throws DaoException
+     * @deprecated Since v1.0.0, use {@link UserDao#streamUsers} instead.
      */
     @Nonnull
+    @Deprecated
     List<User> findAllByGroup(@Nonnull Group group, boolean includeDeactivated) throws DaoException;
 
     /**
@@ -170,19 +181,35 @@ public interface UserDao {
      * @param queue              The {@link BlockingQueue} to add all users to.
      * @param includeDeactivated If <tt>true</tt> then deactivated accounts are included.
      * @return number of users enqueued
-     * @deprecated Since 1.0.0, use {@link UserDao#streamUsers(boolean)} instead.
+     * @deprecated Since 1.0.0, use {@link UserDao#streamUsers} instead.
      */
     @Deprecated
     int enqueueAll(@Nonnull BlockingQueue<User> queue, boolean includeDeactivated) throws DaoException;
 
     /**
-     * Provide a Java 8 Stream over all the users. This stream needs to be closed after use.
+     * Provide a Java 8 Stream over all the users that match the specified expression. This stream needs to be closed
+     * after use.
      *
+     * @param expression         The search expression
      * @param includeDeactivated Whether deactivated users should be included in the Stream
      * @return a Stream of all users
      */
     @Nonnull
-    Stream<User> streamUsers(boolean includeDeactivated);
+    default Stream<User> streamUsers(@Nullable Expression expression, boolean includeDeactivated) {
+        return streamUsers(expression, includeDeactivated, false);
+    }
+
+    /**
+     * Provide a Java 8 Stream over all the users that match the specified expression. This stream needs to be closed
+     * after use.
+     *
+     * @param expression         The search expression
+     * @param includeDeactivated Whether deactivated users should be included in the Stream
+     * @param restrictMaxAllowed A boolean indicating that the stream should be restricted to an upper search limit
+     * @return a Stream of all users
+     */
+    @Nonnull
+    Stream<User> streamUsers(@Nullable Expression expression, boolean includeDeactivated, boolean restrictMaxAllowed);
 
     /**
      * Add user to group

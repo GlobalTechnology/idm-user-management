@@ -2,6 +2,10 @@ package org.ccci.idm.user.ldaptive.dao;
 
 import static org.ccci.idm.user.TestUtil.guid;
 import static org.ccci.idm.user.TestUtil.newUser;
+import static org.ccci.idm.user.dao.ldap.AbstractLdapUserDao.SEARCH_NO_LIMIT;
+import static org.ccci.idm.user.query.Attribute.EMAIL;
+import static org.ccci.idm.user.query.Attribute.FIRST_NAME;
+import static org.ccci.idm.user.query.Attribute.LAST_NAME;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotEquals;
@@ -18,6 +22,7 @@ import org.ccci.idm.user.Group;
 import org.ccci.idm.user.SearchQuery;
 import org.ccci.idm.user.User;
 import org.ccci.idm.user.dao.exception.ExceededMaximumAllowedResultsException;
+import org.ccci.idm.user.query.Attribute;
 import org.ccci.idm.user.util.HashUtility;
 import org.joda.time.DateTime;
 import org.joda.time.ReadableInstant;
@@ -306,54 +311,46 @@ public class LdaptiveUserDaoIT {
         this.dao.save(user2);
 
         // test no limit
-        {
-            this.dao.setMaxSearchResults(0);
-
-            final List<User> firstNameUsers = this.dao.findAllByFirstName(user1.getFirstName(), true);
-            assertEquals(2, firstNameUsers.size());
-
-            final List<User> lastNameUsers = this.dao.findAllByLastName(user1.getLastName(), true);
-            assertEquals(2, lastNameUsers.size());
-
-            final List<User> emailUsers = this.dao.findAllByEmail(user1.getEmail(), true);
-            assertEquals(2, emailUsers.size());
+        dao.setMaxSearchResults(SEARCH_NO_LIMIT);
+        try (Stream<User> users = dao.streamUsers(FIRST_NAME.eq(user1.getFirstName()), true, true)) {
+            assertEquals(2, users.count());
+        }
+        try (Stream<User> users = dao.streamUsers(LAST_NAME.eq(user1.getLastName()), true, true)) {
+            assertEquals(2, users.count());
+        }
+        try (Stream<User> users = dao.streamUsers(EMAIL.eq(user1.getEmail()), true, true)) {
+            assertEquals(2, users.count());
         }
 
         // test with maxSearchResults = 1
         try {
-            this.dao.setMaxSearchResults(1);
+            dao.setMaxSearchResults(1);
 
             // test first name
-            try {
-                this.dao.findAllByFirstName(user1.getFirstName(), true);
-                fail("ExceededMaximumAllowedResultsException was not thrown by findAllByFirstName");
-            } catch (final ExceededMaximumAllowedResultsException e) {
-                // this exception was expected
-            }
+            try (Stream<User> users = dao.streamUsers(FIRST_NAME.eq(user1.getFirstName()), true, true)) {
+                assertEquals(2, users.count());
+                fail("ExceededMaximumAllowedResultsException was not thrown by streamUsers");
+            } catch (final ExceededMaximumAllowedResultsException expected) { }
 
             // test last name
-            try {
-                this.dao.findAllByLastName(user1.getLastName(), true);
-                fail("ExceededMaximumAllowedResultsException was not thrown by findAllByLastName");
-            } catch (final ExceededMaximumAllowedResultsException e) {
-                // this exception was expected
-            }
+            try (Stream<User> users = dao.streamUsers(LAST_NAME.eq(user1.getLastName()), true, true)) {
+                assertEquals(2, users.count());
+                fail("ExceededMaximumAllowedResultsException was not thrown by streamUsers");
+            } catch (final ExceededMaximumAllowedResultsException expected) { }
 
-            // test last name
-            try {
-                this.dao.findAllByEmail(user1.getEmail(), true);
-                fail("ExceededMaximumAllowedResultsException was not thrown by findAllByEmail");
-            } catch (final ExceededMaximumAllowedResultsException e) {
-                // this exception was expected
-            }
+            // test email
+            try (Stream<User> users = dao.streamUsers(EMAIL.eq(user1.getEmail()), true, true)) {
+                assertEquals(2, users.count());
+                fail("ExceededMaximumAllowedResultsException was not thrown by streamUsers");
+            } catch (final ExceededMaximumAllowedResultsException expected) { }
         } finally {
             // disable limit to prevent interference in other tests
-            this.dao.setMaxSearchResults(0);
+            dao.setMaxSearchResults(SEARCH_NO_LIMIT);
         }
     }
 
     @Test
-    public void testStreamUsers() throws Exception {
+    public void testStreamUsersAll() throws Exception {
         assumeConfigured();
 
         try {
@@ -361,7 +358,7 @@ public class LdaptiveUserDaoIT {
             this.dao.setMaxPageSize(50);
 
             // stream all users
-            try (Stream<User> users = dao.streamUsers(true)) {
+            try (Stream<User> users = dao.streamUsers(null, true)) {
                 final long count = users.count();
 
                 // check final state
@@ -370,6 +367,22 @@ public class LdaptiveUserDaoIT {
         } finally {
             // reset maxPageSize to force paging for other tests
             this.dao.setMaxPageSize(1);
+        }
+    }
+
+    @Test
+    public void testStreamUsersWithLastName() throws Exception {
+        final String lastName = "LastName-" + RAND.nextInt(Integer.MAX_VALUE);
+
+        for (int i = 0; i < 2; i++) {
+            final User user = newUser();
+            user.setLastName(lastName);
+            dao.save(user);
+        }
+        dao.save(newUser());
+
+        try (Stream<User> users = dao.streamUsers(Attribute.LAST_NAME.eq(lastName), true)) {
+            assertEquals(2, users.count());
         }
     }
 
