@@ -534,7 +534,7 @@ public class DefaultUserManager implements UserManager {
     protected void validateEmail(@Nonnull final User user) throws UserException {
         // throw an error if we don't have a valid email
         final String email = user.getEmail();
-        if (email == null || !VALIDATOR_EMAIL.isValid(email) || CharMatcher.WHITESPACE.matchesAnyOf(email)) {
+        if (email == null || !VALIDATOR_EMAIL.isValid(email) || CharMatcher.whitespace().matchesAnyOf(email)) {
             throw new InvalidEmailUserException("Invalid email '" + email + "' specified for user");
         }
     }
