@@ -372,6 +372,8 @@ public class LdaptiveUserDaoIT {
 
     @Test
     public void testStreamUsersWithLastName() throws Exception {
+        assumeConfigured();
+
         final String lastName = "LastName-" + RAND.nextInt(Integer.MAX_VALUE);
 
         for (int i = 0; i < 2; i++) {
