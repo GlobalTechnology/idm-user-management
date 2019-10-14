@@ -15,13 +15,7 @@ import java.util.List;
 import java.util.concurrent.BlockingQueue;
 import java.util.stream.Stream;
 
-public interface UserDao {
-    /**
-     * Indicates if this UserDao is readonly
-     * @return true if this UserDao is readonly
-     */
-    boolean isReadOnly();
-
+public interface UserDao extends UserDaoKt {
     /**
      * Save the specified user.
      *
