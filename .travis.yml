@@ -8,7 +8,8 @@ env:
     - secure: PxWADglXd2eOJ6YrpuILdlZfW7B3RDIj8hXTfNzk26cojXND/AwqERKXbHXuE0/qjsZ2alLhPsCKFZLyGKeII9pKc1g2q66BqBOV4rN4xioRB27qHoOC/ZPsnF96eyeXIBmF/Lw92xkja4rWOB8e3T7f0+eJBUI4r5wyxlqem4A=
 branches:
   only:
-    - master
+  - master
+  - /^feature\/.*/
 
 cache:
   directories:
