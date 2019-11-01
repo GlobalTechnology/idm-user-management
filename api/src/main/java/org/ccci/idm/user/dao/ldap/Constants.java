@@ -12,6 +12,7 @@ public class Constants {
     public static final String LDAP_ATTR_OBJECTCLASS = "objectClass";
     public static final String LDAP_ATTR_CN = "cn";
     public static final String LDAP_ATTR_USERID = "uid";
+    @Deprecated
     public static final String LDAP_ATTR_GUID = "ccciGuid";
     public static final String LDAP_ATTR_THEKEY_GUID = "thekeyGuid";
     public static final String LDAP_ATTR_PASSWORD = "userPassword";

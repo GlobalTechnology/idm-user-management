@@ -123,6 +123,7 @@ public class DefaultUserManager implements UserManager {
         return this.userDao.isReadOnly();
     }
 
+    @Deprecated
     protected boolean doesGuidExist(final String guid) {
         return guid != null && this.userDao.findByGuid(guid, true) != null;
     }
@@ -383,11 +384,7 @@ public class DefaultUserManager implements UserManager {
     }
 
     @Override
-    public User findUserByGuid(final String guid) {
-        return this.findUserByGuid(guid, true);
-    }
-
-    @Override
+    @Deprecated
     public User findUserByGuid(final String guid, final boolean includeDeactivated) {
         return this.userDao.findByGuid(guid, includeDeactivated);
     }
