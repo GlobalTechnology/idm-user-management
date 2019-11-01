@@ -361,7 +361,7 @@ public class DefaultUserManager implements UserManager {
     @Override
     public User getFreshUser(@Nonnull final User user) throws UserNotFoundException {
         // attempt retrieving the fresh user object using the original users guid
-        final User fresh = userDao.findByGuid(user.getGuid(), true);
+        final User fresh = userDao.findByTheKeyGuid(user.getTheKeyGuid(), true);
 
         // throw an error if the guid wasn't found
         if (fresh == null) {

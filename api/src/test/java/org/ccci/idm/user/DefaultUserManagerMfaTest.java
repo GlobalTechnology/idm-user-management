@@ -170,7 +170,7 @@ public class DefaultUserManagerMfaTest {
 
     private User createUser() {
         final User user = newUser();
-        when(userDao.findByGuid(eq(user.getGuid()), anyBoolean())).thenReturn(user);
+        when(userDao.findByTheKeyGuid(eq(user.getTheKeyGuid()), anyBoolean())).thenReturn(user);
         return user;
     }
 }
