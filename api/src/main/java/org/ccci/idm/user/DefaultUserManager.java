@@ -188,11 +188,13 @@ public class DefaultUserManager implements UserManager {
     protected void setNewUserDefaults(final User user) throws UserException {
         // generate a guid for the user if there isn't a valid one already set
         int count = 0;
-        String guid = user.getGuid();
-        while (!UserUtil.isValidGuid(guid) || doesGuidExist(guid) || doesRelayGuidExist(guid) ||
-                doesTheKeyGuidExist(guid)) {
-            guid = UUID.randomUUID().toString().toUpperCase(Locale.US);
+        while (!UserUtil.isValidGuid(user.getGuid()) || doesGuidExist(user.getGuid()) ||
+                !UserUtil.isValidGuid(user.getRelayGuid()) || doesRelayGuidExist(user.getRelayGuid()) ||
+                !UserUtil.isValidGuid(user.getTheKeyGuid()) || doesTheKeyGuidExist(user.getTheKeyGuid())) {
+            final String guid = UUID.randomUUID().toString().toUpperCase(Locale.US);
             user.setGuid(guid);
+            user.setTheKeyGuid(guid);
+            user.setRelayGuid(guid);
 
             // prevent an infinite loop, I doubt this exception will ever be thrown
             if (count++ > 200) {
