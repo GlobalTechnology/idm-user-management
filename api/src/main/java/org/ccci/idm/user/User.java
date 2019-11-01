@@ -38,6 +38,7 @@ public class User implements Cloneable, Serializable {
     private String email;
     private String password;
 
+    @Deprecated
     private String guid;
     private String theKeyGuid;
     private String relayGuid;
@@ -230,10 +231,12 @@ public class User implements Cloneable, Serializable {
         this.forcePasswordChange = forceChange;
     }
 
+    @Deprecated
     public String getGuid() {
         return this.guid;
     }
 
+    @Deprecated
     public void setGuid(final String guid) {
         this.guid = guid;
     }

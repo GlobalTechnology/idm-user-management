@@ -60,6 +60,7 @@ public interface UserDao {
      * @param includeDeactivated If <tt>true</tt> then deactivated accounts are included.
      * @return Request {@link User} or <tt>null</tt> if not found.
      */
+    @Deprecated
     User findByGuid(String guid, boolean includeDeactivated);
 
     /**

@@ -123,6 +123,7 @@ public class DefaultUserManager implements UserManager {
         return this.userDao.isReadOnly();
     }
 
+    @Deprecated
     protected boolean doesGuidExist(final String guid) {
         return guid != null && this.userDao.findByGuid(guid, true) != null;
     }
@@ -187,11 +188,13 @@ public class DefaultUserManager implements UserManager {
     protected void setNewUserDefaults(final User user) throws UserException {
         // generate a guid for the user if there isn't a valid one already set
         int count = 0;
-        String guid = user.getGuid();
-        while (!UserUtil.isValidGuid(guid) || doesGuidExist(guid) || doesRelayGuidExist(guid) ||
-                doesTheKeyGuidExist(guid)) {
-            guid = UUID.randomUUID().toString().toUpperCase(Locale.US);
+        while (!UserUtil.isValidGuid(user.getGuid()) || doesGuidExist(user.getGuid()) ||
+                !UserUtil.isValidGuid(user.getRelayGuid()) || doesRelayGuidExist(user.getRelayGuid()) ||
+                !UserUtil.isValidGuid(user.getTheKeyGuid()) || doesTheKeyGuidExist(user.getTheKeyGuid())) {
+            final String guid = UUID.randomUUID().toString().toUpperCase(Locale.US);
             user.setGuid(guid);
+            user.setTheKeyGuid(guid);
+            user.setRelayGuid(guid);
 
             // prevent an infinite loop, I doubt this exception will ever be thrown
             if (count++ > 200) {
@@ -361,7 +364,7 @@ public class DefaultUserManager implements UserManager {
     @Override
     public User getFreshUser(@Nonnull final User user) throws UserNotFoundException {
         // attempt retrieving the fresh user object using the original users guid
-        final User fresh = userDao.findByGuid(user.getGuid(), true);
+        final User fresh = userDao.findByTheKeyGuid(user.getTheKeyGuid(), true);
 
         // throw an error if the guid wasn't found
         if (fresh == null) {
@@ -383,11 +386,7 @@ public class DefaultUserManager implements UserManager {
     }
 
     @Override
-    public User findUserByGuid(final String guid) {
-        return this.findUserByGuid(guid, true);
-    }
-
-    @Override
+    @Deprecated
     public User findUserByGuid(final String guid, final boolean includeDeactivated) {
         return this.userDao.findByGuid(guid, includeDeactivated);
     }

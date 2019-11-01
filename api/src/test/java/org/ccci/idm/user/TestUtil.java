@@ -19,6 +19,7 @@ public class TestUtil {
         final User user = new User();
         user.setEmail(randomEmail());
         user.setGuid(guid());
+        user.setTheKeyGuid(guid());
         user.setRelayGuid(guid());
         user.setPassword(guid());
         user.setFirstName(randomName());

@@ -103,7 +103,7 @@ public class LdaptiveUserDaoIT {
         final User foundUser = this.dao.findByEmail(user.getEmail(), false);
 
         assertNotNull(foundUser);
-        assertEquals(user.getGuid(), foundUser.getGuid());
+        assertEquals(user.getTheKeyGuid(), foundUser.getTheKeyGuid());
         assertEquals(user.getEmail(), foundUser.getEmail());
     }
 
@@ -121,11 +121,11 @@ public class LdaptiveUserDaoIT {
         this.dao.update(user, User.Attr.NAME);
 
         // load user from database
-        final User foundUser = this.dao.findByGuid(user.getGuid(), false);
+        final User foundUser = this.dao.findByTheKeyGuid(user.getTheKeyGuid(), false);
 
         // make sure the updates persisted correctly
         assertNotNull(foundUser);
-        assertEquals(user.getGuid(), foundUser.getGuid());
+        assertEquals(user.getTheKeyGuid(), foundUser.getTheKeyGuid());
         assertEquals(user.getEmail(), foundUser.getEmail());
         assertEquals(user.getFirstName(), foundUser.getFirstName());
         assertEquals(user.getLastName(), foundUser.getLastName());
@@ -136,12 +136,12 @@ public class LdaptiveUserDaoIT {
         assumeConfigured();
 
         final User user = newUser();
-        final String guid = user.getGuid();
+        final String guid = user.getTheKeyGuid();
         user.setLoginTime(new DateTime().minusDays(30).secondOfMinute().roundFloorCopy());
         this.dao.save(user);
 
         // see if we load the same value from ldap
-        final User saved1 = this.dao.findByGuid(guid, true);
+        final User saved1 = this.dao.findByTheKeyGuid(guid, true);
         assertTrue(saved1.getLoginTime().isEqual(user.getLoginTime()));
 
         // update the login time to now
@@ -149,7 +149,7 @@ public class LdaptiveUserDaoIT {
         this.dao.update(saved1, User.Attr.LOGINTIME);
 
         // check to see if the update succeeded
-        final User saved2 = this.dao.findByGuid(guid, true);
+        final User saved2 = this.dao.findByTheKeyGuid(guid, true);
         assertTrue(saved2.getLoginTime().isEqual(saved1.getLoginTime()));
         assertFalse(saved2.getLoginTime().isEqual(user.getLoginTime()));
     }
@@ -161,11 +161,11 @@ public class LdaptiveUserDaoIT {
         // create user
         final User user = newUser();
         user.setPassword(guid());
-        final String guid = user.getGuid();
+        final String guid = user.getTheKeyGuid();
         this.dao.save(user);
 
         // check for an initial password changeTime
-        final User user1 = this.dao.findByGuid(guid, true);
+        final User user1 = this.dao.findByTheKeyGuid(guid, true);
         assertNotNull(user1);
         ReadableInstant changeTime = user1.getPasswordChangedTime();
         assertNotNull(changeTime);
@@ -178,7 +178,7 @@ public class LdaptiveUserDaoIT {
         this.dao.update(user1, User.Attr.PASSWORD);
 
         // check pwdChangedTime
-        final User user2 = this.dao.findByGuid(guid, true);
+        final User user2 = this.dao.findByTheKeyGuid(guid, true);
         assertNotNull(user2);
         assertNotNull(user2.getPasswordChangedTime());
         assertNotEquals(changeTime, user2.getPasswordChangedTime());
@@ -191,7 +191,7 @@ public class LdaptiveUserDaoIT {
         this.dao.update(user2, User.Attr.PASSWORD);
 
         // check pwdChangedTime
-        final User user3 = this.dao.findByGuid(guid, true);
+        final User user3 = this.dao.findByTheKeyGuid(guid, true);
         assertNotNull(user3);
         assertNotNull(user3.getPasswordChangedTime());
         assertNotEquals(changeTime, user3.getPasswordChangedTime());
@@ -220,55 +220,55 @@ public class LdaptiveUserDaoIT {
         // test findAllByFirstName
         {
             final Set<String> active = dao.findAllByFirstName(user1.getFirstName(), false).stream()
-                    .map(User::getGuid)
+                    .map(User::getTheKeyGuid)
                     .collect(Collectors.toSet());
             final Set<String> all = dao.findAllByFirstName(user1.getFirstName(), true).stream()
-                    .map(User::getGuid)
+                    .map(User::getTheKeyGuid)
                     .collect(Collectors.toSet());
 
             assertEquals(1, active.size());
             assertEquals(2, all.size());
 
-            assertTrue(active.contains(user1.getGuid()));
-            assertFalse(active.contains(user2.getGuid()));
-            assertTrue(all.contains(user1.getGuid()));
-            assertTrue(all.contains(user2.getGuid()));
+            assertTrue(active.contains(user1.getTheKeyGuid()));
+            assertFalse(active.contains(user2.getTheKeyGuid()));
+            assertTrue(all.contains(user1.getTheKeyGuid()));
+            assertTrue(all.contains(user2.getTheKeyGuid()));
         }
 
         // test findAllByLastName
         {
             final Set<String> active = dao.findAllByLastName(user1.getLastName(), false).stream()
-                    .map(User::getGuid)
+                    .map(User::getTheKeyGuid)
                     .collect(Collectors.toSet());
             final Set<String> all = dao.findAllByLastName(user1.getLastName(), true).stream()
-                    .map(User::getGuid)
+                    .map(User::getTheKeyGuid)
                     .collect(Collectors.toSet());
 
             assertEquals(1, active.size());
             assertEquals(2, all.size());
 
-            assertTrue(active.contains(user1.getGuid()));
-            assertFalse(active.contains(user2.getGuid()));
-            assertTrue(all.contains(user1.getGuid()));
-            assertTrue(all.contains(user2.getGuid()));
+            assertTrue(active.contains(user1.getTheKeyGuid()));
+            assertFalse(active.contains(user2.getTheKeyGuid()));
+            assertTrue(all.contains(user1.getTheKeyGuid()));
+            assertTrue(all.contains(user2.getTheKeyGuid()));
         }
 
         // test findAllByEmail
         {
             final Set<String> active = dao.findAllByEmail(user1.getEmail(), false).stream()
-                    .map(User::getGuid)
+                    .map(User::getTheKeyGuid)
                     .collect(Collectors.toSet());
             final Set<String> all = this.dao.findAllByEmail(user1.getEmail(), true).stream()
-                    .map(User::getGuid)
+                    .map(User::getTheKeyGuid)
                     .collect(Collectors.toSet());
 
             assertEquals(1, active.size());
             assertEquals(2, all.size());
 
-            assertTrue(active.contains(user1.getGuid()));
-            assertFalse(active.contains(user2.getGuid()));
-            assertTrue(all.contains(user1.getGuid()));
-            assertTrue(all.contains(user2.getGuid()));
+            assertTrue(active.contains(user1.getTheKeyGuid()));
+            assertFalse(active.contains(user2.getTheKeyGuid()));
+            assertTrue(all.contains(user1.getTheKeyGuid()));
+            assertTrue(all.contains(user2.getTheKeyGuid()));
         }
 
         // create a deactivated user with unique attributes to test individual findBy* support
@@ -288,7 +288,7 @@ public class LdaptiveUserDaoIT {
             assertNull(activeUser);
             assertNotNull(anyUser);
 
-            assertEquals(user3.getGuid(), anyUser.getGuid());
+            assertEquals(user3.getTheKeyGuid(), anyUser.getTheKeyGuid());
         }
     }
 
@@ -484,9 +484,9 @@ public class LdaptiveUserDaoIT {
         this.dao.save(user);
 
         // make sure we can find it and it's valid
-        final User foundUser = this.dao.findByGuid(user.getGuid(), false);
+        final User foundUser = this.dao.findByTheKeyGuid(user.getTheKeyGuid(), false);
         assertNotNull(foundUser);
-        assertEquals(user.getGuid(), foundUser.getGuid());
+        assertEquals(user.getTheKeyGuid(), foundUser.getTheKeyGuid());
         assertEquals(user.getEmail(), foundUser.getEmail());
         assertEquals(user.getEmployeeId(), foundUser.getEmployeeId());
         assertEquals(user.getCity(), foundUser.getCity());
@@ -506,9 +506,9 @@ public class LdaptiveUserDaoIT {
         this.dao.save(user);
 
         // check that it saved correctly
-        User foundUser = this.dao.findByGuid(user.getGuid(), false);
+        User foundUser = this.dao.findByTheKeyGuid(user.getTheKeyGuid(), false);
         assertNotNull(foundUser);
-        assertEquals(user.getGuid(), foundUser.getGuid());
+        assertEquals(user.getTheKeyGuid(), foundUser.getTheKeyGuid());
         assertEquals(user.getEmail(), foundUser.getEmail());
         assertEquals(user.getCity(), foundUser.getCity());
         assertEquals(user.getEmployeeId(), foundUser.getEmployeeId());
@@ -520,9 +520,9 @@ public class LdaptiveUserDaoIT {
         this.dao.update(user, User.Attr.LOCATION, User.Attr.EMPLOYEE_NUMBER);
 
         // check for valid update
-        foundUser = this.dao.findByGuid(user.getGuid(), false);
+        foundUser = this.dao.findByTheKeyGuid(user.getTheKeyGuid(), false);
         assertNotNull(foundUser);
-        assertEquals(user.getGuid(), foundUser.getGuid());
+        assertEquals(user.getTheKeyGuid(), foundUser.getTheKeyGuid());
         assertEquals(user.getEmail(), foundUser.getEmail());
         assertEquals(user.getCity(), foundUser.getCity());
         assertEquals(user.getEmployeeId(), foundUser.getEmployeeId());
@@ -543,7 +543,7 @@ public class LdaptiveUserDaoIT {
 
         this.dao.update(user, User.Attr.SECURITYQA);
 
-        User foundUser = this.dao.findByGuid(user.getGuid(), false);
+        User foundUser = this.dao.findByTheKeyGuid(user.getTheKeyGuid(), false);
         assertEquals(user.getSecurityQuestion(), foundUser.getSecurityQuestion());
         assertFalse(foundUser.checkSecurityAnswer(securityAnswer));
 
@@ -551,7 +551,7 @@ public class LdaptiveUserDaoIT {
         user.setSecurityAnswer(null);
         this.dao.update(user, User.Attr.SECURITYQA);
 
-        foundUser = this.dao.findByGuid(user.getGuid(), false);
+        foundUser = this.dao.findByTheKeyGuid(user.getTheKeyGuid(), false);
         assertEquals(user.getSecurityQuestion(), foundUser.getSecurityQuestion());
         assertFalse(foundUser.checkSecurityAnswer(null));
         assertFalse(foundUser.checkSecurityAnswer("null"));
@@ -568,7 +568,7 @@ public class LdaptiveUserDaoIT {
         this.dao.update(user, User.Attr.SECURITYQA);
 
         // check for valid update
-        foundUser = this.dao.findByGuid(user.getGuid(), false);
+        foundUser = this.dao.findByTheKeyGuid(user.getTheKeyGuid(), false);
         assertEquals(user.getSecurityQuestion(), foundUser.getSecurityQuestion());
         assertTrue(foundUser.checkSecurityAnswer(securityAnswer));
 
@@ -589,7 +589,7 @@ public class LdaptiveUserDaoIT {
         // find user using designation
         final User foundUser = dao.findByDesignation(user.getCruDesignation(), false);
         assertNotNull(foundUser);
-        assertEquals(user.getGuid(), foundUser.getGuid());
+        assertEquals(user.getTheKeyGuid(), foundUser.getTheKeyGuid());
         assertEquals(user.getCruDesignation(), foundUser.getCruDesignation());
     }
 
@@ -604,7 +604,7 @@ public class LdaptiveUserDaoIT {
         // find staff user using employee id
         final User foundUser = this.dao.findByEmployeeId(user.getEmployeeId(), false);
         assertNotNull(foundUser);
-        assertEquals(user.getGuid(), foundUser.getGuid());
+        assertEquals(user.getTheKeyGuid(), foundUser.getTheKeyGuid());
         assertEquals(user.getEmployeeId(), foundUser.getEmployeeId());
     }
 
@@ -675,39 +675,39 @@ public class LdaptiveUserDaoIT {
         // assert the 2 users are not in the group
         {
             final Set<String> guids = dao.findAllByGroup(group1, true).stream()
-                    .map(User::getGuid)
+                    .map(User::getTheKeyGuid)
                     .collect(Collectors.toSet());
-            assertFalse(guids.contains(user1.getGuid()));
-            assertFalse(guids.contains(user2.getGuid()));
+            assertFalse(guids.contains(user1.getTheKeyGuid()));
+            assertFalse(guids.contains(user2.getTheKeyGuid()));
         }
 
         // add user1 to the group
         {
             this.dao.addToGroup(user1, group1);
             final Set<String> guids = dao.findAllByGroup(group1, true).stream()
-                    .map(User::getGuid)
+                    .map(User::getTheKeyGuid)
                     .collect(Collectors.toSet());
-            assertTrue(guids.contains(user1.getGuid()));
-            assertFalse(guids.contains(user2.getGuid()));
+            assertTrue(guids.contains(user1.getTheKeyGuid()));
+            assertFalse(guids.contains(user2.getTheKeyGuid()));
         }
 
         // add user2 to the group
         {
             this.dao.addToGroup(user2, group1);
             final Set<String> guids = dao.findAllByGroup(group1, true).stream()
-                    .map(User::getGuid)
+                    .map(User::getTheKeyGuid)
                     .collect(Collectors.toSet());
-            assertTrue(guids.contains(user1.getGuid()));
-            assertTrue(guids.contains(user2.getGuid()));
+            assertTrue(guids.contains(user1.getTheKeyGuid()));
+            assertTrue(guids.contains(user2.getTheKeyGuid()));
         }
 
         // test includeDeactivated flag
         {
             final Set<String> guids = dao.findAllByGroup(group1, false).stream()
-                    .map(User::getGuid)
+                    .map(User::getTheKeyGuid)
                     .collect(Collectors.toSet());
-            assertTrue(guids.contains(user1.getGuid()));
-            assertFalse(guids.contains(user2.getGuid()));
+            assertTrue(guids.contains(user1.getTheKeyGuid()));
+            assertFalse(guids.contains(user2.getTheKeyGuid()));
         }
 
         // remove the users from the group

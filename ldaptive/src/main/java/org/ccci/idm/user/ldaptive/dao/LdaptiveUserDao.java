@@ -323,6 +323,7 @@ public class LdaptiveUserDao extends AbstractLdapUserDao {
     }
 
     @Override
+    @Deprecated
     public User findByGuid(final String guid, final boolean includeDeactivated) {
         return this.findByFilter(new EqualsFilter(LDAP_ATTR_GUID, guid), includeDeactivated);
     }

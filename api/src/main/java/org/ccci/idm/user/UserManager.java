@@ -118,7 +118,10 @@ public interface UserManager {
      * @param guid GUID of user to find.
      * @return {@link User} with the specified guid, or <tt>null</tt> if not found.
      */
-    User findUserByGuid(String guid);
+    @Deprecated
+    default User findUserByGuid(String guid) {
+        return findUserByGuid(guid, true);
+    }
 
     /**
      * Locate the user with the specified guid.
@@ -127,6 +130,7 @@ public interface UserManager {
      * @param includeDeactivated If <tt>true</tt> then deactivated accounts are included.
      * @return {@link User} with the specified guid, or <tt>null</tt> if not found.
      */
+    @Deprecated
     User findUserByGuid(String guid, boolean includeDeactivated);
 
     /**
