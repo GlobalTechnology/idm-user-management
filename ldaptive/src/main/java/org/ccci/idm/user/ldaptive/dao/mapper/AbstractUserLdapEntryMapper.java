@@ -131,7 +131,7 @@ public abstract class AbstractUserLdapEntryMapper<O extends User> implements Lda
             } else if (user.getImplMeta(META_DEACTIVATED_UID, String.class) != null) {
                 uid = user.getImplMeta(META_DEACTIVATED_UID, String.class);
             } else {
-                uid = LDAP_DEACTIVATED_PREFIX + user.getGuid();
+                uid = LDAP_DEACTIVATED_PREFIX + user.getTheKeyGuid();
                 user.setImplMeta(META_DEACTIVATED_UID, uid);
             }
             return dnResolver.resolve(new org.ldaptive.auth.User(uid));
@@ -324,7 +324,7 @@ public abstract class AbstractUserLdapEntryMapper<O extends User> implements Lda
         user.setSecurityAnswer(this.getStringValue(entry, LDAP_ATTR_SECURITY_ANSWER), false);
 
         // return the loaded User object
-        LOG.debug("User loaded from LdapEntry: {}", user.getGuid());
+        LOG.debug("User loaded from LdapEntry: {}", user.getTheKeyGuid());
     }
 
     protected final LdapAttribute attr(@Nonnull final String name) {

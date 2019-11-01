@@ -27,7 +27,7 @@ public class InspektrSerializationUtils {
     public static ToStringHelper userToStringHelper(@Nullable final User user) {
         final ToStringHelper helper = MoreObjects.toStringHelper(User.class);
         if (user != null) {
-            helper.add("guid", user.getGuid()).add("email", user.getEmail());
+            helper.add("guid", user.getTheKeyGuid()).add("email", user.getEmail());
         } else {
             helper.addValue(null);
         }
