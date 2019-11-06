@@ -11,6 +11,7 @@
     <module>api</module>
     <module>inspektr</module>
     <module>ldaptive</module>
+    <module>okta</module>
   </modules>
 
   <scm>
