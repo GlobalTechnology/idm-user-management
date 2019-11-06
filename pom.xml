@@ -46,6 +46,7 @@
     <junit.version>4.12</junit.version>
     <kotlin.version>1.3.50</kotlin.version>
     <ldaptive.version>1.2.1</ldaptive.version>
+    <okta.sdk.version>1.5.4</okta.sdk.version>
     <slf4j.version>1.7.7</slf4j.version>
     <spring.version>4.2.0.RELEASE</spring.version>
     <spring-security.version>4.2.6.RELEASE</spring-security.version>
@@ -97,6 +98,26 @@
         <artifactId>ldaptive-beans</artifactId>
         <version>${ldaptive.version}</version>
       </dependency>
+
+      <!-- region Okta modules -->
+      <dependency>
+        <groupId>com.okta.sdk</groupId>
+        <artifactId>okta-sdk-api</artifactId>
+        <version>${okta.sdk.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>com.okta.sdk</groupId>
+        <artifactId>okta-sdk-impl</artifactId>
+        <version>${okta.sdk.version}</version>
+        <scope>runtime</scope>
+      </dependency>
+      <dependency>
+        <groupId>com.okta.sdk</groupId>
+        <artifactId>okta-sdk-httpclient</artifactId>
+        <version>${okta.sdk.version}</version>
+        <scope>runtime</scope>
+      </dependency>
+      <!-- endregion Okta modules -->
 
       <dependency>
         <groupId>commons-collections</groupId>
