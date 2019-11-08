@@ -16,6 +16,9 @@ import com.okta.sdk.resource.user.User as OktaUser
 
 private const val PROFILE_THEKEY_GUID = "theKeyGuid"
 private const val PROFILE_RELAY_GUID = "relayGuid"
+private const val PROFILE_US_EMPLOYEE_ID = "usEmployeeId"
+private const val PROFILE_US_DESIGNATION = "usDesignationNumber"
+private const val PROFILE_EMAIL_ALIASES = "emailAliases"
 
 class OktaUserDao(private val okta: Client) : UserDao {
     override fun isReadOnly() = true
@@ -46,9 +49,12 @@ class OktaUserDao(private val okta: Client) : UserDao {
             .putProfileProperty(PROFILE_THEKEY_GUID, user.theKeyGuid)
             .putProfileProperty(PROFILE_RELAY_GUID, user.relayGuid)
             .setEmail(user.email)
+            .setPassword(user.password.toCharArray())
             .setFirstName(user.firstName)
             .setLastName(user.lastName)
-            .setPassword(user.password.toCharArray())
+            .putProfileProperty(PROFILE_US_EMPLOYEE_ID, user.employeeId)
+            .putProfileProperty(PROFILE_US_DESIGNATION, user.cruDesignation)
+            .putProfileProperty(PROFILE_EMAIL_ALIASES, user.cruProxyAddresses.toList())
             .buildAndCreate(okta)
     }
     // endregion CRUD methods
@@ -86,6 +92,9 @@ class OktaUserDao(private val okta: Client) : UserDao {
             lastName = profile.lastName
             theKeyGuid = profile.getString(PROFILE_THEKEY_GUID)
             relayGuid = profile.getString(PROFILE_RELAY_GUID)
+            employeeId = profile.getString(PROFILE_US_EMPLOYEE_ID)
+            cruDesignation = profile.getString(PROFILE_US_DESIGNATION)
+            cruProxyAddresses = profile.getStringList(PROFILE_EMAIL_ALIASES)
         }
     }
 }
