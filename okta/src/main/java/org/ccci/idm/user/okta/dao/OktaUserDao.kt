@@ -60,7 +60,6 @@ class OktaUserDao(private val okta: Client) : UserDao {
     // endregion CRUD methods
 
     // region Unsupported CRUD methods
-    override fun update(original: User, user: User, vararg attrs: User.Attr?) = throw UnsupportedOperationException()
     override fun update(user: User?, vararg attrs: User.Attr?) = throw UnsupportedOperationException()
     override fun addToGroup(user: User, group: Group) = throw UnsupportedOperationException()
     override fun addToGroup(user: User, group: Group, addSecurity: Boolean) = throw UnsupportedOperationException()
