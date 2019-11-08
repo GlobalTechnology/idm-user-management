@@ -44,7 +44,9 @@ public interface UserDao {
      * @param original The original version of the user being updated
      * @param user     User to be updated.
      */
-    void update(User original, User user, User.Attr... attrs) throws DaoException;
+    default void update(@Nonnull User original, @Nonnull User user, User.Attr... attrs) throws DaoException {
+        update(user, attrs);
+    }
 
     /**
      * Find the user with the specified e-mail.
