@@ -727,8 +727,6 @@ public class LdaptiveUserDaoIT {
         user.setPostal("32832");
         Collection<String> cruProxyAddresses = Sets.newHashSet("test.user@cru.org", "test.user@ccci.org");
         user.setCruProxyAddresses(cruProxyAddresses);
-        Collection<String> cruPasswordHistory = Sets.newHashSet("09a87fa0987sdf7sdf", "897asdf987asdf789asfd");
-        user.setCruPasswordHistory(cruPasswordHistory);
 
         return user;
     }
