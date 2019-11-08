@@ -50,9 +50,6 @@ class OktaUserDao(private val okta: Client) : UserDao {
 
     // region Unsupported Deprecated Methods
     override fun enqueueAll(queue: BlockingQueue<User>, deactivated: Boolean) = throw UnsupportedOperationException()
-    override fun findAllByEmail(pattern: String?, includeDeactivated: Boolean) = throw UnsupportedOperationException()
-    override fun findAllByFirstName(pattern: String?, deactivated: Boolean) = throw UnsupportedOperationException()
-    override fun findAllByLastName(pattern: String?, deactivated: Boolean) = throw UnsupportedOperationException()
     override fun findAllByGroup(group: Group, includeDeactivated: Boolean) = throw UnsupportedOperationException()
     override fun findAllByQuery(query: SearchQuery) = throw UnsupportedOperationException()
     // endregion Unsupported Deprecated Methods
