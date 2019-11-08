@@ -29,7 +29,7 @@ public interface UserDao {
      *
      * @param user User to be created.
      */
-    void save(User user) throws DaoException;
+    void save(@Nonnull User user) throws DaoException;
 
     /**
      * Update an existing user in the persistent user store.

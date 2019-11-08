@@ -2,6 +2,7 @@ package org.ccci.idm.user.okta.dao
 
 import com.okta.sdk.client.Client
 import com.okta.sdk.resource.user.EmailStatus
+import com.okta.sdk.resource.user.UserBuilder
 import org.ccci.idm.user.Group
 import org.ccci.idm.user.SearchQuery
 import org.ccci.idm.user.User
@@ -39,8 +40,20 @@ class OktaUserDao(private val okta: Client) : UserDao {
         return okta.searchUsers("profile.$PROFILE_RELAY_GUID eq \"$guid\"").firstOrNull()?.toIdmUser()
     }
 
+    // region CRUD methods
+    override fun save(user: User) {
+        UserBuilder.instance()
+            .putProfileProperty(PROFILE_THEKEY_GUID, user.theKeyGuid)
+            .putProfileProperty(PROFILE_RELAY_GUID, user.relayGuid)
+            .setEmail(user.email)
+            .setFirstName(user.firstName)
+            .setLastName(user.lastName)
+            .setPassword(user.password.toCharArray())
+            .buildAndCreate(okta)
+    }
+    // endregion CRUD methods
+
     // region Unsupported CRUD methods
-    override fun save(user: User?) = throw UnsupportedOperationException()
     override fun update(original: User, user: User, vararg attrs: User.Attr?) = throw UnsupportedOperationException()
     override fun update(user: User?, vararg attrs: User.Attr?) = throw UnsupportedOperationException()
     override fun addToGroup(user: User, group: Group) = throw UnsupportedOperationException()

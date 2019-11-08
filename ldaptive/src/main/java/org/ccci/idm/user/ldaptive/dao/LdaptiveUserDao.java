@@ -362,7 +362,7 @@ public class LdaptiveUserDao extends AbstractLdapUserDao {
     }
 
     @Override
-    public void save(final User user) throws DaoException {
+    public void save(@Nonnull final User user) throws DaoException {
         assertWritable();
         assertValidUser(user);
 
