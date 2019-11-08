@@ -10,7 +10,6 @@ import static org.ccci.idm.user.dao.ldap.Constants.LDAP_ATTR_CRU_HR_STATUS_CODE;
 import static org.ccci.idm.user.dao.ldap.Constants.LDAP_ATTR_CRU_JOB_CODE;
 import static org.ccci.idm.user.dao.ldap.Constants.LDAP_ATTR_CRU_MANAGER_ID;
 import static org.ccci.idm.user.dao.ldap.Constants.LDAP_ATTR_CRU_MINISTRY_CODE;
-import static org.ccci.idm.user.dao.ldap.Constants.LDAP_ATTR_CRU_PASSWORD_HISTORY;
 import static org.ccci.idm.user.dao.ldap.Constants.LDAP_ATTR_CRU_PAY_GROUP;
 import static org.ccci.idm.user.dao.ldap.Constants.LDAP_ATTR_CRU_PROXY_ADDRESSES;
 import static org.ccci.idm.user.dao.ldap.Constants.LDAP_ATTR_CRU_SUB_MINISTRY_CODE;
@@ -66,7 +65,7 @@ public abstract class AbstractLdapUserDao extends AbstractUserDao {
             .put(Attr.NAME, ImmutableSet.of(LDAP_ATTR_FIRSTNAME, LDAP_ATTR_PREFERRED_NAME, LDAP_ATTR_LASTNAME,
                     LDAP_ATTR_OBJECTCLASS))
             .put(Attr.PASSWORD, ImmutableSet.of(LDAP_ATTR_PASSWORD, LDAP_FLAG_FORCEPASSWORDCHANGE,
-                    LDAP_ATTR_CRU_PASSWORD_HISTORY, LDAP_ATTR_OBJECTCLASS))
+                    LDAP_ATTR_OBJECTCLASS))
             .put(Attr.LOGINTIME, ImmutableSet.of(LDAP_ATTR_LOGINTIME))
             .put(Attr.FLAGS, ImmutableSet.of(LDAP_FLAG_ALLOWPASSWORDCHANGE, LDAP_FLAG_EMAILVERIFIED,
                     LDAP_FLAG_LOGINDISABLED, LDAP_FLAG_FORCEPASSWORDCHANGE, LDAP_FLAG_LOCKED, LDAP_ATTR_OBJECTCLASS))

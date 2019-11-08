@@ -38,7 +38,6 @@ import org.ccci.idm.user.exception.UserException;
 import org.ccci.idm.user.exception.UserNotFoundException;
 import org.ccci.idm.user.query.Expression;
 import org.ccci.idm.user.util.DefaultRandomPasswordGenerator;
-import org.ccci.idm.user.util.PasswordHistoryManager;
 import org.ccci.idm.user.util.RandomPasswordGenerator;
 import org.ccci.idm.user.util.UserUtil;
 import org.joda.time.Duration;
@@ -78,9 +77,6 @@ public class DefaultUserManager implements UserManager {
 
     @NotNull
     protected RandomPasswordGenerator randomPasswordGenerator = new DefaultRandomPasswordGenerator();
-
-    @NotNull
-    private PasswordHistoryManager passwordHistoryManager = new PasswordHistoryManager();
 
     @Inject
     @NotNull
@@ -151,9 +147,6 @@ public class DefaultUserManager implements UserManager {
         // initialize some default attributes
         this.setNewUserDefaults(user);
 
-        // add password to history
-        user.setCruPasswordHistory(passwordHistoryManager.add(user.getPassword(), user.getCruPasswordHistory()));
-
         // Save the user
         this.userDao.save(user);
 
@@ -219,11 +212,6 @@ public class DefaultUserManager implements UserManager {
         final User original = this.getFreshUser(user);
         for (final UserManagerListener listener : listeners) {
             listener.onPreUpdateUser(original, user, attrs);
-        }
-
-        // add password to history (if you have password and caller intends to set)
-        if (StringUtils.hasText(user.getPassword()) && ImmutableList.copyOf(attrs).contains(User.Attr.PASSWORD)) {
-            user.setCruPasswordHistory(passwordHistoryManager.add(user.getPassword(), original.getCruPasswordHistory()));
         }
 
         // update the user object

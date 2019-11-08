@@ -9,7 +9,6 @@ import com.google.common.base.Objects;
 import com.google.common.base.Predicates;
 import com.google.common.base.Strings;
 import com.google.common.collect.Collections2;
-import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 import org.ccci.idm.user.util.HashUtility;
@@ -113,7 +112,6 @@ public class User implements Cloneable, Serializable {
     private String cruPayGroup;
     private String cruSubMinistryCode;
     private Collection<String> cruProxyAddresses = Sets.newHashSet();
-    private final Set<String> cruPasswordHistory = Sets.newHashSet();
 
     // other attributes (used by relay)
     private String city;
@@ -181,7 +179,6 @@ public class User implements Cloneable, Serializable {
         this.cruPayGroup = source.cruPayGroup;
         this.cruSubMinistryCode = source.cruSubMinistryCode;
         this.cruProxyAddresses.addAll(source.cruProxyAddresses);
-        this.cruPasswordHistory.addAll(source.cruPasswordHistory);
         this.country = source.country;
 
         this.city = source.city;
@@ -458,15 +455,13 @@ public class User implements Cloneable, Serializable {
         this.cruProxyAddresses = cruProxyAddresses;
     }
 
+    @Deprecated
     public Set<String> getCruPasswordHistory() {
-        return ImmutableSet.copyOf(cruPasswordHistory);
+        return Collections.emptySet();
     }
 
+    @Deprecated
     public void setCruPasswordHistory(@Nullable final Collection<String> history) {
-        cruPasswordHistory.clear();
-        if (history != null) {
-            cruPasswordHistory.addAll(history);
-        }
     }
 
     public String getCity() {
@@ -875,7 +870,6 @@ public class User implements Cloneable, Serializable {
                 .add("cruPayGroup", cruPayGroup)
                 .add("cruSubMinistryCode", cruSubMinistryCode)
                 .add("cruProxyAddresses", cruProxyAddresses)
-                .add("cruPasswordHistory", cruPasswordHistory)
                 .add("city", city)
                 .add("state", state)
                 .add("postal", postal)
@@ -934,7 +928,6 @@ public class User implements Cloneable, Serializable {
                 preferredName,
                 cruSubMinistryCode,
                 cruProxyAddresses,
-                cruPasswordHistory,
                 city,
                 state,
                 postal,
@@ -994,8 +987,6 @@ public class User implements Cloneable, Serializable {
                 Objects.equal(this.cruPayGroup, other.cruPayGroup) &&
                 Objects.equal(this.cruSubMinistryCode, other.cruSubMinistryCode) &&
                 this.cruProxyAddresses.size() == other.cruProxyAddresses.size() && this.cruProxyAddresses.containsAll(other.cruProxyAddresses) &&
-                this.cruPasswordHistory.size() == other.cruPasswordHistory.size() &&
-                this.cruPasswordHistory.containsAll(other.cruPasswordHistory) &&
                 Objects.equal(this.city, other.city) &&
                 Objects.equal(this.state, other.state) &&
                 Objects.equal(this.postal, other.postal) &&

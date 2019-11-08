@@ -11,7 +11,6 @@ import static org.ccci.idm.user.dao.ldap.Constants.LDAP_ATTR_CRU_HR_STATUS_CODE;
 import static org.ccci.idm.user.dao.ldap.Constants.LDAP_ATTR_CRU_JOB_CODE;
 import static org.ccci.idm.user.dao.ldap.Constants.LDAP_ATTR_CRU_MANAGER_ID;
 import static org.ccci.idm.user.dao.ldap.Constants.LDAP_ATTR_CRU_MINISTRY_CODE;
-import static org.ccci.idm.user.dao.ldap.Constants.LDAP_ATTR_CRU_PASSWORD_HISTORY;
 import static org.ccci.idm.user.dao.ldap.Constants.LDAP_ATTR_CRU_PAY_GROUP;
 import static org.ccci.idm.user.dao.ldap.Constants.LDAP_ATTR_CRU_PROXY_ADDRESSES;
 import static org.ccci.idm.user.dao.ldap.Constants.LDAP_ATTR_CRU_SUB_MINISTRY_CODE;
@@ -215,7 +214,6 @@ public abstract class AbstractUserLdapEntryMapper<O extends User> implements Lda
         entry.addAttribute(this.attr(LDAP_ATTR_CRU_PAY_GROUP, user.getCruPayGroup()));
         entry.addAttribute(this.attr(LDAP_ATTR_CRU_SUB_MINISTRY_CODE, user.getCruSubMinistryCode()));
         entry.addAttribute(this.attr(LDAP_ATTR_CRU_PROXY_ADDRESSES, user.getCruProxyAddresses()));
-        entry.addAttribute(this.attr(LDAP_ATTR_CRU_PASSWORD_HISTORY, user.getCruPasswordHistory()));
 
         entry.addAttribute(this.attr(LDAP_ATTR_EMPLOYEE_NUMBER, user.getEmployeeId()));
         entry.addAttribute(this.attr(LDAP_ATTR_DEPARTMENT_NUMBER, user.getDepartmentNumber()));
@@ -309,7 +307,6 @@ public abstract class AbstractUserLdapEntryMapper<O extends User> implements Lda
         user.setCruPayGroup(this.getStringValue(entry, LDAP_ATTR_CRU_PAY_GROUP));
         user.setCruSubMinistryCode(this.getStringValue(entry, LDAP_ATTR_CRU_SUB_MINISTRY_CODE));
         user.setCruProxyAddresses(this.getStringValues(entry, LDAP_ATTR_CRU_PROXY_ADDRESSES));
-        user.setCruPasswordHistory(this.getStringValues(entry, LDAP_ATTR_CRU_PASSWORD_HISTORY));
 
         user.setEmployeeId(this.getStringValue(entry, LDAP_ATTR_EMPLOYEE_NUMBER));
         user.setDepartmentNumber(this.getStringValue(entry, LDAP_ATTR_DEPARTMENT_NUMBER));
