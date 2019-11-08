@@ -7,6 +7,7 @@ import org.ccci.idm.user.Group
 import org.ccci.idm.user.SearchQuery
 import org.ccci.idm.user.User
 import org.ccci.idm.user.dao.UserDao
+import org.ccci.idm.user.exception.UserNotFoundException
 import org.ccci.idm.user.okta.dao.util.filterUsers
 import org.ccci.idm.user.okta.dao.util.oktaUserId
 import org.ccci.idm.user.okta.dao.util.searchUsers
@@ -23,20 +24,18 @@ private const val PROFILE_EMAIL_ALIASES = "emailAliases"
 class OktaUserDao(private val okta: Client) : UserDao {
     override fun isReadOnly() = true
 
-    fun findByOktaUserId(id: String?): User? {
-        if (id == null) return null
-        return okta.getUser(id)?.toIdmUser()
-    }
+    fun findByOktaUserId(id: String?) = findOktaUserByOktaUserId(id)?.toIdmUser()
+    private fun findOktaUserByOktaUserId(id: String?) = id?.let { okta.getUser(id) }
 
     override fun findByEmail(email: String?, includeDeactivated: Boolean): User? {
         if (email == null) return null
         return okta.filterUsers("profile.email eq \"$email\"").firstOrNull()?.toIdmUser()
     }
 
-    override fun findByTheKeyGuid(guid: String?, includeDeactivated: Boolean): User? {
-        if (guid == null) return null
-        return okta.searchUsers("profile.$PROFILE_THEKEY_GUID eq \"$guid\"").firstOrNull()?.toIdmUser()
-    }
+    override fun findByTheKeyGuid(guid: String?, includeDeactivated: Boolean) =
+        findOktaUserByTheKeyGuid(guid, includeDeactivated)?.toIdmUser()
+    private fun findOktaUserByTheKeyGuid(guid: String?, includeDeactivated: Boolean) =
+        guid?.let { okta.searchUsers("profile.$PROFILE_THEKEY_GUID eq \"$guid\"").firstOrNull() }
 
     override fun findByRelayGuid(guid: String?, includeDeactivated: Boolean): User? {
         if (guid == null) return null
@@ -57,10 +56,32 @@ class OktaUserDao(private val okta: Client) : UserDao {
             .putProfileProperty(PROFILE_EMAIL_ALIASES, user.cruProxyAddresses.toList())
             .buildAndCreate(okta)
     }
+
+    override fun update(user: User, vararg attrs: User.Attr) {
+        val oktaUser = findOktaUserByOktaUserId(user.oktaUserId)
+            ?: findOktaUserByTheKeyGuid(user.theKeyGuid, true)
+            ?: throw UserNotFoundException()
+
+        var changed = false
+        attrs.forEach {
+            when (it) {
+                User.Attr.EMAIL -> {
+                    oktaUser.profile.login = user.email
+                    oktaUser.profile.email = user.email
+                    changed = true
+                }
+                User.Attr.PASSWORD -> {
+                    oktaUser.credentials.password.value = user.password.toCharArray()
+                    changed = true
+                }
+            }
+        }
+
+        if (changed) oktaUser.update()
+    }
     // endregion CRUD methods
 
     // region Unsupported CRUD methods
-    override fun update(user: User?, vararg attrs: User.Attr?) = throw UnsupportedOperationException()
     override fun addToGroup(user: User, group: Group) = throw UnsupportedOperationException()
     override fun addToGroup(user: User, group: Group, addSecurity: Boolean) = throw UnsupportedOperationException()
     override fun removeFromGroup(user: User, group: Group) = throw UnsupportedOperationException()

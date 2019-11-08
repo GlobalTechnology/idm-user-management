@@ -1,6 +1,6 @@
 package org.ccci.idm.user.exception;
 
-public class UserException extends Exception {
+public class UserException extends RuntimeException {
     private static final long serialVersionUID = 2012533477643620017L;
 
     public UserException() {

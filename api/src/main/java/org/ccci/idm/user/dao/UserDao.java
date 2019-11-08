@@ -36,7 +36,7 @@ public interface UserDao {
      *
      * @param user User to be updated.
      */
-    void update(User user, User.Attr... attrs) throws DaoException;
+    void update(@Nonnull User user, User.Attr... attrs) throws DaoException;
 
     /**
      * Update an existing user in the persistent user store.

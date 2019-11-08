@@ -384,7 +384,7 @@ public class LdaptiveUserDao extends AbstractLdapUserDao {
     }
 
     @Override
-    public void update(final User user, User.Attr... attrs) throws DaoException {
+    public void update(@Nonnull final User user, User.Attr... attrs) throws DaoException {
         assertWritable();
         assertValidUser(user);
 
