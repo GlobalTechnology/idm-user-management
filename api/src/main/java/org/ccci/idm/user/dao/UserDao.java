@@ -7,12 +7,14 @@ import org.ccci.idm.user.SearchQuery;
 import org.ccci.idm.user.User;
 import org.ccci.idm.user.dao.exception.DaoException;
 import org.ccci.idm.user.dao.exception.ExceededMaximumAllowedResultsException;
+import org.ccci.idm.user.query.Attribute;
 import org.ccci.idm.user.query.Expression;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.util.List;
 import java.util.concurrent.BlockingQueue;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 public interface UserDao {
@@ -113,8 +115,10 @@ public interface UserDao {
      * @deprecated Since v1.0.0, use {@link UserDao#streamUsers} instead.
      */
     @Deprecated
-    List<User> findAllByFirstName(String pattern, boolean includeDeactivated) throws
-            ExceededMaximumAllowedResultsException;
+    default List<User> findAllByFirstName(String pattern, boolean includeDeactivated) throws
+            ExceededMaximumAllowedResultsException {
+        return streamUsers(Attribute.FIRST_NAME.like(pattern), includeDeactivated, true).collect(Collectors.toList());
+    }
 
     /**
      * Find all users matching the last name pattern.
@@ -126,8 +130,10 @@ public interface UserDao {
      * @deprecated Since v1.0.0, use {@link UserDao#streamUsers} instead.
      */
     @Deprecated
-    List<User> findAllByLastName(String pattern, boolean includeDeactivated) throws
-            ExceededMaximumAllowedResultsException;
+    default List<User> findAllByLastName(String pattern, boolean includeDeactivated)
+            throws ExceededMaximumAllowedResultsException {
+        return streamUsers(Attribute.LAST_NAME.like(pattern), includeDeactivated, true).collect(Collectors.toList());
+    }
 
     /**
      * Find all users matching the email pattern.
@@ -140,7 +146,9 @@ public interface UserDao {
      */
     @Nonnull
     @Deprecated
-    List<User> findAllByEmail(String pattern, boolean includeDeactivated) throws ExceededMaximumAllowedResultsException;
+    default List<User> findAllByEmail(String pattern, boolean includeDeactivated) throws ExceededMaximumAllowedResultsException {
+        return streamUsers(Attribute.EMAIL.like(pattern), includeDeactivated, true).collect(Collectors.toList());
+    }
 
     /**
      * Find all users in the specified group

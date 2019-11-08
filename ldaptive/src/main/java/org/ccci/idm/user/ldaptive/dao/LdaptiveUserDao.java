@@ -277,40 +277,6 @@ public class LdaptiveUserDao extends AbstractLdapUserDao {
         }
     }
 
-    @Override
-    @Deprecated
-    public List<User> findAllByFirstName(final String pattern, final boolean includeDeactivated) throws
-            ExceededMaximumAllowedResultsException {
-        return findAllByFilter(new LikeFilter(LDAP_ATTR_FIRSTNAME, pattern), includeDeactivated, SEARCH_NO_LIMIT, true);
-    }
-
-    @Override
-    @Deprecated
-    public List<User> findAllByLastName(final String pattern, final boolean includeDeactivated) throws
-            ExceededMaximumAllowedResultsException {
-        return findAllByFilter(new LikeFilter(LDAP_ATTR_LASTNAME, pattern), includeDeactivated, SEARCH_NO_LIMIT, true);
-    }
-
-    @Nonnull
-    @Override
-    @Deprecated
-    public List<User> findAllByEmail(final String pattern, final boolean includeDeactivated) throws
-            ExceededMaximumAllowedResultsException {
-        return findAllByFilter(new LikeFilter(LDAP_ATTR_USERID, pattern), includeDeactivated, SEARCH_NO_LIMIT, true);
-
-        // XXX: this is more correct, but triggers a bug in the eDirectory PagedResultsControl causing duplicate records
-//        // filter = (!deactivated && cn LIKE pattern)
-//        BaseFilter filter = FILTER_NOT_DEACTIVATED.and(new LikeFilter(LDAP_ATTR_CN, pattern));
-//
-//        // filter = (filter || (deactivated && uid LIKE pattern))
-//        if (includeDeactivated) {
-//            filter = filter.or(FILTER_DEACTIVATED.and(new LikeFilter(LDAP_ATTR_USERID, pattern)));
-//        }
-//
-//        // Execute search & return results
-//        return findAllByFilter(filter, includeDeactivated, SEARCH_NO_LIMIT, true);
-    }
-
     @Nonnull
     @Override
     @Deprecated
