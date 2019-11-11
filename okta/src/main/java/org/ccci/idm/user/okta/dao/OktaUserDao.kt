@@ -19,6 +19,7 @@ private const val PROFILE_THEKEY_GUID = "theKeyGuid"
 private const val PROFILE_RELAY_GUID = "relayGuid"
 private const val PROFILE_US_EMPLOYEE_ID = "usEmployeeId"
 private const val PROFILE_US_DESIGNATION = "usDesignationNumber"
+private const val PROFILE_NICK_NAME = "nickName"
 private const val PROFILE_EMAIL_ALIASES = "emailAliases"
 
 class OktaUserDao(private val okta: Client) : UserDao {
@@ -53,6 +54,7 @@ class OktaUserDao(private val okta: Client) : UserDao {
             .setLastName(user.lastName)
             .putProfileProperty(PROFILE_US_EMPLOYEE_ID, user.employeeId)
             .putProfileProperty(PROFILE_US_DESIGNATION, user.cruDesignation)
+            .putProfileProperty(PROFILE_NICK_NAME, user.rawPreferredName)
             .putProfileProperty(PROFILE_EMAIL_ALIASES, user.cruProxyAddresses.toList())
             .buildAndCreate(okta)
     }
@@ -72,6 +74,16 @@ class OktaUserDao(private val okta: Client) : UserDao {
                 }
                 User.Attr.PASSWORD -> {
                     oktaUser.credentials.password.value = user.password.toCharArray()
+                    changed = true
+                }
+                User.Attr.NAME -> {
+                    oktaUser.profile.firstName = user.firstName
+                    oktaUser.profile[PROFILE_NICK_NAME] = user.rawPreferredName
+                    oktaUser.profile.lastName = user.lastName
+                    changed = true
+                }
+                User.Attr.CRU_PREFERRED_NAME -> {
+                    oktaUser.profile[PROFILE_NICK_NAME] = user.rawPreferredName
                     changed = true
                 }
             }
@@ -109,6 +121,7 @@ class OktaUserDao(private val okta: Client) : UserDao {
             isEmailVerified =
                 credentials.emails.firstOrNull { email.equals(it.value, true) }?.status == EmailStatus.VERIFIED
             firstName = profile.firstName
+            preferredName = profile.getString(PROFILE_NICK_NAME)
             lastName = profile.lastName
             theKeyGuid = profile.getString(PROFILE_THEKEY_GUID)
             relayGuid = profile.getString(PROFILE_RELAY_GUID)
