@@ -22,6 +22,8 @@ private const val PROFILE_US_DESIGNATION = "usDesignationNumber"
 private const val PROFILE_NICK_NAME = "nickName"
 private const val PROFILE_EMAIL_ALIASES = "emailAliases"
 
+private val DEFAULT_ATTRS = arrayOf(User.Attr.EMAIL, User.Attr.NAME, User.Attr.FLAGS)
+
 class OktaUserDao(private val okta: Client) : AbstractUserDao() {
     fun findByOktaUserId(id: String?) = findOktaUserByOktaUserId(id)?.toIdmUser()
     private fun findOktaUserByOktaUserId(id: String?) = id?.let { okta.getUser(id) }
@@ -69,7 +71,7 @@ class OktaUserDao(private val okta: Client) : AbstractUserDao() {
             ?: throw UserNotFoundException()
 
         var changed = false
-        attrs.forEach {
+        attrs.ifEmpty { DEFAULT_ATTRS }.forEach {
             when (it) {
                 User.Attr.EMAIL -> {
                     oktaUser.profile.login = user.email
@@ -90,6 +92,8 @@ class OktaUserDao(private val okta: Client) : AbstractUserDao() {
                     oktaUser.profile[PROFILE_NICK_NAME] = user.rawPreferredName
                     changed = true
                 }
+                // we don't care about these attributes anymore
+                User.Attr.DOMAINSVISITED, User.Attr.FACEBOOK, User.Attr.FLAGS -> Unit
             }
         }
 
