@@ -33,8 +33,8 @@ class OktaUserDao(private val okta: Client) : UserDao {
     }
 
     override fun findByTheKeyGuid(guid: String?, includeDeactivated: Boolean) =
-        findOktaUserByTheKeyGuid(guid, includeDeactivated)?.toIdmUser()
-    private fun findOktaUserByTheKeyGuid(guid: String?, includeDeactivated: Boolean) =
+        findOktaUserByTheKeyGuid(guid)?.toIdmUser()
+    private fun findOktaUserByTheKeyGuid(guid: String?) =
         guid?.let { okta.searchUsers("profile.$PROFILE_THEKEY_GUID eq \"$guid\"").firstOrNull() }
 
     override fun findByRelayGuid(guid: String?, includeDeactivated: Boolean): User? {
@@ -59,7 +59,7 @@ class OktaUserDao(private val okta: Client) : UserDao {
 
     override fun update(user: User, vararg attrs: User.Attr) {
         val oktaUser = findOktaUserByOktaUserId(user.oktaUserId)
-            ?: findOktaUserByTheKeyGuid(user.theKeyGuid, true)
+            ?: findOktaUserByTheKeyGuid(user.theKeyGuid)
             ?: throw UserNotFoundException()
 
         var changed = false
