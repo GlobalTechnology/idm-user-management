@@ -244,18 +244,7 @@ public class DefaultUserManager implements UserManager {
     @Audit(action = AUDIT_ACTION_DEACTIVATE_USER, actionResolverName = AUDIT_ACTION_RESOLVER_USER_MANAGER,
             resourceResolverName = AUDIT_RESOURCE_RESOLVER_DEACTIVATE_USER)
     public void deactivateUser(final User user) throws DaoException, UserException {
-        // Create a deep clone copy before proceeding
-        final User original = user.clone();
-
-        // Set a few flags to disable the account
-        user.setDeactivated(true);
-        user.setLoginDisabled(true);
-
-        // remove any federated identities
-        user.removeFacebookId(original.getFacebookId());
-
-        // update the user object
-        this.userDao.update(original, user, User.Attr.EMAIL, User.Attr.FLAGS, User.Attr.FACEBOOK);
+        userDao.deactivate(user);
 
         // trigger any post-deactivate listeners
         for (final UserManagerListener listener : listeners) {

@@ -48,6 +48,21 @@ public interface UserDao {
         update(user, attrs);
     }
 
+    default void deactivate(@Nonnull final User user) throws DaoException {
+        // Create a deep clone copy before proceeding
+        final User original = user.clone();
+
+        // Set a few flags to disable the account
+        user.setDeactivated(true);
+        user.setLoginDisabled(true);
+
+        // remove any federated identities
+        user.removeFacebookId(original.getFacebookId());
+
+        // update the user object
+        update(original, user, User.Attr.EMAIL, User.Attr.FLAGS, User.Attr.FACEBOOK);
+    }
+
     /**
      * Find the user with the specified e-mail.
      *
