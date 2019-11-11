@@ -264,16 +264,7 @@ public class DefaultUserManager implements UserManager {
             throw new EmailAlreadyExistsException(error);
         }
 
-        // Create a deep clone copy before proceeding
-        final User original = user.clone();
-
-        // Restore several settings on the user object
-        user.setDeactivated(false);
-        user.setLoginDisabled(false);
-        user.setAllowPasswordChange(true);
-
-        // update the user object
-        this.userDao.update(original, user, User.Attr.EMAIL, User.Attr.FLAGS);
+        userDao.reactivate(user);
 
         // trigger any post reactivate listeners
         for (final UserManagerListener listener : listeners) {

@@ -63,6 +63,19 @@ public interface UserDao {
         update(original, user, User.Attr.EMAIL, User.Attr.FLAGS, User.Attr.FACEBOOK);
     }
 
+    default void reactivate(@Nonnull final User user) {
+        // Create a deep clone copy before proceeding
+        final User original = user.clone();
+
+        // Restore several settings on the user object
+        user.setDeactivated(false);
+        user.setLoginDisabled(false);
+        user.setAllowPasswordChange(true);
+
+        // update the user object
+        update(original, user, User.Attr.EMAIL, User.Attr.FLAGS);
+    }
+
     /**
      * Find the user with the specified e-mail.
      *
