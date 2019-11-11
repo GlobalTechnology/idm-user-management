@@ -25,6 +25,8 @@ private const val PROFILE_EMAIL_ALIASES = "emailAliases"
 private val DEFAULT_ATTRS = arrayOf(User.Attr.EMAIL, User.Attr.NAME, User.Attr.FLAGS)
 
 class OktaUserDao(private val okta: Client) : AbstractUserDao() {
+    val listeners: List<Listener>? = null
+
     fun findByOktaUserId(id: String?) = findOktaUserByOktaUserId(id)?.toIdmUser()
     private fun findOktaUserByOktaUserId(id: String?) = id?.let { okta.getUser(id) }
 
@@ -60,6 +62,9 @@ class OktaUserDao(private val okta: Client) : AbstractUserDao() {
             .putProfileProperty(PROFILE_NICK_NAME, user.rawPreferredName)
             .putProfileProperty(PROFILE_EMAIL_ALIASES, user.cruProxyAddresses.toList())
             .buildAndCreate(okta)
+            .also { user.oktaUserId = it.id }
+
+        listeners?.onEach { it.onUserCreated(user) }
     }
 
     override fun update(user: User, vararg attrs: User.Attr) {
@@ -98,6 +103,8 @@ class OktaUserDao(private val okta: Client) : AbstractUserDao() {
         }
 
         if (changed) oktaUser.update()
+
+        listeners?.onEach { it.onUserUpdated(user, *attrs) }
     }
     // endregion CRUD methods
 
@@ -136,6 +143,12 @@ class OktaUserDao(private val okta: Client) : AbstractUserDao() {
             employeeId = profile.getString(PROFILE_US_EMPLOYEE_ID)
             cruDesignation = profile.getString(PROFILE_US_DESIGNATION)
             cruProxyAddresses = profile.getStringList(PROFILE_EMAIL_ALIASES)
-        }
+        }.also { user -> listeners?.onEach { it.onUserLoaded(user) } }
+    }
+
+    public interface Listener {
+        fun onUserLoaded(user: User) = Unit
+        fun onUserCreated(user: User) = Unit
+        fun onUserUpdated(user: User, vararg attrs: User.Attr) = Unit
     }
 }
