@@ -6,7 +6,7 @@ import com.okta.sdk.resource.user.UserBuilder
 import org.ccci.idm.user.Group
 import org.ccci.idm.user.SearchQuery
 import org.ccci.idm.user.User
-import org.ccci.idm.user.dao.UserDao
+import org.ccci.idm.user.dao.AbstractUserDao
 import org.ccci.idm.user.exception.UserNotFoundException
 import org.ccci.idm.user.okta.dao.util.filterUsers
 import org.ccci.idm.user.okta.dao.util.oktaUserId
@@ -22,9 +22,7 @@ private const val PROFILE_US_DESIGNATION = "usDesignationNumber"
 private const val PROFILE_NICK_NAME = "nickName"
 private const val PROFILE_EMAIL_ALIASES = "emailAliases"
 
-class OktaUserDao(private val okta: Client) : UserDao {
-    override fun isReadOnly() = true
-
+class OktaUserDao(private val okta: Client) : AbstractUserDao() {
     fun findByOktaUserId(id: String?) = findOktaUserByOktaUserId(id)?.toIdmUser()
     private fun findOktaUserByOktaUserId(id: String?) = id?.let { okta.getUser(id) }
 
@@ -45,6 +43,9 @@ class OktaUserDao(private val okta: Client) : UserDao {
 
     // region CRUD methods
     override fun save(user: User) {
+        assertWritable()
+        assertValidUser(user)
+
         UserBuilder.instance()
             .putProfileProperty(PROFILE_THEKEY_GUID, user.theKeyGuid)
             .putProfileProperty(PROFILE_RELAY_GUID, user.relayGuid)
@@ -60,6 +61,9 @@ class OktaUserDao(private val okta: Client) : UserDao {
     }
 
     override fun update(user: User, vararg attrs: User.Attr) {
+        assertWritable()
+        assertValidUser(user)
+
         val oktaUser = findOktaUserByOktaUserId(user.oktaUserId)
             ?: findOktaUserByTheKeyGuid(user.theKeyGuid)
             ?: throw UserNotFoundException()
