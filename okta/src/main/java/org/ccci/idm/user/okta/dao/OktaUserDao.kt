@@ -25,9 +25,7 @@ private const val PROFILE_EMAIL_ALIASES = "emailAliases"
 
 private val DEFAULT_ATTRS = arrayOf(User.Attr.EMAIL, User.Attr.NAME, User.Attr.FLAGS)
 
-class OktaUserDao(private val okta: Client) : AbstractUserDao() {
-    val listeners: List<Listener>? = null
-
+class OktaUserDao(private val okta: Client, private val listeners: List<Listener>? = null) : AbstractUserDao() {
     fun findByOktaUserId(id: String?) = findOktaUserByOktaUserId(id)?.toIdmUser()
     private fun findOktaUserByOktaUserId(id: String?) = id?.let { okta.getUser(id) }
 
