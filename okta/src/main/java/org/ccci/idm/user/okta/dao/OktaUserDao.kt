@@ -12,6 +12,7 @@ import org.ccci.idm.user.okta.dao.util.filterUsers
 import org.ccci.idm.user.okta.dao.util.oktaUserId
 import org.ccci.idm.user.okta.dao.util.searchUsers
 import org.ccci.idm.user.query.Expression
+import java.util.EnumSet
 import java.util.concurrent.BlockingQueue
 import com.okta.sdk.resource.user.User as OktaUser
 
@@ -71,40 +72,54 @@ class OktaUserDao(private val okta: Client) : AbstractUserDao() {
         assertWritable()
         assertValidUser(user)
 
-        val oktaUser = findOktaUserByOktaUserId(user.oktaUserId)
-            ?: findOktaUserByTheKeyGuid(user.theKeyGuid)
-            ?: throw UserNotFoundException()
+        // only update Okta if we are updating attributes tracked in Okta
+        val attrsSet = EnumSet.noneOf(User.Attr::class.java).apply { addAll(attrs.ifEmpty { DEFAULT_ATTRS }) }
+        if (
+            attrsSet.contains(User.Attr.EMAIL) || attrsSet.contains(User.Attr.PASSWORD) ||
+            attrsSet.contains(User.Attr.NAME) || attrsSet.contains(User.Attr.CRU_PREFERRED_NAME)
+        ) {
+            val oktaUser = findOktaUserByOktaUserId(user.oktaUserId)
+                ?: findOktaUserByTheKeyGuid(user.theKeyGuid)
+                ?: throw UserNotFoundException()
 
-        var changed = false
-        attrs.ifEmpty { DEFAULT_ATTRS }.forEach {
-            when (it) {
-                User.Attr.EMAIL -> {
-                    oktaUser.profile.login = user.email
-                    oktaUser.profile.email = user.email
-                    changed = true
+            var changed = false
+            attrsSet.forEach {
+                when (it) {
+                    User.Attr.EMAIL -> {
+                        oktaUser.profile.login = user.email
+                        oktaUser.profile.email = user.email
+                        changed = true
+                    }
+                    User.Attr.PASSWORD -> {
+                        oktaUser.credentials.password.value = user.password.toCharArray()
+                        changed = true
+                    }
+                    User.Attr.NAME -> {
+                        oktaUser.profile.firstName = user.firstName
+                        oktaUser.profile[PROFILE_NICK_NAME] = user.rawPreferredName
+                        oktaUser.profile.lastName = user.lastName
+                        changed = true
+                    }
+                    User.Attr.CRU_PREFERRED_NAME -> {
+                        oktaUser.profile[PROFILE_NICK_NAME] = user.rawPreferredName
+                        changed = true
+                    }
+                    // we don't care about these attributes anymore
+                    User.Attr.DOMAINSVISITED,
+                    User.Attr.FACEBOOK,
+                    User.Attr.FLAGS,
+                    User.Attr.GLOBALREGISTRY,
+                    User.Attr.LOGINTIME,
+                    User.Attr.SELFSERVICEKEYS,
+                    User.Attr.MFA_SECRET,
+                    User.Attr.MFA_INTRUDER_DETECTION -> Unit
                 }
-                User.Attr.PASSWORD -> {
-                    oktaUser.credentials.password.value = user.password.toCharArray()
-                    changed = true
-                }
-                User.Attr.NAME -> {
-                    oktaUser.profile.firstName = user.firstName
-                    oktaUser.profile[PROFILE_NICK_NAME] = user.rawPreferredName
-                    oktaUser.profile.lastName = user.lastName
-                    changed = true
-                }
-                User.Attr.CRU_PREFERRED_NAME -> {
-                    oktaUser.profile[PROFILE_NICK_NAME] = user.rawPreferredName
-                    changed = true
-                }
-                // we don't care about these attributes anymore
-                User.Attr.DOMAINSVISITED, User.Attr.FACEBOOK, User.Attr.FLAGS -> Unit
             }
+
+            if (changed) oktaUser.update()
         }
 
-        if (changed) oktaUser.update()
-
-        listeners?.onEach { it.onUserUpdated(user, *attrs) }
+        listeners?.onEach { it.onUserUpdated(user, *attrsSet.toTypedArray()) }
     }
     // endregion CRUD methods
 
