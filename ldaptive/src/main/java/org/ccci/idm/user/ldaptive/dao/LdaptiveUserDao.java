@@ -298,6 +298,7 @@ public class LdaptiveUserDao extends AbstractLdapUserDao {
                 guid).and(new PresentFilter(LDAP_ATTR_RELAY_GUID).not())), includeDeactivated);
     }
 
+    @Nullable
     @Override
     public User findByTheKeyGuid(final String guid, final boolean includeDeactivated) {
         // theKeyGuid == {guid} || (guid == {guid} && theKeyGuid == null)

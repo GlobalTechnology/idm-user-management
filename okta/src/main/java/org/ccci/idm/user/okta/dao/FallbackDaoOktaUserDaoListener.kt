@@ -29,7 +29,7 @@ class FallbackDaoOktaUserDaoListener(
         val filteredAttrs = attrs.filter { UPDATABLE_ATTRS.contains(it) }
         if (filteredAttrs.isEmpty()) return
 
-        val original = dao.findByTheKeyGuid(user.theKeyGuid, true)
+        val original = dao.findByTheKeyGuid(user.theKeyGuid, true) ?: return
         dao.update(original, user, *filteredAttrs.toTypedArray())
     }
 }

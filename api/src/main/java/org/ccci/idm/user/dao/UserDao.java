@@ -111,6 +111,7 @@ public interface UserDao {
      * @param includeDeactivated If <tt>true</tt> then deactivated accounts are included.
      * @return Request {@link User} or <tt>null</tt> if not found.
      */
+    @Nullable
     User findByTheKeyGuid(String guid, boolean includeDeactivated);
 
     /**
