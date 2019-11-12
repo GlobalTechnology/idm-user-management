@@ -26,6 +26,8 @@ private const val PROFILE_EMAIL_ALIASES = "emailAliases"
 private val DEFAULT_ATTRS = arrayOf(User.Attr.EMAIL, User.Attr.NAME, User.Attr.FLAGS)
 
 class OktaUserDao(private val okta: Client, private val listeners: List<Listener>? = null) : AbstractUserDao() {
+    var initialGroups: Set<String> = emptySet()
+
     fun findByOktaUserId(id: String?) = findOktaUserByOktaUserId(id)?.toIdmUser()
     private fun findOktaUserByOktaUserId(id: String?) = id?.let { okta.getUser(id) }
 
@@ -60,6 +62,7 @@ class OktaUserDao(private val okta: Client, private val listeners: List<Listener
             .putProfileProperty(PROFILE_US_DESIGNATION, user.cruDesignation)
             .putProfileProperty(PROFILE_NICK_NAME, user.rawPreferredName)
             .putProfileProperty(PROFILE_EMAIL_ALIASES, user.cruProxyAddresses.toList())
+            .setGroups(initialGroups)
             .buildAndCreate(okta)
             .also { user.oktaUserId = it.id }
 
