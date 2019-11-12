@@ -1,7 +1,8 @@
-package org.ccci.idm.user.okta.dao
+package org.ccci.idm.user.okta.dao.listeners
 
 import org.ccci.idm.user.User
 import org.ccci.idm.user.dao.UserDao
+import org.ccci.idm.user.okta.dao.OktaUserDao
 
 private val UPDATABLE_ATTRS = setOf(User.Attr.MFA_SECRET, User.Attr.MFA_INTRUDER_DETECTION, User.Attr.SELFSERVICEKEYS)
 
