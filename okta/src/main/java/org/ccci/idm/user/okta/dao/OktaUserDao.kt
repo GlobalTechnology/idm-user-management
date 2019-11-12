@@ -155,7 +155,7 @@ class OktaUserDao(private val okta: Client, private val listeners: List<Listener
             relayGuid = profile.getString(PROFILE_RELAY_GUID)
             employeeId = profile.getString(PROFILE_US_EMPLOYEE_ID)
             cruDesignation = profile.getString(PROFILE_US_DESIGNATION)
-            cruProxyAddresses = profile.getStringList(PROFILE_EMAIL_ALIASES)
+            cruProxyAddresses = profile.getStringList(PROFILE_EMAIL_ALIASES).orEmpty()
         }.also { user -> listeners?.onEach { it.onUserLoaded(user) } }
     }
 
