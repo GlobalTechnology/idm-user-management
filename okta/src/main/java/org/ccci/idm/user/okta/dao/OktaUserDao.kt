@@ -134,10 +134,11 @@ class OktaUserDao(private val okta: Client, private val listeners: List<Listener
     // endregion Unsupported Deprecated Methods
 
     // region Unused methods
+    @Deprecated("guids are no longer used and not present within Okta. find users by the key guid instead.")
+    override fun findByGuid(guid: String?, includeDeactivated: Boolean) = null
     override fun findByDesignation(designation: String?, includeDeactivated: Boolean) = TODO("not implemented")
     override fun findByEmployeeId(employeeId: String?, includeDeactivated: Boolean) = TODO("not implemented")
     override fun findByFacebookId(id: String?, includeDeactivated: Boolean) = TODO("not implemented")
-    override fun findByGuid(guid: String?, includeDeactivated: Boolean) = TODO("not implemented")
     override fun getAllGroups(baseSearch: String?) = TODO("not implemented")
     override fun streamUsers(expression: Expression?, deactivated: Boolean, restrict: Boolean) = TODO("not implemented")
     // endregion Unused methods
