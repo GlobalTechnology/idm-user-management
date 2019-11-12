@@ -7,12 +7,14 @@ import org.ccci.idm.user.SearchQuery;
 import org.ccci.idm.user.User;
 import org.ccci.idm.user.dao.exception.DaoException;
 import org.ccci.idm.user.dao.exception.ExceededMaximumAllowedResultsException;
+import org.ccci.idm.user.query.Attribute;
 import org.ccci.idm.user.query.Expression;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.util.List;
 import java.util.concurrent.BlockingQueue;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 public interface UserDao {
@@ -42,7 +44,37 @@ public interface UserDao {
      * @param original The original version of the user being updated
      * @param user     User to be updated.
      */
-    void update(User original, User user, User.Attr... attrs) throws DaoException;
+    default void update(@Nonnull User original, @Nonnull User user, User.Attr... attrs) throws DaoException {
+        update(user, attrs);
+    }
+
+    default void deactivate(@Nonnull final User user) throws DaoException {
+        // Create a deep clone copy before proceeding
+        final User original = user.clone();
+
+        // Set a few flags to disable the account
+        user.setDeactivated(true);
+        user.setLoginDisabled(true);
+
+        // remove any federated identities
+        user.removeFacebookId(original.getFacebookId());
+
+        // update the user object
+        update(original, user, User.Attr.EMAIL, User.Attr.FLAGS, User.Attr.FACEBOOK);
+    }
+
+    default void reactivate(@Nonnull final User user) {
+        // Create a deep clone copy before proceeding
+        final User original = user.clone();
+
+        // Restore several settings on the user object
+        user.setDeactivated(false);
+        user.setLoginDisabled(false);
+        user.setAllowPasswordChange(true);
+
+        // update the user object
+        update(original, user, User.Attr.EMAIL, User.Attr.FLAGS);
+    }
 
     /**
      * Find the user with the specified e-mail.
@@ -113,8 +145,10 @@ public interface UserDao {
      * @deprecated Since v1.0.0, use {@link UserDao#streamUsers} instead.
      */
     @Deprecated
-    List<User> findAllByFirstName(String pattern, boolean includeDeactivated) throws
-            ExceededMaximumAllowedResultsException;
+    default List<User> findAllByFirstName(String pattern, boolean includeDeactivated) throws
+            ExceededMaximumAllowedResultsException {
+        return streamUsers(Attribute.FIRST_NAME.like(pattern), includeDeactivated, true).collect(Collectors.toList());
+    }
 
     /**
      * Find all users matching the last name pattern.
@@ -126,8 +160,10 @@ public interface UserDao {
      * @deprecated Since v1.0.0, use {@link UserDao#streamUsers} instead.
      */
     @Deprecated
-    List<User> findAllByLastName(String pattern, boolean includeDeactivated) throws
-            ExceededMaximumAllowedResultsException;
+    default List<User> findAllByLastName(String pattern, boolean includeDeactivated)
+            throws ExceededMaximumAllowedResultsException {
+        return streamUsers(Attribute.LAST_NAME.like(pattern), includeDeactivated, true).collect(Collectors.toList());
+    }
 
     /**
      * Find all users matching the email pattern.
@@ -140,7 +176,9 @@ public interface UserDao {
      */
     @Nonnull
     @Deprecated
-    List<User> findAllByEmail(String pattern, boolean includeDeactivated) throws ExceededMaximumAllowedResultsException;
+    default List<User> findAllByEmail(String pattern, boolean includeDeactivated) throws ExceededMaximumAllowedResultsException {
+        return streamUsers(Attribute.EMAIL.like(pattern), includeDeactivated, true).collect(Collectors.toList());
+    }
 
     /**
      * Find all users in the specified group
