@@ -17,6 +17,8 @@ data class LdapGroup(val dn: Dn) : Group {
         require(Dn.ROOT != dn) { "Invalid DN for a group" }
     }
 
+    override val name get() = dn.name
+
     override fun toString(): String {
         return MoreObjects.toStringHelper(this)
             .addValue(DnUtils.toString(dn))
