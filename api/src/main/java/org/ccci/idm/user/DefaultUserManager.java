@@ -493,15 +493,13 @@ public class DefaultUserManager implements UserManager {
      * Note that this method is not particular to a user, but is temporarily made available here until a
      * more suitable framework becomes available for providing group dao.
      *
-     * @param baseSearchDn
-     *  null value indicates to return all groups
-     *
-     * @return list of all available groups under base search dn
+     * @param baseSearch null value indicates to return all groups
+     * @return list of all available groups under base search
      */
     @Nonnull
     @Override
-    public List<Group> getAllGroups(@Nullable final Dn baseSearchDn) throws DaoException {
-        return this.userDao.getAllGroups(baseSearchDn);
+    public List<Group> getAllGroups(@Nullable final String baseSearch) throws DaoException {
+        return this.userDao.getAllGroups(baseSearch);
     }
 
     protected void validateEmail(@Nonnull final User user) throws UserException {

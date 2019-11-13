@@ -474,14 +474,13 @@ public class LdaptiveUserDao extends AbstractLdapUserDao {
      * Note that this method is not particular to a user, but is temporarily made available here until a
      * more suitable framework becomes available for providing group dao.
      *
-     * @param baseSearchDn
-     *  null value indicates to return all groups
-     *
+     * @param baseSearch null value indicates to return all groups
      * @return list of all available groups under base search dn
      */
     @Nonnull
     @Override
-    public List<Group> getAllGroups(@Nullable final Dn baseSearchDn) throws DaoException {
+    public List<Group> getAllGroups(@Nullable final String baseSearch) throws DaoException {
+        final Dn baseSearchDn = baseSearch != null ? DnUtils.toDn(baseSearch) : null;
         assertValidBaseGroupDn();
         if (baseSearchDn != null) {
             assertValidGroupDn(baseSearchDn);
