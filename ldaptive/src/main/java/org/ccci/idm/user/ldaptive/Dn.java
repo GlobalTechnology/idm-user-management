@@ -1,4 +1,4 @@
-package org.ccci.idm.user;
+package org.ccci.idm.user.ldaptive;
 
 import com.google.common.base.MoreObjects;
 import com.google.common.collect.ImmutableList;

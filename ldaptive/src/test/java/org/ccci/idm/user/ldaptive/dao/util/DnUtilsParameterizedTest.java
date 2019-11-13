@@ -6,8 +6,8 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
 
-import org.ccci.idm.user.Dn;
-import org.ccci.idm.user.LdapGroup;
+import org.ccci.idm.user.ldaptive.Dn;
+import org.ccci.idm.user.ldaptive.LdapGroup;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;

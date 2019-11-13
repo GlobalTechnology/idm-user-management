@@ -1,4 +1,4 @@
-package org.ccci.idm.user;
+package org.ccci.idm.user.ldaptive;
 
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.not;

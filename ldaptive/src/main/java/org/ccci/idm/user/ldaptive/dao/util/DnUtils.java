@@ -2,8 +2,8 @@ package org.ccci.idm.user.ldaptive.dao.util;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
-import org.ccci.idm.user.Dn;
-import org.ccci.idm.user.LdapGroup;
+import org.ccci.idm.user.ldaptive.Dn;
+import org.ccci.idm.user.ldaptive.LdapGroup;
 import org.ldaptive.DnParser;
 import org.ldaptive.LdapAttribute;
 

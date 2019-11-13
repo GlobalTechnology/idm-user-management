@@ -8,9 +8,9 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
 import com.google.common.collect.ImmutableSet;
-import org.ccci.idm.user.Dn;
 import org.ccci.idm.user.Group;
 import org.ccci.idm.user.User;
+import org.ccci.idm.user.ldaptive.Dn;
 import org.junit.Test;
 import org.ldaptive.LdapAttribute;
 import org.ldaptive.LdapEntry;
