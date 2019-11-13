@@ -12,7 +12,7 @@ import java.util.List;
 import java.util.Locale;
 
 @Immutable
-public class Dn implements Comparable<Dn>, Serializable {
+public final class Dn implements Comparable<Dn>, Serializable {
     private static final long serialVersionUID = 5510344429904560934L;
 
     public static final Dn ROOT = new Dn();
