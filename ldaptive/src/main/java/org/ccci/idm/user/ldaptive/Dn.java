@@ -1,4 +1,4 @@
-package org.ccci.idm.user;
+package org.ccci.idm.user.ldaptive;
 
 import com.google.common.base.MoreObjects;
 import com.google.common.collect.ImmutableList;
@@ -12,7 +12,7 @@ import java.util.List;
 import java.util.Locale;
 
 @Immutable
-public class Dn implements Comparable<Dn>, Serializable {
+public final class Dn implements Comparable<Dn>, Serializable {
     private static final long serialVersionUID = 5510344429904560934L;
 
     public static final Dn ROOT = new Dn();
@@ -74,8 +74,8 @@ public class Dn implements Comparable<Dn>, Serializable {
     }
 
     @Nonnull
-    public final Group asGroup() {
-        return new Group(components);
+    public final LdapGroup asGroup() {
+        return new LdapGroup(this);
     }
 
     @Nullable

@@ -1,7 +1,6 @@
 package org.ccci.idm.user.dao;
 
 import com.google.common.annotations.Beta;
-import org.ccci.idm.user.Dn;
 import org.ccci.idm.user.Group;
 import org.ccci.idm.user.SearchQuery;
 import org.ccci.idm.user.User;
@@ -12,6 +11,7 @@ import org.ccci.idm.user.query.Expression;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.BlockingQueue;
 import java.util.stream.Collectors;
@@ -281,11 +281,11 @@ public interface UserDao {
      * Note that this method is not particular to a user, but is temporarily made available here until a
      * more suitable framework becomes available for providing group dao.
      *
-     * @param baseSearchDn
-     *  null value indicates to return all groups
-     *
-     * @return list of all available groups under base search dn
+     * @param baseSearch null value indicates to return all groups
+     * @return list of all available groups under base search
      */
     @Nonnull
-    List<Group> getAllGroups(@Nullable Dn baseSearchDn) throws DaoException;
+    default List<Group> getAllGroups(@Nullable String baseSearch) throws DaoException {
+        return Collections.emptyList();
+    }
 }

@@ -6,8 +6,8 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
 
-import org.ccci.idm.user.Dn;
-import org.ccci.idm.user.Group;
+import org.ccci.idm.user.ldaptive.Dn;
+import org.ccci.idm.user.ldaptive.LdapGroup;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
@@ -23,7 +23,7 @@ public class DnUtilsParameterizedTest {
         return Arrays.asList(new Object[][]{{""}, {"ou=groups,ou=idm,dc=cru,dc=org"}});
     }
 
-    private final Group GROUP;
+    private final LdapGroup GROUP;
     private static final String[] PATH = new String[]{"GoogleApps", "Cru", "Cru"};
     private static final String NAME = "Mail";
 
@@ -43,22 +43,22 @@ public class DnUtilsParameterizedTest {
 
     @Test
     public void verifyDecodeStringValue() throws Exception {
-        final Group group = DnUtils.toDn(groupDn).asGroup();
+        final LdapGroup group = DnUtils.toDn(groupDn).asGroup();
 
         assertThat(group, is(this.GROUP));
         assertThat(DnUtils.toString(group), is(equalToIgnoringCase(groupDn)));
-        assertThat(group.getName(), is(equalToIgnoringCase(NAME)));
+        assertThat(group.getDn().getName(), is(equalToIgnoringCase(NAME)));
 
         assertEquals(groupDn, DnUtils.toString(group));
     }
 
     @Test
     public void verifyDecodeStringValueCaseInsensitiveDn() throws Exception {
-        final Group group = DnUtils.toDn(groupDn.toUpperCase()).asGroup();
+        final LdapGroup group = DnUtils.toDn(groupDn.toUpperCase()).asGroup();
 
         assertThat(group, is(this.GROUP));
         assertThat(DnUtils.toString(group), is(equalToIgnoringCase(groupDn)));
-        assertThat(group.getName(), is(equalToIgnoringCase(NAME)));
+        assertThat(group.getDn().getName(), is(equalToIgnoringCase(NAME)));
 
         assertTrue(groupDn.equalsIgnoreCase(DnUtils.toString(group)));
     }

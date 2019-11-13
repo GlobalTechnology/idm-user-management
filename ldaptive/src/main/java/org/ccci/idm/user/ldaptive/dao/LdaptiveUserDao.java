@@ -26,7 +26,6 @@ import com.google.common.base.MoreObjects;
 import com.google.common.base.Objects;
 import com.google.common.base.Strings;
 import com.google.common.collect.Lists;
-import org.ccci.idm.user.Dn;
 import org.ccci.idm.user.Group;
 import org.ccci.idm.user.SearchQuery;
 import org.ccci.idm.user.User;
@@ -34,6 +33,8 @@ import org.ccci.idm.user.dao.exception.DaoException;
 import org.ccci.idm.user.dao.exception.ExceededMaximumAllowedResultsException;
 import org.ccci.idm.user.dao.exception.InterruptedDaoException;
 import org.ccci.idm.user.dao.ldap.AbstractLdapUserDao;
+import org.ccci.idm.user.ldaptive.Dn;
+import org.ccci.idm.user.ldaptive.LdapGroup;
 import org.ccci.idm.user.ldaptive.dao.exception.LdaptiveDaoException;
 import org.ccci.idm.user.ldaptive.dao.filter.AndFilter;
 import org.ccci.idm.user.ldaptive.dao.filter.BaseFilter;
@@ -146,6 +147,13 @@ public class LdaptiveUserDao extends AbstractLdapUserDao {
         }
     }
 
+    private void assertValidGroup(@Nonnull final Group group) {
+        if (!(group instanceof LdapGroup)) {
+            throw new IllegalArgumentException(group + " is not an LDAP group");
+        }
+        assertValidGroupDn(((LdapGroup) group).getDn());
+    }
+
     private void assertValidGroupDn(@Nonnull final Dn dn) {
         assertValidBaseGroupDn();
         assert baseGroupDn != null;
@@ -155,9 +163,9 @@ public class LdaptiveUserDao extends AbstractLdapUserDao {
     }
 
     @Nonnull
-    private <T extends Dn> T checkValidGroupDn(@Nonnull final T dn) {
-        assertValidGroupDn(dn);
-        return dn;
+    private LdapGroup checkValidGroup(@Nonnull final Group group) {
+        assertValidGroup(group);
+        return (LdapGroup) group;
     }
 
     /**
@@ -259,8 +267,8 @@ public class LdaptiveUserDao extends AbstractLdapUserDao {
         }
         final Group group = query.getGroup();
         if (group != null) {
-            assertValidGroupDn(group);
-            filters.add(new EqualsFilter(LDAP_ATTR_GROUPS, DnUtils.toString(group)));
+            assertValidGroup(group);
+            filters.add(new EqualsFilter(LDAP_ATTR_GROUPS, DnUtils.toString((LdapGroup) group)));
         }
         final BaseFilter filter;
         if (filters.size() == 0) {
@@ -281,11 +289,11 @@ public class LdaptiveUserDao extends AbstractLdapUserDao {
     @Override
     @Deprecated
     public List<User> findAllByGroup(@Nonnull final Group group, final boolean includeDeactivated) throws DaoException {
-        assertValidGroupDn(group);
+        assertValidGroup(group);
 
         // execute the search
-        return findAllByFilter(new EqualsFilter(LDAP_ATTR_GROUPS, DnUtils.toString(group)), includeDeactivated,
-                SEARCH_NO_LIMIT, true);
+        return findAllByFilter(new EqualsFilter(LDAP_ATTR_GROUPS, DnUtils.toString((LdapGroup) group)),
+                includeDeactivated, SEARCH_NO_LIMIT, true);
     }
 
     @Override
@@ -446,18 +454,18 @@ public class LdaptiveUserDao extends AbstractLdapUserDao {
             throws DaoException {
         assertWritable();
         assertValidUser(user);
-        assertValidGroupDn(group);
+        assertValidGroup(group);
 
-        modifyGroupMembership(AttributeModificationType.ADD, user, group, addSecurity);
+        modifyGroupMembership(AttributeModificationType.ADD, user, (LdapGroup) group, addSecurity);
     }
 
     @Override
     public void removeFromGroup(@Nonnull final User user, @Nonnull final Group group) throws DaoException {
         assertWritable();
         assertValidUser(user);
-        assertValidGroupDn(group);
+        assertValidGroup(group);
 
-        modifyGroupMembership(AttributeModificationType.REMOVE, user, group, true);
+        modifyGroupMembership(AttributeModificationType.REMOVE, user, (LdapGroup) group, true);
     }
 
     /**
@@ -466,14 +474,13 @@ public class LdaptiveUserDao extends AbstractLdapUserDao {
      * Note that this method is not particular to a user, but is temporarily made available here until a
      * more suitable framework becomes available for providing group dao.
      *
-     * @param baseSearchDn
-     *  null value indicates to return all groups
-     *
+     * @param baseSearch null value indicates to return all groups
      * @return list of all available groups under base search dn
      */
     @Nonnull
     @Override
-    public List<Group> getAllGroups(@Nullable final Dn baseSearchDn) throws DaoException {
+    public List<Group> getAllGroups(@Nullable final String baseSearch) throws DaoException {
+        final Dn baseSearchDn = baseSearch != null ? DnUtils.toDn(baseSearch) : null;
         assertValidBaseGroupDn();
         if (baseSearchDn != null) {
             assertValidGroupDn(baseSearchDn);
@@ -572,7 +579,7 @@ public class LdaptiveUserDao extends AbstractLdapUserDao {
     }
 
     private void modifyGroupMembership(@Nonnull final AttributeModificationType type, @Nonnull final User user,
-                                       @Nonnull final Group group, final boolean updateSecurity) throws DaoException {
+                                       @Nonnull final LdapGroup group, final boolean updateSecurity) throws DaoException {
         Connection conn = null;
         try {
             conn = this.connectionFactory.getConnection();
@@ -687,7 +694,7 @@ public class LdaptiveUserDao extends AbstractLdapUserDao {
     private BaseFilter convertComparisonExpressionToFilter(@Nonnull final ComparisonExpression expression) {
         final String attrName = expression.getAttribute().ldapAttr;
         final Group group = expression.getGroup();
-        final String value = group != null ? DnUtils.toString(checkValidGroupDn(group)) : expression.getValue();
+        final String value = group != null ? DnUtils.toString(checkValidGroup(group)) : expression.getValue();
 
         // handle special case comparisons
         switch (expression.getAttribute()) {

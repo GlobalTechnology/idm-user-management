@@ -2,7 +2,8 @@ package org.ccci.idm.user.ldaptive.dao.util;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
-import org.ccci.idm.user.Dn;
+import org.ccci.idm.user.ldaptive.Dn;
+import org.ccci.idm.user.ldaptive.LdapGroup;
 import org.ldaptive.DnParser;
 import org.ldaptive.LdapAttribute;
 
@@ -63,5 +64,10 @@ public class DnUtils {
 
         // return generated DN
         return sb.toString();
+    }
+
+    @Nonnull
+    public static String toString(@Nonnull final LdapGroup group) {
+        return toString(group.getDn());
     }
 }

@@ -3,7 +3,7 @@ package org.ccci.idm.user.ldaptive.dao.util;
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertThat;
 
-import org.ccci.idm.user.Dn;
+import org.ccci.idm.user.ldaptive.Dn;
 import org.junit.Test;
 
 public class DnUtilsTest {
