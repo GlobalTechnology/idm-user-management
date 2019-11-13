@@ -74,8 +74,8 @@ public class Dn implements Comparable<Dn>, Serializable {
     }
 
     @Nonnull
-    public final Group asGroup() {
-        return new Group(components);
+    public final LdapGroup asGroup() {
+        return new LdapGroup(this);
     }
 
     @Nullable
