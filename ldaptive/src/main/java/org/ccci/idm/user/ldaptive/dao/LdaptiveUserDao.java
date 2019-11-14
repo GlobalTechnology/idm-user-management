@@ -435,11 +435,6 @@ public class LdaptiveUserDao extends AbstractLdapUserDao {
     }
 
     @Override
-    public void addToGroup(@Nonnull final User user, @Nonnull final Group group) throws DaoException {
-        addToGroup(user, group, false);
-    }
-
-    @Override
     public void addToGroup(@Nonnull final User user, @Nonnull final Group group, final boolean addSecurity)
             throws DaoException {
         assertWritable();
