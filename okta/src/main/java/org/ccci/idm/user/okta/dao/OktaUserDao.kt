@@ -29,6 +29,9 @@ private val DEFAULT_ATTRS = arrayOf(User.Attr.EMAIL, User.Attr.NAME, User.Attr.F
 class OktaUserDao(private val okta: Client, private val listeners: List<Listener>? = null) : AbstractUserDao() {
     var initialGroups: Set<String> = emptySet()
 
+    private fun findOktaUser(user: User) =
+        findOktaUserByOktaUserId(user.oktaUserId) ?: findOktaUserByTheKeyGuid(user.theKeyGuid)
+
     fun findByOktaUserId(id: String?) = findOktaUserByOktaUserId(id)?.toIdmUser()
     private fun findOktaUserByOktaUserId(id: String?) = id?.let { okta.getUser(id) }
 
@@ -80,9 +83,7 @@ class OktaUserDao(private val okta: Client, private val listeners: List<Listener
             attrsSet.contains(User.Attr.EMAIL) || attrsSet.contains(User.Attr.PASSWORD) ||
             attrsSet.contains(User.Attr.NAME) || attrsSet.contains(User.Attr.CRU_PREFERRED_NAME)
         ) {
-            val oktaUser = findOktaUserByOktaUserId(user.oktaUserId)
-                ?: findOktaUserByTheKeyGuid(user.theKeyGuid)
-                ?: throw UserNotFoundException()
+            val oktaUser = findOktaUser(user) ?: throw UserNotFoundException()
 
             var changed = false
             attrsSet.forEach {
