@@ -8,6 +8,7 @@ import org.ccci.idm.user.SearchQuery
 import org.ccci.idm.user.User
 import org.ccci.idm.user.dao.AbstractUserDao
 import org.ccci.idm.user.exception.UserNotFoundException
+import org.ccci.idm.user.okta.OktaGroup
 import org.ccci.idm.user.okta.dao.util.filterUsers
 import org.ccci.idm.user.okta.dao.util.oktaUserId
 import org.ccci.idm.user.okta.dao.util.searchUsers
@@ -146,7 +147,7 @@ class OktaUserDao(private val okta: Client, private val listeners: List<Listener
     override fun streamUsers(expression: Expression?, deactivated: Boolean, restrict: Boolean) = TODO("not implemented")
     // endregion Unused methods
 
-    private fun OktaUser.toIdmUser(): User {
+    private fun OktaUser.toIdmUser(loadGroups: Boolean = true): User {
         return User().apply {
             oktaUserId = id
             email = profile.email
@@ -160,8 +161,12 @@ class OktaUserDao(private val okta: Client, private val listeners: List<Listener
             employeeId = profile.getString(PROFILE_US_EMPLOYEE_ID)
             cruDesignation = profile.getString(PROFILE_US_DESIGNATION)
             cruProxyAddresses = profile.getStringList(PROFILE_EMAIL_ALIASES).orEmpty()
+
+            if (loadGroups) setGroups(listGroups().map { it.asGroup() })
         }.also { user -> listeners?.onEach { it.onUserLoaded(user) } }
     }
+
+    private fun com.okta.sdk.resource.group.Group.asGroup() = OktaGroup(id, profile.name)
 
     public interface Listener {
         fun onUserLoaded(user: User) = Unit
