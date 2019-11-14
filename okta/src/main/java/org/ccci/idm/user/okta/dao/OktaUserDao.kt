@@ -126,11 +126,21 @@ class OktaUserDao(private val okta: Client, private val listeners: List<Listener
     }
     // endregion CRUD methods
 
-    // region Unsupported CRUD methods
-    override fun addToGroup(user: User, group: Group) = throw UnsupportedOperationException()
-    override fun addToGroup(user: User, group: Group, addSecurity: Boolean) = throw UnsupportedOperationException()
-    override fun removeFromGroup(user: User, group: Group) = throw UnsupportedOperationException()
-    // endregion Unsupported CRUD methods
+    // region Group Membership methods
+    override fun addToGroup(user: User, group: Group) {
+        require(group is OktaGroup) { "$group is not an Okta Group" }
+
+        val oktaUser = findOktaUser(user) ?: throw UserNotFoundException()
+        oktaUser.addToGroup(group.id)
+    }
+
+    override fun removeFromGroup(user: User, group: Group) {
+        require(group is OktaGroup) { "$group is not an Okta Group" }
+
+        val oktaUserId = user.oktaUserId ?: findOktaUser(user)?.id ?: throw UserNotFoundException()
+        okta.getGroup(group.id)?.removeUser(oktaUserId)
+    }
+    // endregion Group Membership methods
 
     // region Unsupported Deprecated Methods
     override fun enqueueAll(queue: BlockingQueue<User>, deactivated: Boolean) = throw UnsupportedOperationException()
