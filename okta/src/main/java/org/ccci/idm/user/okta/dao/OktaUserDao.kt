@@ -125,7 +125,12 @@ class OktaUserDao(private val okta: Client, private val listeners: List<Listener
     }
     // endregion CRUD methods
 
-    // region Group Membership methods
+    // region Group methods
+    override fun getAllGroups(baseSearch: String?) = okta.listGroups().asSequence()
+        .map { it.asIdmGroup() }
+        .filter { baseSearch == null || it.isDescendantOfOrEqualTo(baseSearch) }
+        .toList()
+
     override fun addToGroup(user: User, group: Group) {
         require(group is OktaGroup) { "$group is not an Okta Group" }
 
@@ -139,7 +144,7 @@ class OktaUserDao(private val okta: Client, private val listeners: List<Listener
         val oktaUserId = user.oktaUserId ?: findOktaUser(user)?.id ?: throw UserNotFoundException()
         okta.getGroup(group.id)?.removeUser(oktaUserId)
     }
-    // endregion Group Membership methods
+    // endregion Group methods
 
     // region Unsupported Deprecated Methods
     override fun enqueueAll(queue: BlockingQueue<User>, deactivated: Boolean) = throw UnsupportedOperationException()
@@ -153,7 +158,6 @@ class OktaUserDao(private val okta: Client, private val listeners: List<Listener
     override fun findByDesignation(designation: String?, includeDeactivated: Boolean) = TODO("not implemented")
     override fun findByEmployeeId(employeeId: String?, includeDeactivated: Boolean) = TODO("not implemented")
     override fun findByFacebookId(id: String?, includeDeactivated: Boolean) = TODO("not implemented")
-    override fun getAllGroups(baseSearch: String?) = TODO("not implemented")
     override fun streamUsers(expression: Expression?, deactivated: Boolean, restrict: Boolean) = TODO("not implemented")
     // endregion Unused methods
 
