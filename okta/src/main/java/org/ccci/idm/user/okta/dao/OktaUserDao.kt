@@ -15,7 +15,6 @@ import org.ccci.idm.user.okta.dao.util.searchUsers
 import org.ccci.idm.user.query.Expression
 import java.util.EnumSet
 import java.util.concurrent.BlockingQueue
-import com.okta.sdk.resource.user.User as OktaUser
 
 private const val PROFILE_THEKEY_GUID = "theKeyGuid"
 private const val PROFILE_RELAY_GUID = "relayGuid"
@@ -32,22 +31,22 @@ class OktaUserDao(private val okta: Client, private val listeners: List<Listener
     private fun findOktaUser(user: User) =
         findOktaUserByOktaUserId(user.oktaUserId) ?: findOktaUserByTheKeyGuid(user.theKeyGuid)
 
-    fun findByOktaUserId(id: String?) = findOktaUserByOktaUserId(id)?.toIdmUser()
+    fun findByOktaUserId(id: String?) = findOktaUserByOktaUserId(id)?.asIdmUser()
     private fun findOktaUserByOktaUserId(id: String?) = id?.let { okta.getUser(id) }
 
     override fun findByEmail(email: String?, includeDeactivated: Boolean): User? {
         if (email == null) return null
-        return okta.filterUsers("profile.email eq \"$email\"").firstOrNull()?.toIdmUser()
+        return okta.filterUsers("profile.email eq \"$email\"").firstOrNull()?.asIdmUser()
     }
 
     override fun findByTheKeyGuid(guid: String?, includeDeactivated: Boolean) =
-        findOktaUserByTheKeyGuid(guid)?.toIdmUser()
+        findOktaUserByTheKeyGuid(guid)?.asIdmUser()
     private fun findOktaUserByTheKeyGuid(guid: String?) =
         guid?.let { okta.searchUsers("profile.$PROFILE_THEKEY_GUID eq \"$guid\"").firstOrNull() }
 
     override fun findByRelayGuid(guid: String?, includeDeactivated: Boolean): User? {
         if (guid == null) return null
-        return okta.searchUsers("profile.$PROFILE_RELAY_GUID eq \"$guid\"").firstOrNull()?.toIdmUser()
+        return okta.searchUsers("profile.$PROFILE_RELAY_GUID eq \"$guid\"").firstOrNull()?.asIdmUser()
     }
 
     // region CRUD methods
@@ -158,7 +157,7 @@ class OktaUserDao(private val okta: Client, private val listeners: List<Listener
     override fun streamUsers(expression: Expression?, deactivated: Boolean, restrict: Boolean) = TODO("not implemented")
     // endregion Unused methods
 
-    private fun OktaUser.toIdmUser(loadGroups: Boolean = true): User {
+    private fun com.okta.sdk.resource.user.User.asIdmUser(loadGroups: Boolean = true): User {
         return User().apply {
             oktaUserId = id
             email = profile.email
@@ -173,11 +172,11 @@ class OktaUserDao(private val okta: Client, private val listeners: List<Listener
             cruDesignation = profile.getString(PROFILE_US_DESIGNATION)
             cruProxyAddresses = profile.getStringList(PROFILE_EMAIL_ALIASES).orEmpty()
 
-            if (loadGroups) setGroups(listGroups().map { it.asGroup() })
+            if (loadGroups) setGroups(listGroups().map { it.asIdmGroup() })
         }.also { user -> listeners?.onEach { it.onUserLoaded(user) } }
     }
 
-    private fun com.okta.sdk.resource.group.Group.asGroup() = OktaGroup(id, profile.name)
+    private fun com.okta.sdk.resource.group.Group.asIdmGroup() = OktaGroup(id, profile.name)
 
     public interface Listener {
         fun onUserLoaded(user: User) = Unit
