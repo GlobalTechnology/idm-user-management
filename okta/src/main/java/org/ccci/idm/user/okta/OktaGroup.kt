@@ -10,4 +10,6 @@ data class OktaGroup(
     }
 
     override var name: String? = null
+
+    fun isDescendantOfOrEqualTo(prefix: String) = name == prefix || name?.startsWith("$prefix-") == true
 }
