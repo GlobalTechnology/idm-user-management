@@ -487,6 +487,12 @@ public class DefaultUserManager implements UserManager {
         this.userDao.removeFromGroup(user, group);
     }
 
+    @Nullable
+    @Override
+    public Group getGroup(@Nullable final String id) throws DaoException {
+        return userDao.getGroup(id);
+    }
+
     /**
      * Returns all available groups
      *

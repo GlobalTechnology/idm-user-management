@@ -453,6 +453,12 @@ public class LdaptiveUserDao extends AbstractLdapUserDao {
         modifyGroupMembership(AttributeModificationType.REMOVE, user, (LdapGroup) group, true);
     }
 
+    @Nullable
+    @Override
+    public Group getGroup(@Nullable final String id) throws DaoException {
+        throw new UnsupportedOperationException("getGroup() is not implemented for the LdaptiveUserDao");
+    }
+
     /**
      * Returns all available groups
      *

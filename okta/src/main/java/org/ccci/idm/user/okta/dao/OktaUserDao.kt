@@ -138,6 +138,8 @@ class OktaUserDao(private val okta: Client, private val listeners: List<Listener
     // endregion CRUD methods
 
     // region Group methods
+    override fun getGroup(groupId: String?) = groupId?.let { okta.getGroup(groupId) }?.asIdmGroup()
+
     override fun getAllGroups(baseSearch: String?) = okta.listGroups().asSequence()
         .map { it.asIdmGroup() }
         .filter { baseSearch == null || it.isDescendantOfOrEqualTo(baseSearch) }

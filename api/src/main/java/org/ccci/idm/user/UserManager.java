@@ -355,6 +355,9 @@ public interface UserManager {
      */
     void removeFromGroup(@Nonnull User user, @Nonnull Group group) throws DaoException;
 
+    @Nullable
+    Group getGroup(@Nullable String id) throws DaoException;
+
     /**
      * Returns all available groups
      *
