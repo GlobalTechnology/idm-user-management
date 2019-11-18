@@ -12,10 +12,17 @@ import org.ccci.idm.user.okta.OktaGroup
 import org.ccci.idm.user.okta.dao.util.filterUsers
 import org.ccci.idm.user.okta.dao.util.oktaUserId
 import org.ccci.idm.user.okta.dao.util.searchUsers
+import org.ccci.idm.user.query.Attribute
+import org.ccci.idm.user.query.BooleanExpression
+import org.ccci.idm.user.query.ComparisonExpression
 import org.ccci.idm.user.query.Expression
 import java.util.EnumSet
 import java.util.concurrent.BlockingQueue
+import java.util.stream.Stream
 
+private const val PROFILE_EMAIL = "email"
+private const val PROFILE_FIRST_NAME = "firstName"
+private const val PROFILE_LAST_NAME = "lastName"
 private const val PROFILE_THEKEY_GUID = "theKeyGuid"
 private const val PROFILE_RELAY_GUID = "relayGuid"
 private const val PROFILE_US_EMPLOYEE_ID = "usEmployeeId"
@@ -47,6 +54,11 @@ class OktaUserDao(private val okta: Client, private val listeners: List<Listener
     override fun findByRelayGuid(guid: String?, includeDeactivated: Boolean): User? {
         if (guid == null) return null
         return okta.searchUsers("profile.$PROFILE_RELAY_GUID eq \"$guid\"").firstOrNull()?.asIdmUser()
+    }
+
+    override fun streamUsers(expression: Expression?, deactivated: Boolean, restrict: Boolean): Stream<User> {
+        return okta.listUsers(null, null, null, expression?.toOktaExpression(), null).stream()
+            .map { it.asIdmUser(loadGroups = false) }
     }
 
     // region CRUD methods
@@ -158,7 +170,6 @@ class OktaUserDao(private val okta: Client, private val listeners: List<Listener
     override fun findByDesignation(designation: String?, includeDeactivated: Boolean) = TODO("not implemented")
     override fun findByEmployeeId(employeeId: String?, includeDeactivated: Boolean) = TODO("not implemented")
     override fun findByFacebookId(id: String?, includeDeactivated: Boolean) = TODO("not implemented")
-    override fun streamUsers(expression: Expression?, deactivated: Boolean, restrict: Boolean) = TODO("not implemented")
     // endregion Unused methods
 
     private fun com.okta.sdk.resource.user.User.asIdmUser(loadGroups: Boolean = true): User {
@@ -188,3 +199,35 @@ class OktaUserDao(private val okta: Client, private val listeners: List<Listener
         fun onUserUpdated(user: User, vararg attrs: User.Attr) = Unit
     }
 }
+
+// region Search Expression processing
+private fun Expression.toOktaExpression(): String = when (this) {
+    is BooleanExpression -> toOktaExpression()
+    is ComparisonExpression -> toOktaExpression()
+    else -> throw IllegalArgumentException("Unrecognized Expression: $this")
+}
+
+private fun BooleanExpression.toOktaExpression() = when (type) {
+    BooleanExpression.Type.AND -> "(${components.joinToString(" and ") { it.toOktaExpression() }})"
+    BooleanExpression.Type.OR -> "(${components.joinToString(" or ") { it.toOktaExpression() }})"
+}
+
+private fun ComparisonExpression.toOktaExpression() = when {
+    attribute == Attribute.GROUP -> TODO("Group search not implemented yet")
+    type == ComparisonExpression.Type.EQ -> """${attribute.toOktaProfileAttribute()} eq "$value""""
+    type == ComparisonExpression.Type.SW -> """${attribute.toOktaProfileAttribute()} sw "$value""""
+    type == ComparisonExpression.Type.LIKE -> throw UnsupportedOperationException("LIKE is unsupported for OktaUserDao")
+    else -> throw IllegalArgumentException("Unrecognized ComparisonExpression: $this")
+}
+
+private fun Attribute.toOktaProfileAttribute() = when (this) {
+    Attribute.GUID -> "profile.$PROFILE_THEKEY_GUID"
+    Attribute.EMAIL -> "profile.$PROFILE_EMAIL"
+    Attribute.EMAIL_ALIAS -> "profile.$PROFILE_EMAIL_ALIASES"
+    Attribute.FIRST_NAME -> "profile.$PROFILE_FIRST_NAME"
+    Attribute.LAST_NAME -> "profile.$PROFILE_LAST_NAME"
+    Attribute.US_EMPLOYEE_ID -> "profile.$PROFILE_US_EMPLOYEE_ID"
+    Attribute.US_DESIGNATION -> "profile.$PROFILE_US_DESIGNATION"
+    Attribute.GROUP -> throw IllegalArgumentException("GROUP isn't an actual attribute")
+}
+// endregion Search Expression processing
