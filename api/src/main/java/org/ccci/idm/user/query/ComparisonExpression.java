@@ -8,7 +8,7 @@ import javax.annotation.Nullable;
 public class ComparisonExpression implements Expression {
     private static final long serialVersionUID = 6470937370962349745L;
 
-    public enum Type {EQ, LIKE}
+    public enum Type {EQ, LIKE, SW}
 
     @Nonnull
     private final Type type;
