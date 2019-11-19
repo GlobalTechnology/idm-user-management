@@ -8,6 +8,7 @@ import org.ccci.idm.user.SearchQuery
 import org.ccci.idm.user.User
 import org.ccci.idm.user.dao.AbstractUserDao
 import org.ccci.idm.user.dao.exception.ExceededMaximumAllowedResultsException
+import org.ccci.idm.user.exception.GroupNotFoundException
 import org.ccci.idm.user.exception.UserNotFoundException
 import org.ccci.idm.user.okta.OktaGroup
 import org.ccci.idm.user.okta.dao.util.filterUsers
@@ -17,6 +18,7 @@ import org.ccci.idm.user.query.Attribute
 import org.ccci.idm.user.query.BooleanExpression
 import org.ccci.idm.user.query.ComparisonExpression
 import org.ccci.idm.user.query.Expression
+import org.ccci.idm.user.query.NotExpression
 import java.util.EnumSet
 import java.util.concurrent.BlockingQueue
 import java.util.concurrent.atomic.AtomicInteger
@@ -59,23 +61,42 @@ class OktaUserDao(private val okta: Client, private val listeners: List<Listener
         return okta.searchUsers("profile.$PROFILE_RELAY_GUID eq \"$guid\"").firstOrNull()?.asIdmUser()
     }
 
-    override fun streamUsers(expression: Expression?, deactivated: Boolean, restrict: Boolean): Stream<User> {
+    // region Stream Users
+    override fun streamUsers(
+        expression: Expression?,
+        includeDeactivated: Boolean,
+        restrictMaxAllowed: Boolean
+    ): Stream<User> {
         val search = expression?.toOktaExpression()
         return okta.listUsers(null, null, null, search, null).stream()
-            .let {
-                if (restrict && maxSearchResults != SEARCH_NO_LIMIT) {
-                    val count = AtomicInteger(0)
-                    return@let it.peek {
-                        if (count.incrementAndGet() > maxSearchResults)
-                            throw ExceededMaximumAllowedResultsException(
-                                "Search exceeded $maxSearchResults results, query: $search"
-                            )
-                    }
-                }
-                return@let it
-            }
+            .restrictMaxAllowed(restrictMaxAllowed)
             .map { it.asIdmUser(loadGroups = false) }
     }
+
+    override fun streamUsersInGroup(
+        group: Group,
+        expression: Expression?,
+        includeDeactivated: Boolean,
+        restrictMaxAllowed: Boolean
+    ): Stream<User> {
+        require(group is OktaGroup) { "OktaGroup is required for streamUsersInGroup" }
+        val oktaGroup = group.id?.let { okta.getGroup(it) } ?: throw GroupNotFoundException()
+
+        return oktaGroup.listUsers().stream()
+            .filter { it.matches(expression) }
+            .restrictMaxAllowed(restrictMaxAllowed)
+            .map { it.asIdmUser(loadGroups = false) }
+    }
+
+    private fun <T> Stream<T>.restrictMaxAllowed(restrict: Boolean = true) =
+        if (restrict && maxSearchResults != SEARCH_NO_LIMIT) {
+            val count = AtomicInteger(0)
+            peek {
+                if (count.incrementAndGet() > maxSearchResults)
+                    throw ExceededMaximumAllowedResultsException("Search exceeded $maxSearchResults results")
+            }
+        } else this
+    // endregion Stream Users
 
     // region CRUD methods
     override fun save(user: User) {
@@ -247,5 +268,45 @@ private fun Attribute.toOktaProfileAttribute() = when (this) {
     Attribute.US_EMPLOYEE_ID -> "profile.$PROFILE_US_EMPLOYEE_ID"
     Attribute.US_DESIGNATION -> "profile.$PROFILE_US_DESIGNATION"
     Attribute.GROUP -> throw IllegalArgumentException("GROUP isn't an actual attribute")
+}
+
+private fun com.okta.sdk.resource.user.User.matches(expression: Expression?): Boolean = when (expression) {
+    is BooleanExpression -> matches(expression)
+    is ComparisonExpression -> matches(expression) == true
+    is NotExpression -> !matches(expression.component)
+    else -> true
+}
+
+private fun com.okta.sdk.resource.user.User.matches(expression: BooleanExpression) = when (expression.type) {
+    BooleanExpression.Type.AND -> expression.components.all { matches(it) }
+    BooleanExpression.Type.OR -> expression.components.any { matches(it) }
+    else -> true
+}
+
+private fun com.okta.sdk.resource.user.User.matches(expression: ComparisonExpression): Boolean? {
+    if (expression.attribute == Attribute.EMAIL_ALIAS) {
+        val aliases = profile?.getStringList(PROFILE_EMAIL_ALIASES)
+        return when (expression.type) {
+            ComparisonExpression.Type.EQ -> aliases?.any { it.equals(expression.value.orEmpty(), true) }
+            ComparisonExpression.Type.SW -> aliases?.any { it.startsWith(expression.value.orEmpty(), true) }
+            else -> false
+        }
+    }
+
+    val value: String? = when (expression.attribute) {
+        Attribute.GUID -> profile?.getString(PROFILE_THEKEY_GUID)
+        Attribute.EMAIL -> profile?.email
+        Attribute.FIRST_NAME -> profile?.firstName
+        Attribute.LAST_NAME -> profile?.lastName
+        Attribute.US_EMPLOYEE_ID -> profile?.getString(PROFILE_US_EMPLOYEE_ID)
+        Attribute.US_DESIGNATION -> profile?.getString(PROFILE_US_DESIGNATION)
+        else -> return false
+    }
+
+    return when (expression.type) {
+        ComparisonExpression.Type.EQ -> value.equals(expression.value.orEmpty(), true)
+        ComparisonExpression.Type.SW -> value?.startsWith(expression.value.orEmpty(), true)
+        else -> false
+    }
 }
 // endregion Search Expression processing

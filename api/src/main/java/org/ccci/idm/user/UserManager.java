@@ -330,6 +330,8 @@ public interface UserManager {
      */
     Stream<User> streamUsers(@Nullable Expression expression, boolean includeDeactivated, boolean restrictMaxAllowed);
 
+    Stream<User> streamUsersInGroup(@Nonnull Group group, @Nullable Expression expression, boolean includeDeactivated);
+
     /**
      * Add user to group
      *

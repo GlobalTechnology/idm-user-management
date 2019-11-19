@@ -466,6 +466,12 @@ public class DefaultUserManager implements UserManager {
     }
 
     @Override
+    public Stream<User> streamUsersInGroup(@Nonnull final Group group, @Nullable final Expression expression,
+                                           final boolean includeDeactivated) {
+        return userDao.streamUsersInGroup(group, expression, includeDeactivated, true);
+    }
+
+    @Override
     @Audit(action = AUDIT_ACTION_ADD_TO_GROUP, actionResolverName = AUDIT_ACTION_RESOLVER_USER_MANAGER,
             resourceResolverName = AUDIT_RESOURCE_RESOLVER_ADD_TO_GROUP)
     public void addToGroup(@Nonnull final User user, @Nonnull final Group group) throws DaoException {

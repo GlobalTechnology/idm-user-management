@@ -189,10 +189,12 @@ public interface UserDao {
      * @return {@link List} of {@link User} objects found.
      * @throws ExceededMaximumAllowedResultsException if there are too many users found
      * @throws DaoException
+     * @deprecated Since v1.0.0, use {@link UserDao#streamUsers} instead.
      */
     @Nonnull
+    @Deprecated
     default List<User> findAllByGroup(@Nonnull Group group, boolean includeDeactivated) throws DaoException {
-        return streamUsers(Attribute.GROUP.eq(group), includeDeactivated).collect(Collectors.toList());
+        return streamUsersInGroup(group, null, includeDeactivated, true).collect(Collectors.toList());
     }
 
     /**
@@ -250,6 +252,14 @@ public interface UserDao {
      */
     @Nonnull
     Stream<User> streamUsers(@Nullable Expression expression, boolean includeDeactivated, boolean restrictMaxAllowed);
+
+    @Nonnull
+    default Stream<User> streamUsersInGroup(@Nonnull final Group group, @Nullable Expression expression,
+                                            boolean includeDeactivated, final boolean restrictMaxAllowed) {
+        final Expression groupExpression = Attribute.GROUP.eq(group);
+        return streamUsers(expression != null ? expression.and(groupExpression) : groupExpression,
+                includeDeactivated, restrictMaxAllowed);
+    }
 
     /**
      * Add user to group
