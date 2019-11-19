@@ -285,17 +285,6 @@ public class LdaptiveUserDao extends AbstractLdapUserDao {
         }
     }
 
-    @Nonnull
-    @Override
-    @Deprecated
-    public List<User> findAllByGroup(@Nonnull final Group group, final boolean includeDeactivated) throws DaoException {
-        assertValidGroup(group);
-
-        // execute the search
-        return findAllByFilter(new EqualsFilter(LDAP_ATTR_GROUPS, DnUtils.toString((LdapGroup) group)),
-                includeDeactivated, SEARCH_NO_LIMIT, true);
-    }
-
     @Override
     @Deprecated
     public User findByGuid(final String guid, final boolean includeDeactivated) {

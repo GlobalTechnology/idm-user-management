@@ -188,11 +188,11 @@ public interface UserDao {
      * @return {@link List} of {@link User} objects found.
      * @throws ExceededMaximumAllowedResultsException if there are too many users found
      * @throws DaoException
-     * @deprecated Since v1.0.0, use {@link UserDao#streamUsers} instead.
      */
     @Nonnull
-    @Deprecated
-    List<User> findAllByGroup(@Nonnull Group group, boolean includeDeactivated) throws DaoException;
+    default List<User> findAllByGroup(@Nonnull Group group, boolean includeDeactivated) throws DaoException {
+        return streamUsers(Attribute.GROUP.eq(group), includeDeactivated).collect(Collectors.toList());
+    }
 
     /**
      * Find the user with the specified Designation
