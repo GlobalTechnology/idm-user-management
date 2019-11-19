@@ -280,7 +280,6 @@ private fun com.okta.sdk.resource.user.User.matches(expression: Expression?): Bo
 private fun com.okta.sdk.resource.user.User.matches(expression: BooleanExpression) = when (expression.type) {
     BooleanExpression.Type.AND -> expression.components.all { matches(it) }
     BooleanExpression.Type.OR -> expression.components.any { matches(it) }
-    else -> true
 }
 
 private fun com.okta.sdk.resource.user.User.matches(expression: ComparisonExpression): Boolean? {
