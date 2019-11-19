@@ -2,7 +2,7 @@ package org.ccci.idm.user.ldaptive.dao;
 
 import static org.ccci.idm.user.TestUtil.guid;
 import static org.ccci.idm.user.TestUtil.newUser;
-import static org.ccci.idm.user.dao.ldap.AbstractLdapUserDao.SEARCH_NO_LIMIT;
+import static org.ccci.idm.user.dao.AbstractUserDao.SEARCH_NO_LIMIT;
 import static org.ccci.idm.user.query.Attribute.EMAIL;
 import static org.ccci.idm.user.query.Attribute.FIRST_NAME;
 import static org.ccci.idm.user.query.Attribute.LAST_NAME;

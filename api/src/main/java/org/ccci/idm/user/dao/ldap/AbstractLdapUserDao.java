@@ -49,7 +49,6 @@ import static org.ccci.idm.user.dao.ldap.Constants.LDAP_FLAG_FORCEPASSWORDCHANGE
 import static org.ccci.idm.user.dao.ldap.Constants.LDAP_FLAG_LOCKED;
 import static org.ccci.idm.user.dao.ldap.Constants.LDAP_FLAG_LOGINDISABLED;
 
-import com.google.common.annotations.VisibleForTesting;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import org.ccci.idm.user.User.Attr;
@@ -59,7 +58,6 @@ import java.util.Map;
 import java.util.Set;
 
 public abstract class AbstractLdapUserDao extends AbstractUserDao {
-
     private static final Map<Attr, Set<String>> MASK = ImmutableMap.<Attr, Set<String>>builder()
             .put(Attr.EMAIL, ImmutableSet.of(LDAP_ATTR_USERID, LDAP_FLAG_EMAILVERIFIED, LDAP_ATTR_OBJECTCLASS))
             .put(Attr.NAME, ImmutableSet.of(LDAP_ATTR_FIRSTNAME, LDAP_ATTR_PREFERRED_NAME, LDAP_ATTR_LASTNAME,
@@ -113,9 +111,6 @@ public abstract class AbstractLdapUserDao extends AbstractUserDao {
 
     private Set<String> MASK_DEFAULT = ImmutableSet.<String>builder().addAll(MASK.get(Attr.EMAIL)).addAll(MASK.get
             (Attr.NAME)).addAll(MASK.get(Attr.FLAGS)).build();
-
-    @VisibleForTesting
-    public static final int SEARCH_NO_LIMIT = 0;
 
     protected int maxSearchResults = SEARCH_NO_LIMIT;
 

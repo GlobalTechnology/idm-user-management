@@ -1,10 +1,14 @@
 package org.ccci.idm.user.dao;
 
+import com.google.common.annotations.VisibleForTesting;
 import org.ccci.idm.user.User;
 import org.ccci.idm.user.dao.exception.ReadOnlyDaoException;
 import org.springframework.util.Assert;
 
 public abstract class AbstractUserDao implements UserDao {
+    @VisibleForTesting
+    public static final int SEARCH_NO_LIMIT = 0;
+
     private boolean readOnly = false;
 
     public void setReadOnly(final boolean readOnly) {

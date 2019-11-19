@@ -7,6 +7,7 @@ import org.ccci.idm.user.Group
 import org.ccci.idm.user.SearchQuery
 import org.ccci.idm.user.User
 import org.ccci.idm.user.dao.AbstractUserDao
+import org.ccci.idm.user.dao.exception.ExceededMaximumAllowedResultsException
 import org.ccci.idm.user.exception.UserNotFoundException
 import org.ccci.idm.user.okta.OktaGroup
 import org.ccci.idm.user.okta.dao.util.filterUsers
@@ -18,6 +19,7 @@ import org.ccci.idm.user.query.ComparisonExpression
 import org.ccci.idm.user.query.Expression
 import java.util.EnumSet
 import java.util.concurrent.BlockingQueue
+import java.util.concurrent.atomic.AtomicInteger
 import java.util.stream.Stream
 
 private const val PROFILE_EMAIL = "email"
@@ -33,6 +35,7 @@ private const val PROFILE_EMAIL_ALIASES = "emailAliases"
 private val DEFAULT_ATTRS = arrayOf(User.Attr.EMAIL, User.Attr.NAME, User.Attr.FLAGS)
 
 class OktaUserDao(private val okta: Client, private val listeners: List<Listener>? = null) : AbstractUserDao() {
+    var maxSearchResults = SEARCH_NO_LIMIT
     var initialGroups: Set<String> = emptySet()
 
     private fun findOktaUser(user: User) =
@@ -57,7 +60,20 @@ class OktaUserDao(private val okta: Client, private val listeners: List<Listener
     }
 
     override fun streamUsers(expression: Expression?, deactivated: Boolean, restrict: Boolean): Stream<User> {
-        return okta.listUsers(null, null, null, expression?.toOktaExpression(), null).stream()
+        val search = expression?.toOktaExpression()
+        return okta.listUsers(null, null, null, search, null).stream()
+            .let {
+                if (restrict && maxSearchResults != SEARCH_NO_LIMIT) {
+                    val count = AtomicInteger(0)
+                    return@let it.peek {
+                        if (count.incrementAndGet() > maxSearchResults)
+                            throw ExceededMaximumAllowedResultsException(
+                                "Search exceeded $maxSearchResults results, query: $search"
+                            )
+                    }
+                }
+                return@let it
+            }
             .map { it.asIdmUser(loadGroups = false) }
     }
 
