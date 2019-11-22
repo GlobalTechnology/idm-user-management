@@ -129,7 +129,8 @@ class OktaUserDao(private val okta: Client, private val listeners: List<Listener
         val attrsSet = EnumSet.noneOf(User.Attr::class.java).apply { addAll(attrs.ifEmpty { DEFAULT_ATTRS }) }
         if (
             attrsSet.contains(User.Attr.EMAIL) || attrsSet.contains(User.Attr.PASSWORD) ||
-            attrsSet.contains(User.Attr.NAME) || attrsSet.contains(User.Attr.CRU_PREFERRED_NAME)
+            attrsSet.contains(User.Attr.NAME) || attrsSet.contains(User.Attr.CRU_PREFERRED_NAME) ||
+            attrsSet.contains(User.Attr.EMPLOYEE_NUMBER) || attrsSet.contains(User.Attr.CRU_DESIGNATION)
         ) {
             val oktaUser = findOktaUser(user) ?: throw UserNotFoundException()
 
@@ -153,6 +154,14 @@ class OktaUserDao(private val okta: Client, private val listeners: List<Listener
                     }
                     User.Attr.CRU_PREFERRED_NAME -> {
                         oktaUser.profile[PROFILE_NICK_NAME] = user.rawPreferredName
+                        changed = true
+                    }
+                    User.Attr.EMPLOYEE_NUMBER -> {
+                        oktaUser.profile[PROFILE_US_EMPLOYEE_ID] = user.employeeId
+                        changed = true
+                    }
+                    User.Attr.CRU_DESIGNATION -> {
+                        oktaUser.profile[PROFILE_US_DESIGNATION] = user.cruDesignation
                         changed = true
                     }
                     // we don't care about these attributes anymore
