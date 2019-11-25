@@ -31,6 +31,7 @@ private const val PROFILE_FIRST_NAME = "firstName"
 private const val PROFILE_NICK_NAME = "nickName"
 private const val PROFILE_LAST_NAME = "lastName"
 
+private const val PROFILE_PHONE_NUMBER = "primaryPhone"
 private const val PROFILE_CITY = "city"
 private const val PROFILE_STATE = "state"
 private const val PROFILE_ZIP_CODE = "zipCode"
@@ -119,6 +120,7 @@ class OktaUserDao(private val okta: Client, private val listeners: List<Listener
             .setLastName(user.lastName)
             .putProfileProperty(PROFILE_US_EMPLOYEE_ID, user.employeeId)
             .putProfileProperty(PROFILE_US_DESIGNATION, user.cruDesignation)
+            .putProfileProperty(PROFILE_PHONE_NUMBER, user.telephoneNumber)
             .putProfileProperty(PROFILE_CITY, user.city)
             .putProfileProperty(PROFILE_STATE, user.state)
             .putProfileProperty(PROFILE_ZIP_CODE, user.postal)
@@ -140,7 +142,7 @@ class OktaUserDao(private val okta: Client, private val listeners: List<Listener
         if (
             attrsSet.contains(User.Attr.EMAIL) || attrsSet.contains(User.Attr.PASSWORD) ||
             attrsSet.contains(User.Attr.NAME) || attrsSet.contains(User.Attr.CRU_PREFERRED_NAME) ||
-            attrsSet.contains(User.Attr.LOCATION) ||
+            attrsSet.contains(User.Attr.CONTACT) || attrsSet.contains(User.Attr.LOCATION) ||
             attrsSet.contains(User.Attr.EMPLOYEE_NUMBER) || attrsSet.contains(User.Attr.CRU_DESIGNATION) ||
             attrsSet.contains(User.Attr.CRU_PROXY_ADDRESSES)
         ) {
@@ -166,6 +168,10 @@ class OktaUserDao(private val okta: Client, private val listeners: List<Listener
                     }
                     User.Attr.CRU_PREFERRED_NAME -> {
                         oktaUser.profile[PROFILE_NICK_NAME] = user.rawPreferredName
+                        changed = true
+                    }
+                    User.Attr.CONTACT -> {
+                        oktaUser.profile[PROFILE_PHONE_NUMBER] = user.telephoneNumber
                         changed = true
                     }
                     User.Attr.LOCATION -> {
@@ -254,6 +260,7 @@ class OktaUserDao(private val okta: Client, private val listeners: List<Listener
             firstName = profile.firstName
             preferredName = profile.getString(PROFILE_NICK_NAME)
             lastName = profile.lastName
+            telephoneNumber = profile.getString(PROFILE_PHONE_NUMBER)
             city = profile.getString(PROFILE_CITY)
             state = profile.getString(PROFILE_STATE)
             postal = profile.getString(PROFILE_ZIP_CODE)
