@@ -141,7 +141,8 @@ class OktaUserDao(private val okta: Client, private val listeners: List<Listener
             attrsSet.contains(User.Attr.EMAIL) || attrsSet.contains(User.Attr.PASSWORD) ||
             attrsSet.contains(User.Attr.NAME) || attrsSet.contains(User.Attr.CRU_PREFERRED_NAME) ||
             attrsSet.contains(User.Attr.LOCATION) ||
-            attrsSet.contains(User.Attr.EMPLOYEE_NUMBER) || attrsSet.contains(User.Attr.CRU_DESIGNATION)
+            attrsSet.contains(User.Attr.EMPLOYEE_NUMBER) || attrsSet.contains(User.Attr.CRU_DESIGNATION) ||
+            attrsSet.contains(User.Attr.CRU_PROXY_ADDRESSES)
         ) {
             val oktaUser = findOktaUser(user) ?: throw UserNotFoundException()
 
@@ -180,6 +181,10 @@ class OktaUserDao(private val okta: Client, private val listeners: List<Listener
                     }
                     User.Attr.CRU_DESIGNATION -> {
                         oktaUser.profile[PROFILE_US_DESIGNATION] = user.cruDesignation
+                        changed = true
+                    }
+                    User.Attr.CRU_PROXY_ADDRESSES -> {
+                        oktaUser.profile[PROFILE_EMAIL_ALIASES] = user.cruProxyAddresses.toList()
                         changed = true
                     }
                     // we don't care about these attributes anymore
