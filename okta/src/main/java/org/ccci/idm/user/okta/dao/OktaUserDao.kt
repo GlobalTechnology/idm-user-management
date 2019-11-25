@@ -24,14 +24,20 @@ import java.util.concurrent.BlockingQueue
 import java.util.concurrent.atomic.AtomicInteger
 import java.util.stream.Stream
 
-private const val PROFILE_EMAIL = "email"
-private const val PROFILE_FIRST_NAME = "firstName"
-private const val PROFILE_LAST_NAME = "lastName"
 private const val PROFILE_THEKEY_GUID = "theKeyGuid"
 private const val PROFILE_RELAY_GUID = "relayGuid"
+private const val PROFILE_EMAIL = "email"
+private const val PROFILE_FIRST_NAME = "firstName"
+private const val PROFILE_NICK_NAME = "nickName"
+private const val PROFILE_LAST_NAME = "lastName"
+
+private const val PROFILE_CITY = "city"
+private const val PROFILE_STATE = "state"
+private const val PROFILE_ZIP_CODE = "zipCode"
+private const val PROFILE_COUNTRY = "countryCode"
+
 private const val PROFILE_US_EMPLOYEE_ID = "usEmployeeId"
 private const val PROFILE_US_DESIGNATION = "usDesignationNumber"
-private const val PROFILE_NICK_NAME = "nickName"
 private const val PROFILE_EMAIL_ALIASES = "emailAliases"
 
 private val DEFAULT_ATTRS = arrayOf(User.Attr.EMAIL, User.Attr.NAME, User.Attr.FLAGS)
@@ -109,10 +115,14 @@ class OktaUserDao(private val okta: Client, private val listeners: List<Listener
             .setEmail(user.email)
             .setPassword(user.password.toCharArray())
             .setFirstName(user.firstName)
+            .putProfileProperty(PROFILE_NICK_NAME, user.rawPreferredName)
             .setLastName(user.lastName)
             .putProfileProperty(PROFILE_US_EMPLOYEE_ID, user.employeeId)
             .putProfileProperty(PROFILE_US_DESIGNATION, user.cruDesignation)
-            .putProfileProperty(PROFILE_NICK_NAME, user.rawPreferredName)
+            .putProfileProperty(PROFILE_CITY, user.city)
+            .putProfileProperty(PROFILE_STATE, user.state)
+            .putProfileProperty(PROFILE_ZIP_CODE, user.postal)
+            .putProfileProperty(PROFILE_COUNTRY, user.country)
             .putProfileProperty(PROFILE_EMAIL_ALIASES, user.cruProxyAddresses.toList())
             .setGroups(initialGroups)
             .buildAndCreate(okta)
@@ -130,6 +140,7 @@ class OktaUserDao(private val okta: Client, private val listeners: List<Listener
         if (
             attrsSet.contains(User.Attr.EMAIL) || attrsSet.contains(User.Attr.PASSWORD) ||
             attrsSet.contains(User.Attr.NAME) || attrsSet.contains(User.Attr.CRU_PREFERRED_NAME) ||
+            attrsSet.contains(User.Attr.LOCATION) ||
             attrsSet.contains(User.Attr.EMPLOYEE_NUMBER) || attrsSet.contains(User.Attr.CRU_DESIGNATION)
         ) {
             val oktaUser = findOktaUser(user) ?: throw UserNotFoundException()
@@ -154,6 +165,13 @@ class OktaUserDao(private val okta: Client, private val listeners: List<Listener
                     }
                     User.Attr.CRU_PREFERRED_NAME -> {
                         oktaUser.profile[PROFILE_NICK_NAME] = user.rawPreferredName
+                        changed = true
+                    }
+                    User.Attr.LOCATION -> {
+                        oktaUser.profile[PROFILE_CITY] = user.city
+                        oktaUser.profile[PROFILE_STATE] = user.state
+                        oktaUser.profile[PROFILE_ZIP_CODE] = user.postal
+                        oktaUser.profile[PROFILE_COUNTRY] = user.country
                         changed = true
                     }
                     User.Attr.EMPLOYEE_NUMBER -> {
@@ -223,14 +241,18 @@ class OktaUserDao(private val okta: Client, private val listeners: List<Listener
     private fun com.okta.sdk.resource.user.User.asIdmUser(loadGroups: Boolean = true): User {
         return User().apply {
             oktaUserId = id
+            theKeyGuid = profile.getString(PROFILE_THEKEY_GUID)
+            relayGuid = profile.getString(PROFILE_RELAY_GUID)
             email = profile.email
             isEmailVerified =
                 credentials.emails.firstOrNull { email.equals(it.value, true) }?.status == EmailStatus.VERIFIED
             firstName = profile.firstName
             preferredName = profile.getString(PROFILE_NICK_NAME)
             lastName = profile.lastName
-            theKeyGuid = profile.getString(PROFILE_THEKEY_GUID)
-            relayGuid = profile.getString(PROFILE_RELAY_GUID)
+            city = profile.getString(PROFILE_CITY)
+            state = profile.getString(PROFILE_STATE)
+            postal = profile.getString(PROFILE_ZIP_CODE)
+            country = profile.getString(PROFILE_COUNTRY)
             employeeId = profile.getString(PROFILE_US_EMPLOYEE_ID)
             cruDesignation = profile.getString(PROFILE_US_DESIGNATION)
             cruProxyAddresses = profile.getStringList(PROFILE_EMAIL_ALIASES).orEmpty()
