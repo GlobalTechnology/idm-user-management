@@ -47,6 +47,9 @@ private const val PROFILE_MANAGER_ID = "managerId"
 
 private const val PROFILE_EMAIL_ALIASES = "emailAliases"
 
+private const val PROFILE_GR_MASTER_PERSON_ID = "grMasterPersonId"
+private const val PROFILE_GR_PERSON_ID = "thekeyGrPersonId"
+
 private val DEFAULT_ATTRS = arrayOf(User.Attr.EMAIL, User.Attr.NAME, User.Attr.FLAGS)
 
 class OktaUserDao(private val okta: Client, private val listeners: List<Listener>? = null) : AbstractUserDao() {
@@ -299,6 +302,9 @@ class OktaUserDao(private val okta: Client, private val listeners: List<Listener
             employeeId = profile.getString(PROFILE_US_EMPLOYEE_ID)
             cruDesignation = profile.getString(PROFILE_US_DESIGNATION)
             cruProxyAddresses = profile.getStringList(PROFILE_EMAIL_ALIASES).orEmpty()
+
+            grMasterPersonId = profile.getString(PROFILE_GR_MASTER_PERSON_ID)
+            grPersonId = profile.getString(PROFILE_GR_PERSON_ID)
 
             if (loadGroups) setGroups(listGroups().map { it.asIdmGroup() })
         }.also { user -> listeners?.onEach { it.onUserLoaded(user) } }
