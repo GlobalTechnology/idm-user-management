@@ -23,6 +23,10 @@ class FallbackDaoOktaUserDaoListener(
             user.proposedEmail = proposedEmail
             user.changeEmailKey = changeEmailKey
             user.resetPasswordKey = resetPasswordKey
+
+            // SQ & SA
+            user.securityQuestion = securityQuestion
+            user.securityAnswer = securityAnswer
         }
     }
 

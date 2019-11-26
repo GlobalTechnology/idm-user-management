@@ -218,15 +218,17 @@ class OktaUserDao(private val okta: Client, private val listeners: List<Listener
                         oktaUser.profile[PROFILE_EMAIL_ALIASES] = user.cruProxyAddresses.toList()
                         changed = true
                     }
-                    // we don't care about these attributes anymore
-                    User.Attr.DOMAINSVISITED,
-                    User.Attr.FACEBOOK,
+                    // these attributes are still tracked in LDAP but not in Okta
                     User.Attr.FLAGS,
-                    User.Attr.GLOBALREGISTRY,
-                    User.Attr.LOGINTIME,
+                    User.Attr.SECURITYQA,
                     User.Attr.SELFSERVICEKEYS,
                     User.Attr.MFA_SECRET,
                     User.Attr.MFA_INTRUDER_DETECTION -> Unit
+                    // we don't care about these attributes at all anymore
+                    User.Attr.DOMAINSVISITED,
+                    User.Attr.FACEBOOK,
+                    User.Attr.GLOBALREGISTRY,
+                    User.Attr.LOGINTIME -> Unit
                 }
             }
 
