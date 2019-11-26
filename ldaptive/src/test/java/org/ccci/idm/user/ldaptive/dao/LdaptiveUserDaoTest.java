@@ -1,6 +1,6 @@
 package org.ccci.idm.user.ldaptive.dao;
 
-import static org.ccci.idm.user.dao.ldap.AbstractLdapUserDao.SEARCH_NO_LIMIT;
+import static org.ccci.idm.user.dao.AbstractUserDao.SEARCH_NO_LIMIT;
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.fail;

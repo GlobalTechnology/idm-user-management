@@ -47,4 +47,12 @@ public enum Attribute {
 
         return new ComparisonExpression(ComparisonExpression.Type.LIKE, this, value);
     }
+
+    public Expression sw(@Nonnull final String value) {
+        if (this == GUID) {
+            throw new UnsupportedOperationException("You can only do direct equality searches for guids");
+        }
+
+        return new ComparisonExpression(ComparisonExpression.Type.SW, this, value);
+    }
 }

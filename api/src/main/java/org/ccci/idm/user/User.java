@@ -111,6 +111,7 @@ public class User implements Cloneable, Serializable {
     private String cruMinistryCode;
     private String cruPayGroup;
     private String cruSubMinistryCode;
+    @Nonnull
     private Collection<String> cruProxyAddresses = Sets.newHashSet();
 
     // other attributes (used by relay)
@@ -447,12 +448,13 @@ public class User implements Cloneable, Serializable {
         this.cruSubMinistryCode = cruSubMinistryCode;
     }
 
+    @Nonnull
     public Collection<String> getCruProxyAddresses() {
         return cruProxyAddresses;
     }
 
-    public void setCruProxyAddresses(Collection<String> cruProxyAddresses) {
-        this.cruProxyAddresses = cruProxyAddresses;
+    public void setCruProxyAddresses(@Nonnull final Collection<String> addresses) {
+        cruProxyAddresses = addresses;
     }
 
     @Deprecated

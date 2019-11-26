@@ -29,14 +29,14 @@ public interface UserDao {
      *
      * @param user User to be created.
      */
-    void save(User user) throws DaoException;
+    void save(@Nonnull User user) throws DaoException;
 
     /**
      * Update an existing user in the persistent user store.
      *
      * @param user User to be updated.
      */
-    void update(User user, User.Attr... attrs) throws DaoException;
+    void update(@Nonnull User user, User.Attr... attrs) throws DaoException;
 
     /**
      * Update an existing user in the persistent user store.
@@ -111,6 +111,7 @@ public interface UserDao {
      * @param includeDeactivated If <tt>true</tt> then deactivated accounts are included.
      * @return Request {@link User} or <tt>null</tt> if not found.
      */
+    @Nullable
     User findByTheKeyGuid(String guid, boolean includeDeactivated);
 
     /**
@@ -188,10 +189,12 @@ public interface UserDao {
      * @return {@link List} of {@link User} objects found.
      * @throws ExceededMaximumAllowedResultsException if there are too many users found
      * @throws DaoException
+     * @deprecated Since v1.0.0, use {@link UserDao#streamUsers} instead.
      */
     @Nonnull
+    @Deprecated
     default List<User> findAllByGroup(@Nonnull Group group, boolean includeDeactivated) throws DaoException {
-        return streamUsers(Attribute.GROUP.eq(group), includeDeactivated).collect(Collectors.toList());
+        return streamUsersInGroup(group, null, includeDeactivated, true).collect(Collectors.toList());
     }
 
     /**
@@ -250,13 +253,23 @@ public interface UserDao {
     @Nonnull
     Stream<User> streamUsers(@Nullable Expression expression, boolean includeDeactivated, boolean restrictMaxAllowed);
 
+    @Nonnull
+    default Stream<User> streamUsersInGroup(@Nonnull final Group group, @Nullable Expression expression,
+                                            boolean includeDeactivated, final boolean restrictMaxAllowed) {
+        final Expression groupExpression = Attribute.GROUP.eq(group);
+        return streamUsers(expression != null ? expression.and(groupExpression) : groupExpression,
+                includeDeactivated, restrictMaxAllowed);
+    }
+
     /**
      * Add user to group
      *
      * @param user to add
      * @param group to group
      */
-    void addToGroup(@Nonnull User user, @Nonnull Group group) throws DaoException;
+    default void addToGroup(@Nonnull User user, @Nonnull Group group) throws DaoException {
+        addToGroup(user, group, false);
+    }
 
     /**
      * Add user to group
@@ -265,7 +278,9 @@ public interface UserDao {
      * @param group       to add the user to
      * @param addSecurity specifies if the Group security should be shared with the user being added.
      */
-    void addToGroup(@Nonnull User user, @Nonnull Group group, boolean addSecurity) throws DaoException;
+    default void addToGroup(@Nonnull User user, @Nonnull Group group, boolean addSecurity) throws DaoException {
+        addToGroup(user, group);
+    }
 
     /**
      * Remove user from group
@@ -274,6 +289,9 @@ public interface UserDao {
      * @param group from group
      */
     void removeFromGroup(@Nonnull User user, @Nonnull Group group) throws DaoException;
+
+    @Nullable
+    Group getGroup(@Nullable String id) throws DaoException;
 
     /**
      * Returns all available groups

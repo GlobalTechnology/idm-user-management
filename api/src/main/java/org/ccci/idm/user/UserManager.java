@@ -330,6 +330,8 @@ public interface UserManager {
      */
     Stream<User> streamUsers(@Nullable Expression expression, boolean includeDeactivated, boolean restrictMaxAllowed);
 
+    Stream<User> streamUsersInGroup(@Nonnull Group group, @Nullable Expression expression, boolean includeDeactivated);
+
     /**
      * Add user to group
      *
@@ -354,6 +356,9 @@ public interface UserManager {
      * @param group from group
      */
     void removeFromGroup(@Nonnull User user, @Nonnull Group group) throws DaoException;
+
+    @Nullable
+    Group getGroup(@Nullable String id) throws DaoException;
 
     /**
      * Returns all available groups

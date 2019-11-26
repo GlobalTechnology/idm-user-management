@@ -298,6 +298,7 @@ public class LdaptiveUserDao extends AbstractLdapUserDao {
                 guid).and(new PresentFilter(LDAP_ATTR_RELAY_GUID).not())), includeDeactivated);
     }
 
+    @Nullable
     @Override
     public User findByTheKeyGuid(final String guid, final boolean includeDeactivated) {
         // theKeyGuid == {guid} || (guid == {guid} && theKeyGuid == null)
@@ -362,7 +363,7 @@ public class LdaptiveUserDao extends AbstractLdapUserDao {
     }
 
     @Override
-    public void save(final User user) throws DaoException {
+    public void save(@Nonnull final User user) throws DaoException {
         assertWritable();
         assertValidUser(user);
 
@@ -384,7 +385,7 @@ public class LdaptiveUserDao extends AbstractLdapUserDao {
     }
 
     @Override
-    public void update(final User user, User.Attr... attrs) throws DaoException {
+    public void update(@Nonnull final User user, User.Attr... attrs) throws DaoException {
         assertWritable();
         assertValidUser(user);
 
@@ -434,11 +435,6 @@ public class LdaptiveUserDao extends AbstractLdapUserDao {
     }
 
     @Override
-    public void addToGroup(@Nonnull final User user, @Nonnull final Group group) throws DaoException {
-        addToGroup(user, group, false);
-    }
-
-    @Override
     public void addToGroup(@Nonnull final User user, @Nonnull final Group group, final boolean addSecurity)
             throws DaoException {
         assertWritable();
@@ -455,6 +451,12 @@ public class LdaptiveUserDao extends AbstractLdapUserDao {
         assertValidGroup(group);
 
         modifyGroupMembership(AttributeModificationType.REMOVE, user, (LdapGroup) group, true);
+    }
+
+    @Nullable
+    @Override
+    public Group getGroup(@Nullable final String id) throws DaoException {
+        throw new UnsupportedOperationException("getGroup() is not implemented for the LdaptiveUserDao");
     }
 
     /**
