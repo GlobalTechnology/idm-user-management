@@ -35,7 +35,7 @@ private const val PROFILE_PHONE_NUMBER = "primaryPhone"
 private const val PROFILE_CITY = "city"
 private const val PROFILE_STATE = "state"
 private const val PROFILE_ZIP_CODE = "zipCode"
-private const val PROFILE_COUNTRY = "countryCode"
+private const val PROFILE_COUNTRY = "cruCountryCode"
 
 private const val PROFILE_US_EMPLOYEE_ID = "usEmployeeId"
 private const val PROFILE_US_DESIGNATION = "usDesignationNumber"
