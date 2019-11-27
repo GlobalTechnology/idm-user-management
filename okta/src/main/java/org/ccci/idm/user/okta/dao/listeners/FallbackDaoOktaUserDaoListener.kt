@@ -30,6 +30,10 @@ class FallbackDaoOktaUserDaoListener(
         }
     }
 
+    override fun onUserCreated(user: User) {
+        dao.save(user)
+    }
+
     override fun onUserUpdated(user: User, vararg attrs: User.Attr) {
         val filteredAttrs = attrs.filter { UPDATABLE_ATTRS.contains(it) }
         if (filteredAttrs.isEmpty()) return
