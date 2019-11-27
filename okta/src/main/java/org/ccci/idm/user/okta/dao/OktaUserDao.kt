@@ -35,11 +35,20 @@ private const val PROFILE_PHONE_NUMBER = "primaryPhone"
 private const val PROFILE_CITY = "city"
 private const val PROFILE_STATE = "state"
 private const val PROFILE_ZIP_CODE = "zipCode"
-private const val PROFILE_COUNTRY = "countryCode"
+private const val PROFILE_COUNTRY = "cruCountryCode"
 
 private const val PROFILE_US_EMPLOYEE_ID = "usEmployeeId"
 private const val PROFILE_US_DESIGNATION = "usDesignationNumber"
+
+private const val PROFILE_ORGANIZATION = "organization"
+private const val PROFILE_DIVISION = "division"
+private const val PROFILE_DEPARTMENT = "department"
+private const val PROFILE_MANAGER_ID = "managerId"
+
 private const val PROFILE_EMAIL_ALIASES = "emailAliases"
+
+private const val PROFILE_GR_MASTER_PERSON_ID = "grMasterPersonId"
+private const val PROFILE_GR_PERSON_ID = "thekeyGrPersonId"
 
 private val DEFAULT_ATTRS = arrayOf(User.Attr.EMAIL, User.Attr.NAME, User.Attr.FLAGS)
 
@@ -121,10 +130,19 @@ class OktaUserDao(private val okta: Client, private val listeners: List<Listener
             .putProfileProperty(PROFILE_US_EMPLOYEE_ID, user.employeeId)
             .putProfileProperty(PROFILE_US_DESIGNATION, user.cruDesignation)
             .putProfileProperty(PROFILE_PHONE_NUMBER, user.telephoneNumber)
+
+            // Location profile attributes
             .putProfileProperty(PROFILE_CITY, user.city)
             .putProfileProperty(PROFILE_STATE, user.state)
             .putProfileProperty(PROFILE_ZIP_CODE, user.postal)
             .putProfileProperty(PROFILE_COUNTRY, user.country)
+
+            // HR profile attributes
+            .putProfileProperty(PROFILE_ORGANIZATION, user.cruMinistryCode)
+            .putProfileProperty(PROFILE_DIVISION, user.cruSubMinistryCode)
+            .putProfileProperty(PROFILE_DEPARTMENT, user.departmentNumber)
+            .putProfileProperty(PROFILE_MANAGER_ID, user.cruManagerID)
+
             .putProfileProperty(PROFILE_EMAIL_ALIASES, user.cruProxyAddresses.toList())
             .setGroups(initialGroups)
             .buildAndCreate(okta)
@@ -144,7 +162,7 @@ class OktaUserDao(private val okta: Client, private val listeners: List<Listener
             attrsSet.contains(User.Attr.NAME) || attrsSet.contains(User.Attr.CRU_PREFERRED_NAME) ||
             attrsSet.contains(User.Attr.CONTACT) || attrsSet.contains(User.Attr.LOCATION) ||
             attrsSet.contains(User.Attr.EMPLOYEE_NUMBER) || attrsSet.contains(User.Attr.CRU_DESIGNATION) ||
-            attrsSet.contains(User.Attr.CRU_PROXY_ADDRESSES)
+            attrsSet.contains(User.Attr.HUMAN_RESOURCE) || attrsSet.contains(User.Attr.CRU_PROXY_ADDRESSES)
         ) {
             val oktaUser = findOktaUser(user) ?: throw UserNotFoundException()
 
@@ -189,19 +207,28 @@ class OktaUserDao(private val okta: Client, private val listeners: List<Listener
                         oktaUser.profile[PROFILE_US_DESIGNATION] = user.cruDesignation
                         changed = true
                     }
+                    User.Attr.HUMAN_RESOURCE -> {
+                        oktaUser.profile[PROFILE_ORGANIZATION] = user.cruMinistryCode
+                        oktaUser.profile[PROFILE_DIVISION] = user.cruSubMinistryCode
+                        oktaUser.profile[PROFILE_DEPARTMENT] = user.departmentNumber
+                        oktaUser.profile[PROFILE_MANAGER_ID] = user.cruManagerID
+                        changed = true
+                    }
                     User.Attr.CRU_PROXY_ADDRESSES -> {
                         oktaUser.profile[PROFILE_EMAIL_ALIASES] = user.cruProxyAddresses.toList()
                         changed = true
                     }
-                    // we don't care about these attributes anymore
-                    User.Attr.DOMAINSVISITED,
-                    User.Attr.FACEBOOK,
+                    // these attributes are still tracked in LDAP but not in Okta
                     User.Attr.FLAGS,
-                    User.Attr.GLOBALREGISTRY,
-                    User.Attr.LOGINTIME,
+                    User.Attr.SECURITYQA,
                     User.Attr.SELFSERVICEKEYS,
                     User.Attr.MFA_SECRET,
                     User.Attr.MFA_INTRUDER_DETECTION -> Unit
+                    // we don't care about these attributes at all anymore
+                    User.Attr.DOMAINSVISITED,
+                    User.Attr.FACEBOOK,
+                    User.Attr.GLOBALREGISTRY,
+                    User.Attr.LOGINTIME -> Unit
                 }
             }
 
@@ -261,13 +288,25 @@ class OktaUserDao(private val okta: Client, private val listeners: List<Listener
             preferredName = profile.getString(PROFILE_NICK_NAME)
             lastName = profile.lastName
             telephoneNumber = profile.getString(PROFILE_PHONE_NUMBER)
+
+            // location profile attributes
             city = profile.getString(PROFILE_CITY)
             state = profile.getString(PROFILE_STATE)
             postal = profile.getString(PROFILE_ZIP_CODE)
             country = profile.getString(PROFILE_COUNTRY)
+
+            // HR profile attributes
+            cruMinistryCode = profile.getString(PROFILE_ORGANIZATION)
+            cruSubMinistryCode = profile.getString(PROFILE_DIVISION)
+            departmentNumber = profile.getString(PROFILE_DEPARTMENT)
+            cruManagerID = profile.getString(PROFILE_MANAGER_ID)
+
             employeeId = profile.getString(PROFILE_US_EMPLOYEE_ID)
             cruDesignation = profile.getString(PROFILE_US_DESIGNATION)
             cruProxyAddresses = profile.getStringList(PROFILE_EMAIL_ALIASES).orEmpty()
+
+            grMasterPersonId = profile.getString(PROFILE_GR_MASTER_PERSON_ID)
+            grPersonId = profile.getString(PROFILE_GR_PERSON_ID)
 
             if (loadGroups) setGroups(listGroups().map { it.asIdmGroup() })
         }.also { user -> listeners?.onEach { it.onUserLoaded(user) } }
