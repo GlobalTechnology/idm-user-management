@@ -18,7 +18,6 @@ import org.ccci.idm.user.query.Attribute
 import org.ccci.idm.user.query.BooleanExpression
 import org.ccci.idm.user.query.ComparisonExpression
 import org.ccci.idm.user.query.Expression
-import org.ccci.idm.user.query.NotExpression
 import org.joda.time.Instant
 import java.util.EnumSet
 import java.util.concurrent.BlockingQueue
@@ -104,9 +103,10 @@ class OktaUserDao(private val okta: Client, private val listeners: List<Listener
         val oktaGroup = group.id?.let { okta.getGroup(it) } ?: throw GroupNotFoundException()
 
         return oktaGroup.listUsers().stream()
-            .filter { it.matches(expression) }
-            .restrictMaxAllowed(restrictMaxAllowed)
             .map { it.asIdmUser(loadGroups = false) }
+            .filter { !it.isDeactivated || includeDeactivated }
+            .filter { expression?.matches(it) != false }
+            .restrictMaxAllowed(restrictMaxAllowed)
     }
 
     private fun <T> Stream<T>.restrictMaxAllowed(restrict: Boolean = true) =
@@ -387,44 +387,5 @@ private fun ComparisonExpression.Type.toOktaOper() = when (this) {
     ComparisonExpression.Type.EQ -> "eq"
     ComparisonExpression.Type.SW -> "sw"
     ComparisonExpression.Type.LIKE -> throw UnsupportedOperationException("LIKE is unsupported for OktaUserDao")
-}
-
-private fun com.okta.sdk.resource.user.User.matches(expression: Expression?): Boolean = when (expression) {
-    is BooleanExpression -> matches(expression)
-    is ComparisonExpression -> matches(expression) == true
-    is NotExpression -> !matches(expression.component)
-    else -> true
-}
-
-private fun com.okta.sdk.resource.user.User.matches(expression: BooleanExpression) = when (expression.type) {
-    BooleanExpression.Type.AND -> expression.components.all { matches(it) }
-    BooleanExpression.Type.OR -> expression.components.any { matches(it) }
-}
-
-private fun com.okta.sdk.resource.user.User.matches(expression: ComparisonExpression): Boolean? {
-    if (expression.attribute == Attribute.EMAIL_ALIAS) {
-        val aliases = profile?.getStringList(PROFILE_EMAIL_ALIASES)
-        return when (expression.type) {
-            ComparisonExpression.Type.EQ -> aliases?.any { it.equals(expression.value.orEmpty(), true) }
-            ComparisonExpression.Type.SW -> aliases?.any { it.startsWith(expression.value.orEmpty(), true) }
-            else -> false
-        }
-    }
-
-    val value: String? = when (expression.attribute) {
-        Attribute.GUID -> profile?.getString(PROFILE_THEKEY_GUID)
-        Attribute.EMAIL -> profile?.email
-        Attribute.FIRST_NAME -> profile?.firstName
-        Attribute.LAST_NAME -> profile?.lastName
-        Attribute.US_EMPLOYEE_ID -> profile?.getString(PROFILE_US_EMPLOYEE_ID)
-        Attribute.US_DESIGNATION -> profile?.getString(PROFILE_US_DESIGNATION)
-        else -> return false
-    }
-
-    return when (expression.type) {
-        ComparisonExpression.Type.EQ -> value.equals(expression.value.orEmpty(), true)
-        ComparisonExpression.Type.SW -> value?.startsWith(expression.value.orEmpty(), true)
-        else -> false
-    }
 }
 // endregion Search Expression processing
