@@ -66,10 +66,12 @@ class OktaUserDao(private val okta: Client, private val listeners: List<Listener
     fun findByOktaUserId(id: String?) = findOktaUserByOktaUserId(id)?.asIdmUser()
     private fun findOktaUserByOktaUserId(id: String?) = id?.let { okta.getUser(id) }
 
-    override fun findByEmail(email: String?, includeDeactivated: Boolean): User? {
-        if (email == null) return null
-        return okta.filterUsers("profile.email eq \"$email\"").firstOrNull()?.asIdmUser()
-    }
+    override fun findByEmail(email: String?, includeDeactivated: Boolean) = when {
+        email == null -> null
+        includeDeactivated ->
+            okta.searchUsers("""profile.$PROFILE_EMAIL eq "$email" or profile.$PROFILE_ORIGINAL_EMAIL eq "$email"""")
+        else -> okta.filterUsers("""profile.$PROFILE_EMAIL eq "$email"""")
+    }?.firstOrNull()?.asIdmUser()
 
     override fun findByTheKeyGuid(guid: String?, includeDeactivated: Boolean) =
         findOktaUserByTheKeyGuid(guid)?.asIdmUser()?.takeIf { !it.isDeactivated || includeDeactivated }
