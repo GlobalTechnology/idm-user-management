@@ -72,7 +72,7 @@ class OktaUserDao(private val okta: Client, private val listeners: List<Listener
     }
 
     override fun findByTheKeyGuid(guid: String?, includeDeactivated: Boolean) =
-        findOktaUserByTheKeyGuid(guid)?.asIdmUser()
+        findOktaUserByTheKeyGuid(guid)?.asIdmUser()?.takeIf { !it.isDeactivated || includeDeactivated }
     private fun findOktaUserByTheKeyGuid(guid: String?) =
         guid?.let { okta.searchUsers("profile.$PROFILE_THEKEY_GUID eq \"$guid\"").firstOrNull() }
 
