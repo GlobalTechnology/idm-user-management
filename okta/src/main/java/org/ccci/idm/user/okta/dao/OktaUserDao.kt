@@ -88,7 +88,7 @@ class OktaUserDao(private val okta: Client, private val listeners: List<Listener
         includeDeactivated: Boolean,
         restrictMaxAllowed: Boolean
     ): Stream<User> {
-        val search = expression?.toOktaExpression()
+        val search = expression?.toOktaExpression(includeDeactivated)
         return okta.listUsers(null, null, null, search, null).stream()
             .restrictMaxAllowed(restrictMaxAllowed)
             .map { it.asIdmUser(loadGroups = false) }
@@ -350,34 +350,43 @@ class OktaUserDao(private val okta: Client, private val listeners: List<Listener
 }
 
 // region Search Expression processing
-private fun Expression.toOktaExpression(): String = when (this) {
-    is BooleanExpression -> toOktaExpression()
-    is ComparisonExpression -> toOktaExpression()
+private fun Expression.toOktaExpression(includeDeactivated: Boolean): String = when (this) {
+    is BooleanExpression -> toOktaExpression(includeDeactivated)
+    is ComparisonExpression -> toOktaExpression(includeDeactivated)
     else -> throw IllegalArgumentException("Unrecognized Expression: $this")
 }
 
-private fun BooleanExpression.toOktaExpression() = when (type) {
-    BooleanExpression.Type.AND -> "(${components.joinToString(" and ") { it.toOktaExpression() }})"
-    BooleanExpression.Type.OR -> "(${components.joinToString(" or ") { it.toOktaExpression() }})"
+private fun BooleanExpression.toOktaExpression(includeDeactivated: Boolean) = when (type) {
+    BooleanExpression.Type.AND -> "(${components.joinToString(" and ") { it.toOktaExpression(includeDeactivated) }})"
+    BooleanExpression.Type.OR -> "(${components.joinToString(" or ") { it.toOktaExpression(includeDeactivated) }})"
 }
 
-private fun ComparisonExpression.toOktaExpression() = when {
+private fun ComparisonExpression.toOktaExpression(includeDeactivated: Boolean): String = when {
     attribute == Attribute.GROUP -> TODO("Group search not implemented yet")
-    type == ComparisonExpression.Type.EQ -> """${attribute.toOktaProfileAttribute()} eq "$value""""
-    type == ComparisonExpression.Type.SW -> """${attribute.toOktaProfileAttribute()} sw "$value""""
-    type == ComparisonExpression.Type.LIKE -> throw UnsupportedOperationException("LIKE is unsupported for OktaUserDao")
-    else -> throw IllegalArgumentException("Unrecognized ComparisonExpression: $this")
+    includeDeactivated && attribute == Attribute.EMAIL ->
+        "(${oktaComparisonExpression(PROFILE_EMAIL, type, value)} or " +
+            "${oktaComparisonExpression(PROFILE_ORIGINAL_EMAIL, type, value)})"
+    else -> oktaComparisonExpression(attribute.toOktaProfileAttribute(), type, value)
 }
 
 private fun Attribute.toOktaProfileAttribute() = when (this) {
-    Attribute.GUID -> "profile.$PROFILE_THEKEY_GUID"
-    Attribute.EMAIL -> "profile.$PROFILE_EMAIL"
-    Attribute.EMAIL_ALIAS -> "profile.$PROFILE_EMAIL_ALIASES"
-    Attribute.FIRST_NAME -> "profile.$PROFILE_FIRST_NAME"
-    Attribute.LAST_NAME -> "profile.$PROFILE_LAST_NAME"
-    Attribute.US_EMPLOYEE_ID -> "profile.$PROFILE_US_EMPLOYEE_ID"
-    Attribute.US_DESIGNATION -> "profile.$PROFILE_US_DESIGNATION"
+    Attribute.GUID -> PROFILE_THEKEY_GUID
+    Attribute.EMAIL -> PROFILE_EMAIL
+    Attribute.EMAIL_ALIAS -> PROFILE_EMAIL_ALIASES
+    Attribute.FIRST_NAME -> PROFILE_FIRST_NAME
+    Attribute.LAST_NAME -> PROFILE_LAST_NAME
+    Attribute.US_EMPLOYEE_ID -> PROFILE_US_EMPLOYEE_ID
+    Attribute.US_DESIGNATION -> PROFILE_US_DESIGNATION
     Attribute.GROUP -> throw IllegalArgumentException("GROUP isn't an actual attribute")
+}
+
+private fun oktaComparisonExpression(attr: String, oper: ComparisonExpression.Type, value: String?) =
+    """profile.$attr ${oper.toOktaOper()} "$value""""
+
+private fun ComparisonExpression.Type.toOktaOper() = when (this) {
+    ComparisonExpression.Type.EQ -> "eq"
+    ComparisonExpression.Type.SW -> "sw"
+    ComparisonExpression.Type.LIKE -> throw UnsupportedOperationException("LIKE is unsupported for OktaUserDao")
 }
 
 private fun com.okta.sdk.resource.user.User.matches(expression: Expression?): Boolean = when (expression) {
