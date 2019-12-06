@@ -1,5 +1,7 @@
 package org.ccci.idm.user.query;
 
+import org.ccci.idm.user.User;
+
 import javax.annotation.Nonnull;
 import java.io.Serializable;
 
@@ -19,4 +21,6 @@ public interface Expression extends Serializable {
     static Expression not(@Nonnull final Expression expression) {
         return expression.not();
     }
+
+    boolean matches(@Nonnull User user);
 }

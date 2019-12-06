@@ -1,6 +1,7 @@
 package org.ccci.idm.user.query;
 
 import com.google.common.collect.ImmutableList;
+import org.ccci.idm.user.User;
 
 import javax.annotation.Nonnull;
 import javax.annotation.concurrent.Immutable;
@@ -42,6 +43,18 @@ public final class BooleanExpression implements Expression {
     @Nonnull
     public List<Expression> getComponents() {
         return components;
+    }
+
+    @Override
+    public boolean matches(@Nonnull final User user) {
+        switch (type) {
+            case AND:
+                return components.stream().allMatch(expr -> expr.matches(user));
+            case OR:
+                return components.stream().anyMatch(expr -> expr.matches(user));
+            default:
+                return false;
+        }
     }
 
     @Override
