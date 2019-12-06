@@ -76,10 +76,9 @@ class OktaUserDao(private val okta: Client, private val listeners: List<Listener
     private fun findOktaUserByTheKeyGuid(guid: String?) =
         guid?.let { okta.searchUsers("profile.$PROFILE_THEKEY_GUID eq \"$guid\"").firstOrNull() }
 
-    override fun findByRelayGuid(guid: String?, includeDeactivated: Boolean): User? {
-        if (guid == null) return null
-        return okta.searchUsers("profile.$PROFILE_RELAY_GUID eq \"$guid\"").firstOrNull()?.asIdmUser()
-    }
+    override fun findByRelayGuid(guid: String?, includeDeactivated: Boolean) =
+        guid?.let { okta.searchUsers("profile.$PROFILE_RELAY_GUID eq \"$guid\"").firstOrNull()?.asIdmUser() }
+            ?.takeIf { !it.isDeactivated || includeDeactivated }
 
     // region Stream Users
     override fun streamUsers(
