@@ -46,12 +46,15 @@ private const val PROFILE_DIVISION = "division"
 private const val PROFILE_DEPARTMENT = "department"
 private const val PROFILE_MANAGER_ID = "managerId"
 
+private const val PROFILE_ORIGINAL_EMAIL = "original_email"
 private const val PROFILE_EMAIL_ALIASES = "emailAliases"
 
 private const val PROFILE_GR_MASTER_PERSON_ID = "grMasterPersonId"
 private const val PROFILE_GR_PERSON_ID = "thekeyGrPersonId"
 
 private val DEFAULT_ATTRS = arrayOf(User.Attr.EMAIL, User.Attr.NAME, User.Attr.FLAGS)
+private const val DEACTIVATED_PREFIX = "\$GUID-"
+private const val DEACTIVATED_SUFFIX = "@deactivated.cru.org"
 
 class OktaUserDao(private val okta: Client, private val listeners: List<Listener>? = null) : AbstractUserDao() {
     var maxSearchResults = SEARCH_NO_LIMIT
@@ -171,8 +174,14 @@ class OktaUserDao(private val okta: Client, private val listeners: List<Listener
             attrsSet.forEach {
                 when (it) {
                     User.Attr.EMAIL -> {
-                        oktaUser.profile.login = user.email
-                        oktaUser.profile.email = user.email
+                        if (user.isDeactivated) {
+                            oktaUser.profile.email = "$DEACTIVATED_PREFIX${user.theKeyGuid}$DEACTIVATED_SUFFIX"
+                            oktaUser.profile[PROFILE_ORIGINAL_EMAIL] = user.email
+                        } else {
+                            oktaUser.profile.email = user.email
+                            oktaUser.profile[PROFILE_ORIGINAL_EMAIL] = null
+                        }
+                        oktaUser.profile.login = oktaUser.profile.email
                         changed = true
                     }
                     User.Attr.PASSWORD -> {
@@ -238,6 +247,18 @@ class OktaUserDao(private val okta: Client, private val listeners: List<Listener
 
         listeners?.onEach { it.onUserUpdated(user, *attrsSet.toTypedArray()) }
     }
+
+    override fun reactivate(user: User) {
+        val oktaUser = findOktaUser(user) ?: return
+        super.reactivate(user)
+        oktaUser.unsuspend()
+    }
+
+    override fun deactivate(user: User) {
+        val oktaUser = findOktaUser(user) ?: return
+        oktaUser.suspend()
+        super.deactivate(user)
+    }
     // endregion CRUD methods
 
     // region Group methods
@@ -282,9 +303,12 @@ class OktaUserDao(private val okta: Client, private val listeners: List<Listener
             oktaUserId = id
             theKeyGuid = profile.getString(PROFILE_THEKEY_GUID)
             relayGuid = profile.getString(PROFILE_RELAY_GUID)
-            email = profile.email
+
+            isDeactivated = profile.email.startsWith(DEACTIVATED_PREFIX) && profile.email.endsWith(DEACTIVATED_SUFFIX)
+            email = if (isDeactivated) profile.getString(PROFILE_ORIGINAL_EMAIL) else profile.email
             isEmailVerified =
                 credentials.emails.firstOrNull { email.equals(it.value, true) }?.status == EmailStatus.VERIFIED
+
             firstName = profile.firstName
             preferredName = profile.getString(PROFILE_NICK_NAME)
             lastName = profile.lastName
