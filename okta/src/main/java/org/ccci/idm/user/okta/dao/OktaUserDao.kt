@@ -19,6 +19,7 @@ import org.ccci.idm.user.query.BooleanExpression
 import org.ccci.idm.user.query.ComparisonExpression
 import org.ccci.idm.user.query.Expression
 import org.ccci.idm.user.query.NotExpression
+import org.joda.time.Instant
 import java.util.EnumSet
 import java.util.concurrent.BlockingQueue
 import java.util.concurrent.atomic.AtomicInteger
@@ -307,6 +308,8 @@ class OktaUserDao(private val okta: Client, private val listeners: List<Listener
 
             grMasterPersonId = profile.getString(PROFILE_GR_MASTER_PERSON_ID)
             grPersonId = profile.getString(PROFILE_GR_PERSON_ID)
+
+            loginTime = lastLogin?.let { Instant(it.time) }
 
             if (loadGroups) setGroups(listGroups().map { it.asIdmGroup() })
         }.also { user -> listeners?.onEach { it.onUserLoaded(user) } }
