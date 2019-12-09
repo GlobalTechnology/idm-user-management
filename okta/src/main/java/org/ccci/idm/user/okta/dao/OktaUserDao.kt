@@ -305,7 +305,7 @@ class OktaUserDao(private val okta: Client, private val listeners: List<Listener
         return User().apply {
             oktaUserId = id
             theKeyGuid = profile.getString(PROFILE_THEKEY_GUID)
-            relayGuid = profile.getString(PROFILE_RELAY_GUID)
+            relayGuid = profile.getString(PROFILE_RELAY_GUID) ?: theKeyGuid
 
             isDeactivated = profile.email.startsWith(DEACTIVATED_PREFIX) && profile.email.endsWith(DEACTIVATED_SUFFIX)
             email = if (isDeactivated) profile.getString(PROFILE_ORIGINAL_EMAIL) else profile.email
