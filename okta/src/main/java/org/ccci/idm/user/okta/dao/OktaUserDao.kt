@@ -89,8 +89,9 @@ class OktaUserDao(private val okta: Client, private val listeners: List<Listener
     ): Stream<User> {
         val search = expression?.toOktaExpression(includeDeactivated)
         return okta.listUsers(null, null, null, search, null).stream()
-            .restrictMaxAllowed(restrictMaxAllowed)
             .map { it.asIdmUser(loadGroups = false) }
+            .filter { !it.isDeactivated || includeDeactivated }
+            .restrictMaxAllowed(restrictMaxAllowed)
     }
 
     override fun streamUsersInGroup(
