@@ -3,6 +3,7 @@ package org.ccci.idm.user.okta.dao
 import com.okta.sdk.client.Client
 import com.okta.sdk.resource.user.EmailStatus
 import com.okta.sdk.resource.user.UserBuilder
+import com.okta.sdk.resource.user.UserStatus
 import org.ccci.idm.user.Group
 import org.ccci.idm.user.SearchQuery
 import org.ccci.idm.user.User
@@ -253,12 +254,12 @@ class OktaUserDao(private val okta: Client, private val listeners: List<Listener
     override fun reactivate(user: User) {
         val oktaUser = findOktaUser(user) ?: return
         super.reactivate(user)
-        oktaUser.unsuspend()
+        if (oktaUser.status == UserStatus.SUSPENDED) oktaUser.unsuspend()
     }
 
     override fun deactivate(user: User) {
         val oktaUser = findOktaUser(user) ?: return
-        oktaUser.suspend()
+        if (oktaUser.status != UserStatus.SUSPENDED) oktaUser.suspend()
         super.deactivate(user)
     }
     // endregion CRUD methods
