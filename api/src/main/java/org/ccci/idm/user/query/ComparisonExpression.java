@@ -1,6 +1,9 @@
 package org.ccci.idm.user.query;
 
+import com.google.common.base.Strings;
+import kotlin.text.StringsKt;
 import org.ccci.idm.user.Group;
+import org.ccci.idm.user.User;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -51,5 +54,42 @@ public class ComparisonExpression implements Expression {
     @Nullable
     public Group getGroup() {
         return group;
+    }
+
+    @Override
+    public boolean matches(@Nonnull final User user) {
+        switch (attribute) {
+            case GUID:
+                return matches(user.getTheKeyGuid());
+            case EMAIL:
+                return matches(user.getEmail());
+            case EMAIL_ALIAS:
+                return user.getCruProxyAddresses().stream().anyMatch(this::matches);
+            case FIRST_NAME:
+                return matches(user.getFirstName());
+            case LAST_NAME:
+                return matches(user.getLastName());
+            case US_EMPLOYEE_ID:
+                return matches(user.getEmployeeId());
+            case US_DESIGNATION:
+                return matches(user.getCruDesignation());
+            case GROUP:
+                return user.getGroups().stream().anyMatch(g -> g.equals(group));
+            default:
+                return false;
+        }
+    }
+
+    private boolean matches(@Nullable final String value) {
+        switch (type) {
+            case EQ:
+                return StringsKt.equals(value, this.value, true);
+            case SW:
+                return StringsKt.startsWith(Strings.nullToEmpty(value), Strings.nullToEmpty(this.value), true);
+            case LIKE:
+                throw new UnsupportedOperationException("LIKE comparisons are not currently supported");
+        }
+
+        return false;
     }
 }

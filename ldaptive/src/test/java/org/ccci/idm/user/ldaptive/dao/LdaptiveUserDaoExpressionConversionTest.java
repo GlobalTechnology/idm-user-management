@@ -12,13 +12,21 @@ import static org.junit.Assert.fail;
 
 import junitparams.JUnitParamsRunner;
 import junitparams.Parameters;
+import org.ccci.idm.user.User;
 import org.ccci.idm.user.query.Expression;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
+import javax.annotation.Nonnull;
+
 @RunWith(JUnitParamsRunner.class)
 public class LdaptiveUserDaoExpressionConversionTest {
-    private static class UnsupportedExpression implements Expression {}
+    private static class UnsupportedExpression implements Expression {
+        @Override
+        public boolean matches(@Nonnull final User user) {
+            return false;
+        }
+    }
 
     private LdaptiveUserDao dao = new LdaptiveUserDao();
 

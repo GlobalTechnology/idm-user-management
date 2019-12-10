@@ -3,6 +3,7 @@ package org.ccci.idm.user.okta.dao
 import com.okta.sdk.client.Client
 import com.okta.sdk.resource.user.EmailStatus
 import com.okta.sdk.resource.user.UserBuilder
+import com.okta.sdk.resource.user.UserStatus
 import org.ccci.idm.user.Group
 import org.ccci.idm.user.SearchQuery
 import org.ccci.idm.user.User
@@ -18,7 +19,6 @@ import org.ccci.idm.user.query.Attribute
 import org.ccci.idm.user.query.BooleanExpression
 import org.ccci.idm.user.query.ComparisonExpression
 import org.ccci.idm.user.query.Expression
-import org.ccci.idm.user.query.NotExpression
 import org.joda.time.Instant
 import java.util.EnumSet
 import java.util.concurrent.BlockingQueue
@@ -46,12 +46,15 @@ private const val PROFILE_DIVISION = "division"
 private const val PROFILE_DEPARTMENT = "department"
 private const val PROFILE_MANAGER_ID = "managerId"
 
+private const val PROFILE_ORIGINAL_EMAIL = "original_email"
 private const val PROFILE_EMAIL_ALIASES = "emailAliases"
 
 private const val PROFILE_GR_MASTER_PERSON_ID = "grMasterPersonId"
 private const val PROFILE_GR_PERSON_ID = "thekeyGrPersonId"
 
 private val DEFAULT_ATTRS = arrayOf(User.Attr.EMAIL, User.Attr.NAME, User.Attr.FLAGS)
+private const val DEACTIVATED_PREFIX = "\$GUID-"
+private const val DEACTIVATED_SUFFIX = "@deactivated.cru.org"
 
 class OktaUserDao(private val okta: Client, private val listeners: List<Listener>? = null) : AbstractUserDao() {
     var maxSearchResults = SEARCH_NO_LIMIT
@@ -63,20 +66,21 @@ class OktaUserDao(private val okta: Client, private val listeners: List<Listener
     fun findByOktaUserId(id: String?) = findOktaUserByOktaUserId(id)?.asIdmUser()
     private fun findOktaUserByOktaUserId(id: String?) = id?.let { okta.getUser(id) }
 
-    override fun findByEmail(email: String?, includeDeactivated: Boolean): User? {
-        if (email == null) return null
-        return okta.filterUsers("profile.email eq \"$email\"").firstOrNull()?.asIdmUser()
-    }
+    override fun findByEmail(email: String?, includeDeactivated: Boolean) = when {
+        email == null -> null
+        includeDeactivated ->
+            okta.searchUsers("""profile.$PROFILE_EMAIL eq "$email" or profile.$PROFILE_ORIGINAL_EMAIL eq "$email"""")
+        else -> okta.filterUsers("""profile.$PROFILE_EMAIL eq "$email"""")
+    }?.firstOrNull()?.asIdmUser()
 
     override fun findByTheKeyGuid(guid: String?, includeDeactivated: Boolean) =
-        findOktaUserByTheKeyGuid(guid)?.asIdmUser()
+        findOktaUserByTheKeyGuid(guid)?.asIdmUser()?.takeIf { !it.isDeactivated || includeDeactivated }
     private fun findOktaUserByTheKeyGuid(guid: String?) =
         guid?.let { okta.searchUsers("profile.$PROFILE_THEKEY_GUID eq \"$guid\"").firstOrNull() }
 
-    override fun findByRelayGuid(guid: String?, includeDeactivated: Boolean): User? {
-        if (guid == null) return null
-        return okta.searchUsers("profile.$PROFILE_RELAY_GUID eq \"$guid\"").firstOrNull()?.asIdmUser()
-    }
+    override fun findByRelayGuid(guid: String?, includeDeactivated: Boolean) =
+        guid?.let { okta.searchUsers("profile.$PROFILE_RELAY_GUID eq \"$guid\"").firstOrNull()?.asIdmUser() }
+            ?.takeIf { !it.isDeactivated || includeDeactivated }
 
     // region Stream Users
     override fun streamUsers(
@@ -84,10 +88,11 @@ class OktaUserDao(private val okta: Client, private val listeners: List<Listener
         includeDeactivated: Boolean,
         restrictMaxAllowed: Boolean
     ): Stream<User> {
-        val search = expression?.toOktaExpression()
+        val search = expression?.toOktaExpression(includeDeactivated)
         return okta.listUsers(null, null, null, search, null).stream()
-            .restrictMaxAllowed(restrictMaxAllowed)
             .map { it.asIdmUser(loadGroups = false) }
+            .filter { !it.isDeactivated || includeDeactivated }
+            .restrictMaxAllowed(restrictMaxAllowed)
     }
 
     override fun streamUsersInGroup(
@@ -100,9 +105,10 @@ class OktaUserDao(private val okta: Client, private val listeners: List<Listener
         val oktaGroup = group.id?.let { okta.getGroup(it) } ?: throw GroupNotFoundException()
 
         return oktaGroup.listUsers().stream()
-            .filter { it.matches(expression) }
-            .restrictMaxAllowed(restrictMaxAllowed)
             .map { it.asIdmUser(loadGroups = false) }
+            .filter { !it.isDeactivated || includeDeactivated }
+            .filter { expression?.matches(it) != false }
+            .restrictMaxAllowed(restrictMaxAllowed)
     }
 
     private fun <T> Stream<T>.restrictMaxAllowed(restrict: Boolean = true) =
@@ -171,8 +177,14 @@ class OktaUserDao(private val okta: Client, private val listeners: List<Listener
             attrsSet.forEach {
                 when (it) {
                     User.Attr.EMAIL -> {
-                        oktaUser.profile.login = user.email
-                        oktaUser.profile.email = user.email
+                        if (user.isDeactivated) {
+                            oktaUser.profile.email = "$DEACTIVATED_PREFIX${user.theKeyGuid}$DEACTIVATED_SUFFIX"
+                            oktaUser.profile[PROFILE_ORIGINAL_EMAIL] = user.email
+                        } else {
+                            oktaUser.profile.email = user.email
+                            oktaUser.profile[PROFILE_ORIGINAL_EMAIL] = null
+                        }
+                        oktaUser.profile.login = oktaUser.profile.email
                         changed = true
                     }
                     User.Attr.PASSWORD -> {
@@ -238,6 +250,18 @@ class OktaUserDao(private val okta: Client, private val listeners: List<Listener
 
         listeners?.onEach { it.onUserUpdated(user, *attrsSet.toTypedArray()) }
     }
+
+    override fun reactivate(user: User) {
+        val oktaUser = findOktaUser(user) ?: return
+        super.reactivate(user)
+        if (oktaUser.status == UserStatus.SUSPENDED) oktaUser.unsuspend()
+    }
+
+    override fun deactivate(user: User) {
+        val oktaUser = findOktaUser(user) ?: return
+        if (oktaUser.status != UserStatus.SUSPENDED) oktaUser.suspend()
+        super.deactivate(user)
+    }
     // endregion CRUD methods
 
     // region Group methods
@@ -281,10 +305,13 @@ class OktaUserDao(private val okta: Client, private val listeners: List<Listener
         return User().apply {
             oktaUserId = id
             theKeyGuid = profile.getString(PROFILE_THEKEY_GUID)
-            relayGuid = profile.getString(PROFILE_RELAY_GUID)
-            email = profile.email
+            relayGuid = profile.getString(PROFILE_RELAY_GUID) ?: theKeyGuid
+
+            isDeactivated = profile.email.startsWith(DEACTIVATED_PREFIX) && profile.email.endsWith(DEACTIVATED_SUFFIX)
+            email = if (isDeactivated) profile.getString(PROFILE_ORIGINAL_EMAIL) else profile.email
             isEmailVerified =
                 credentials.emails.firstOrNull { email.equals(it.value, true) }?.status == EmailStatus.VERIFIED
+
             firstName = profile.firstName
             preferredName = profile.getString(PROFILE_NICK_NAME)
             lastName = profile.lastName
@@ -317,7 +344,7 @@ class OktaUserDao(private val okta: Client, private val listeners: List<Listener
 
     private fun com.okta.sdk.resource.group.Group.asIdmGroup() = OktaGroup(id, profile.name)
 
-    public interface Listener {
+    interface Listener {
         fun onUserLoaded(user: User) = Unit
         fun onUserCreated(user: User) = Unit
         fun onUserUpdated(user: User, vararg attrs: User.Attr) = Unit
@@ -325,72 +352,42 @@ class OktaUserDao(private val okta: Client, private val listeners: List<Listener
 }
 
 // region Search Expression processing
-private fun Expression.toOktaExpression(): String = when (this) {
-    is BooleanExpression -> toOktaExpression()
-    is ComparisonExpression -> toOktaExpression()
+private fun Expression.toOktaExpression(includeDeactivated: Boolean): String = when (this) {
+    is BooleanExpression -> toOktaExpression(includeDeactivated)
+    is ComparisonExpression -> toOktaExpression(includeDeactivated)
     else -> throw IllegalArgumentException("Unrecognized Expression: $this")
 }
 
-private fun BooleanExpression.toOktaExpression() = when (type) {
-    BooleanExpression.Type.AND -> "(${components.joinToString(" and ") { it.toOktaExpression() }})"
-    BooleanExpression.Type.OR -> "(${components.joinToString(" or ") { it.toOktaExpression() }})"
+private fun BooleanExpression.toOktaExpression(includeDeactivated: Boolean) = when (type) {
+    BooleanExpression.Type.AND -> "(${components.joinToString(" and ") { it.toOktaExpression(includeDeactivated) }})"
+    BooleanExpression.Type.OR -> "(${components.joinToString(" or ") { it.toOktaExpression(includeDeactivated) }})"
 }
 
-private fun ComparisonExpression.toOktaExpression() = when {
+private fun ComparisonExpression.toOktaExpression(includeDeactivated: Boolean): String = when {
     attribute == Attribute.GROUP -> TODO("Group search not implemented yet")
-    type == ComparisonExpression.Type.EQ -> """${attribute.toOktaProfileAttribute()} eq "$value""""
-    type == ComparisonExpression.Type.SW -> """${attribute.toOktaProfileAttribute()} sw "$value""""
-    type == ComparisonExpression.Type.LIKE -> throw UnsupportedOperationException("LIKE is unsupported for OktaUserDao")
-    else -> throw IllegalArgumentException("Unrecognized ComparisonExpression: $this")
+    includeDeactivated && attribute == Attribute.EMAIL ->
+        "(${oktaComparisonExpression(PROFILE_EMAIL, type, value)} or " +
+            "${oktaComparisonExpression(PROFILE_ORIGINAL_EMAIL, type, value)})"
+    else -> oktaComparisonExpression(attribute.toOktaProfileAttribute(), type, value)
 }
 
 private fun Attribute.toOktaProfileAttribute() = when (this) {
-    Attribute.GUID -> "profile.$PROFILE_THEKEY_GUID"
-    Attribute.EMAIL -> "profile.$PROFILE_EMAIL"
-    Attribute.EMAIL_ALIAS -> "profile.$PROFILE_EMAIL_ALIASES"
-    Attribute.FIRST_NAME -> "profile.$PROFILE_FIRST_NAME"
-    Attribute.LAST_NAME -> "profile.$PROFILE_LAST_NAME"
-    Attribute.US_EMPLOYEE_ID -> "profile.$PROFILE_US_EMPLOYEE_ID"
-    Attribute.US_DESIGNATION -> "profile.$PROFILE_US_DESIGNATION"
+    Attribute.GUID -> PROFILE_THEKEY_GUID
+    Attribute.EMAIL -> PROFILE_EMAIL
+    Attribute.EMAIL_ALIAS -> PROFILE_EMAIL_ALIASES
+    Attribute.FIRST_NAME -> PROFILE_FIRST_NAME
+    Attribute.LAST_NAME -> PROFILE_LAST_NAME
+    Attribute.US_EMPLOYEE_ID -> PROFILE_US_EMPLOYEE_ID
+    Attribute.US_DESIGNATION -> PROFILE_US_DESIGNATION
     Attribute.GROUP -> throw IllegalArgumentException("GROUP isn't an actual attribute")
 }
 
-private fun com.okta.sdk.resource.user.User.matches(expression: Expression?): Boolean = when (expression) {
-    is BooleanExpression -> matches(expression)
-    is ComparisonExpression -> matches(expression) == true
-    is NotExpression -> !matches(expression.component)
-    else -> true
-}
+private fun oktaComparisonExpression(attr: String, oper: ComparisonExpression.Type, value: String?) =
+    """profile.$attr ${oper.toOktaOper()} "$value""""
 
-private fun com.okta.sdk.resource.user.User.matches(expression: BooleanExpression) = when (expression.type) {
-    BooleanExpression.Type.AND -> expression.components.all { matches(it) }
-    BooleanExpression.Type.OR -> expression.components.any { matches(it) }
-}
-
-private fun com.okta.sdk.resource.user.User.matches(expression: ComparisonExpression): Boolean? {
-    if (expression.attribute == Attribute.EMAIL_ALIAS) {
-        val aliases = profile?.getStringList(PROFILE_EMAIL_ALIASES)
-        return when (expression.type) {
-            ComparisonExpression.Type.EQ -> aliases?.any { it.equals(expression.value.orEmpty(), true) }
-            ComparisonExpression.Type.SW -> aliases?.any { it.startsWith(expression.value.orEmpty(), true) }
-            else -> false
-        }
-    }
-
-    val value: String? = when (expression.attribute) {
-        Attribute.GUID -> profile?.getString(PROFILE_THEKEY_GUID)
-        Attribute.EMAIL -> profile?.email
-        Attribute.FIRST_NAME -> profile?.firstName
-        Attribute.LAST_NAME -> profile?.lastName
-        Attribute.US_EMPLOYEE_ID -> profile?.getString(PROFILE_US_EMPLOYEE_ID)
-        Attribute.US_DESIGNATION -> profile?.getString(PROFILE_US_DESIGNATION)
-        else -> return false
-    }
-
-    return when (expression.type) {
-        ComparisonExpression.Type.EQ -> value.equals(expression.value.orEmpty(), true)
-        ComparisonExpression.Type.SW -> value?.startsWith(expression.value.orEmpty(), true)
-        else -> false
-    }
+private fun ComparisonExpression.Type.toOktaOper() = when (this) {
+    ComparisonExpression.Type.EQ -> "eq"
+    ComparisonExpression.Type.SW -> "sw"
+    ComparisonExpression.Type.LIKE -> throw UnsupportedOperationException("LIKE is unsupported for OktaUserDao")
 }
 // endregion Search Expression processing

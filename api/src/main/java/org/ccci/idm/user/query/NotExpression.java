@@ -1,5 +1,7 @@
 package org.ccci.idm.user.query;
 
+import org.ccci.idm.user.User;
+
 import javax.annotation.Nonnull;
 
 public class NotExpression implements Expression {
@@ -15,6 +17,11 @@ public class NotExpression implements Expression {
     @Nonnull
     public Expression getComponent() {
         return component;
+    }
+
+    @Override
+    public boolean matches(@Nonnull final User user) {
+        return !component.matches(user);
     }
 
     @Override
