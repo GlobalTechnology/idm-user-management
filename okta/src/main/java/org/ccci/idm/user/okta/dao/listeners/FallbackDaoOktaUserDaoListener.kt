@@ -31,6 +31,9 @@ class FallbackDaoOktaUserDaoListener(
             // SQ & SA
             user.securityQuestion = securityQuestion
             user.securityAnswer = securityAnswer
+
+            // Login Time (fallback if there isn't already a last login time)
+            user.loginTime = user.loginTime ?: loginTime
         }
     }
 
