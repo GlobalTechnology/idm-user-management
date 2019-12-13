@@ -268,7 +268,11 @@ class OktaUserDao(private val okta: Client, private val listeners: List<Listener
             else -> oktaUser.suspend()
         }
 
+        // update user to indicate it is deactivated
         super.deactivate(user)
+
+        // deprovision accounts that we couldn't suspend and that were never actually activated
+        if (oktaUser.status == UserStatus.PROVISIONED) oktaUser.deactivate()
     }
     // endregion CRUD methods
 
