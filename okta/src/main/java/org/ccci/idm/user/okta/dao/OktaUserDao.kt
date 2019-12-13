@@ -258,7 +258,7 @@ class OktaUserDao(private val okta: Client, private val listeners: List<Listener
     }
 
     override fun deactivate(user: User) {
-        // suspend the account before update attributes
+        // suspend the account before updating attributes
         val oktaUser = findOktaUser(user) ?: return
         when (oktaUser.status) {
             // account is already suspended
@@ -268,10 +268,10 @@ class OktaUserDao(private val okta: Client, private val listeners: List<Listener
             else -> oktaUser.suspend()
         }
 
-        // update user to indicate it is deactivated
+        // update account to indicate it is deactivated
         super.deactivate(user)
 
-        // deprovision accounts that we couldn't suspend and that were never actually activated
+        // de-provision accounts that we couldn't suspend and that were never actually activated
         if (oktaUser.status == UserStatus.PROVISIONED) oktaUser.deactivate()
     }
     // endregion CRUD methods
