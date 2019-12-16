@@ -264,7 +264,7 @@ class OktaUserDao(private val okta: Client, private val listeners: List<Listener
             // account is already suspended
             UserStatus.SUSPENDED -> Unit
             // account was created but hasn't been verified yet, Okta doesn't support suspending these accounts
-            UserStatus.PROVISIONED -> Unit
+            UserStatus.STAGED, UserStatus.PROVISIONED -> Unit
             else -> oktaUser.suspend()
         }
 
@@ -272,7 +272,7 @@ class OktaUserDao(private val okta: Client, private val listeners: List<Listener
         super.deactivate(user)
 
         // de-provision accounts that we couldn't suspend and that were never actually activated
-        if (oktaUser.status == UserStatus.PROVISIONED) oktaUser.deactivate()
+        if (oktaUser.status == UserStatus.STAGED || oktaUser.status == UserStatus.PROVISIONED) oktaUser.deactivate()
     }
     // endregion CRUD methods
 
