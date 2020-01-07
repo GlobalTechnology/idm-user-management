@@ -7,7 +7,8 @@ import org.ccci.idm.user.okta.dao.OktaUserDao
 private val UPDATABLE_ATTRS = setOf(
     User.Attr.MFA_SECRET, User.Attr.MFA_INTRUDER_DETECTION,
     User.Attr.SELFSERVICEKEYS,
-    User.Attr.SECURITYQA
+    User.Attr.SECURITYQA,
+    User.Attr.HUMAN_RESOURCE
 )
 
 class FallbackDaoOktaUserDaoListener(
@@ -34,6 +35,9 @@ class FallbackDaoOktaUserDaoListener(
 
             // Login Time (fallback if there isn't already a last login time)
             user.loginTime = user.loginTime ?: loginTime
+
+            // HR attributes not stored in Okta but still needed
+            user.cruEmployeeStatus = cruEmployeeStatus
         }
     }
 
