@@ -354,7 +354,8 @@ class OktaUserDao(private val okta: Client, private val listeners: List<Listener
         }.also { user -> listeners?.onEach { it.onUserLoaded(user) } }
     }
 
-    private fun com.okta.sdk.resource.group.Group.asIdmGroup() = OktaGroup(id, profile.name)
+    private fun com.okta.sdk.resource.group.Group.asIdmGroup() =
+        OktaGroup(id = id, oktaGroupType = type, name = profile.name)
 
     interface Listener {
         fun onUserLoaded(user: User) = Unit

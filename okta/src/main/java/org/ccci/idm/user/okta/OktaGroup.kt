@@ -3,9 +3,14 @@ package org.ccci.idm.user.okta
 import org.ccci.idm.user.Group
 
 data class OktaGroup(
-    override val id: String? = null
+    override val id: String? = null,
+    val oktaGroupType: String? = null
 ) : Group {
-    constructor(id: String? = null, name: String? = null) : this(id) {
+    constructor(
+        id: String? = null,
+        name: String? = null,
+        oktaGroupType: String? = null
+    ) : this(id = id, oktaGroupType = oktaGroupType) {
         this.name = name
     }
 
