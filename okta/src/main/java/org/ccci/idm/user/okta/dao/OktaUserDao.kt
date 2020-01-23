@@ -55,6 +55,7 @@ private const val PROFILE_GR_PERSON_ID = "thekeyGrPersonId"
 private val DEFAULT_ATTRS = arrayOf(User.Attr.EMAIL, User.Attr.NAME, User.Attr.FLAGS)
 private const val DEACTIVATED_PREFIX = "\$GUID-"
 private const val DEACTIVATED_SUFFIX = "@deactivated.cru.org"
+private const val DEACTIVATED_LEGACY = "\$GUID$-="
 
 class OktaUserDao(private val okta: Client, private val listeners: List<Listener>? = null) : AbstractUserDao() {
     var maxSearchResults = SEARCH_NO_LIMIT
@@ -319,8 +320,14 @@ class OktaUserDao(private val okta: Client, private val listeners: List<Listener
             theKeyGuid = profile.getString(PROFILE_THEKEY_GUID)
             relayGuid = profile.getString(PROFILE_RELAY_GUID) ?: theKeyGuid
 
-            isDeactivated = profile.email.startsWith(DEACTIVATED_PREFIX) && profile.email.endsWith(DEACTIVATED_SUFFIX)
-            email = if (isDeactivated) profile.getString(PROFILE_ORIGINAL_EMAIL) else profile.email
+            val deactivated = profile.email.startsWith(DEACTIVATED_PREFIX) && profile.email.endsWith(DEACTIVATED_SUFFIX)
+            val legacyDeactivated = profile.login.startsWith(DEACTIVATED_LEGACY) && !profile.login.contains("@")
+            isDeactivated = deactivated || legacyDeactivated
+            email = when {
+                deactivated -> profile.getString(PROFILE_ORIGINAL_EMAIL)
+                legacyDeactivated -> profile.getString(PROFILE_ORIGINAL_EMAIL) ?: profile.email
+                else -> profile.email
+            }
             isEmailVerified =
                 credentials.emails.firstOrNull { email.equals(it.value, true) }?.status == EmailStatus.VERIFIED
 
