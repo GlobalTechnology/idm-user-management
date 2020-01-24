@@ -12,7 +12,6 @@ import org.ccci.idm.user.dao.exception.ExceededMaximumAllowedResultsException
 import org.ccci.idm.user.exception.GroupNotFoundException
 import org.ccci.idm.user.exception.UserNotFoundException
 import org.ccci.idm.user.okta.OktaGroup
-import org.ccci.idm.user.okta.dao.util.filterUsers
 import org.ccci.idm.user.okta.dao.util.oktaUserId
 import org.ccci.idm.user.okta.dao.util.searchUsers
 import org.ccci.idm.user.query.Attribute
@@ -71,7 +70,7 @@ class OktaUserDao(private val okta: Client, private val listeners: List<Listener
         email == null -> null
         includeDeactivated ->
             okta.searchUsers("""profile.$PROFILE_EMAIL eq "$email" or profile.$PROFILE_ORIGINAL_EMAIL eq "$email"""")
-        else -> okta.filterUsers("""profile.$PROFILE_EMAIL eq "$email"""")
+        else -> okta.searchUsers("""profile.$PROFILE_EMAIL eq "$email"""")
     }?.firstOrNull()?.asIdmUser()
 
     override fun findByTheKeyGuid(guid: String?, includeDeactivated: Boolean) =
