@@ -10,6 +10,7 @@ env:
 branches:
   only:
     - master
+    - feature/oktaMfa
 
 cache:
   directories:
@@ -21,12 +22,19 @@ after_success:
   - mvn jacoco:report coveralls:report -DrepoToken=$COVERALLS_REPO_TOKEN
 
 deploy:
-  provider: script
+- provider: script
   skip_cleanup: true
   script: "cp .travis.settings.xml $HOME/.m2/settings.xml && mvn deploy -DskipTests=true"
   on:
     repo: CruGlobal/idm-user-management
     branch: master
+    jdk: oraclejdk8
+- provider: script
+  skip_cleanup: true
+  script: "cp .travis.settings.xml $HOME/.m2/settings.xml && mvn deploy -DskipTests=true"
+  on:
+    repo: CruGlobal/idm-user-management
+    branch: feature/oktaMfa
     jdk: oraclejdk8
 
 notifications:
