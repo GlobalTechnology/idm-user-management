@@ -17,5 +17,6 @@ data class OktaGroup(override val id: String? = null) : Group {
     override var name: String? = null
         private set
 
-    fun isDescendantOfOrEqualTo(prefix: String) = name == prefix || name?.startsWith("$prefix-") == true
+    fun isDescendantOfOrEqualTo(prefix: String) =
+        name == prefix || name?.startsWith("$prefix-") == true || name?.startsWith("$prefix:") == true
 }
