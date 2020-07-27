@@ -1,6 +1,7 @@
 package org.ccci.idm.user.okta.dao
 
 import com.okta.sdk.client.Client
+import com.okta.sdk.resource.ResourceException
 import com.okta.sdk.resource.user.EmailStatus
 import com.okta.sdk.resource.user.UserBuilder
 import com.okta.sdk.resource.user.UserStatus
@@ -10,8 +11,10 @@ import org.ccci.idm.user.User
 import org.ccci.idm.user.dao.AbstractUserDao
 import org.ccci.idm.user.dao.exception.ExceededMaximumAllowedResultsException
 import org.ccci.idm.user.exception.GroupNotFoundException
+import org.ccci.idm.user.exception.InvalidPasswordUserException
 import org.ccci.idm.user.exception.UserNotFoundException
 import org.ccci.idm.user.okta.OktaGroup
+import org.ccci.idm.user.okta.dao.exception.OktaDaoException
 import org.ccci.idm.user.okta.dao.util.oktaUserId
 import org.ccci.idm.user.okta.dao.util.searchUsers
 import org.ccci.idm.user.query.Attribute
@@ -245,7 +248,13 @@ class OktaUserDao(private val okta: Client, private val listeners: List<Listener
                 }
             }
 
-            if (changed) oktaUser.update()
+            if (changed) {
+                try {
+                    oktaUser.update()
+                } catch (e: ResourceException) {
+                    throw e.asIdmException(checkPasswordException = attrsSet.contains(User.Attr.PASSWORD))
+                }
+            }
         }
 
         listeners?.onEach { it.onUserUpdated(user, *attrsSet.toTypedArray()) }
@@ -312,6 +321,12 @@ class OktaUserDao(private val okta: Client, private val listeners: List<Listener
     override fun findByEmployeeId(employeeId: String?, includeDeactivated: Boolean) = TODO("not implemented")
     override fun findByFacebookId(id: String?, includeDeactivated: Boolean) = TODO("not implemented")
     // endregion Unused methods
+
+    private fun ResourceException.asIdmException(checkPasswordException: Boolean = false) = when {
+        checkPasswordException && code == "E0000001" && error.message == "Api validation failed: password" ->
+            InvalidPasswordUserException(causes.firstOrNull()?.summary)
+        else -> OktaDaoException(this)
+    }
 
     private fun com.okta.sdk.resource.user.User.asIdmUser(loadGroups: Boolean = true): User {
         return User().apply {
