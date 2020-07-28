@@ -48,7 +48,7 @@ class OktaUserDaoUpdateUserTest {
         val error = mapOf(
             "errorCode" to "E0000001",
             "errorSummary" to "Api validation failed: password",
-            "errorCauses" to listOf(mapOf("errorSummary" to INVALID_PASSWORD_MESSAGE))
+            "errorCauses" to listOf(mapOf("errorSummary" to "password: $INVALID_PASSWORD_MESSAGE"))
         )
         whenever(oktaUser.update()) doThrow ResourceException(DefaultError(error))
 

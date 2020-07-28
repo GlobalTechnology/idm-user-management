@@ -324,7 +324,7 @@ class OktaUserDao(private val okta: Client, private val listeners: List<Listener
 
     private fun ResourceException.asIdmException(checkPasswordException: Boolean = false) = when {
         checkPasswordException && code == "E0000001" && error.message == "Api validation failed: password" ->
-            InvalidPasswordUserException(causes.firstOrNull()?.summary)
+            InvalidPasswordUserException(causes.firstOrNull()?.summary?.removePrefix("password: "))
         else -> OktaDaoException(this)
     }
 
