@@ -36,7 +36,7 @@
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
 
-    <commons-collections.version>3.2.1</commons-collections.version>
+    <commons-collections.version>3.2.2</commons-collections.version>
     <commons-validator.version>1.6</commons-validator.version>
     <google-guava.version>27.0.1-jre</google-guava.version>
     <inspektr.version>1.7.GA</inspektr.version>
