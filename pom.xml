@@ -311,7 +311,7 @@
       <plugin>
         <groupId>com.github.z3d1k</groupId>
         <artifactId>ktlint-maven-plugin</artifactId>
-        <version>0.1.7</version>
+        <version>0.3.0</version>
         <configuration>
           <color>true</color>
           <groupByFile>true</groupByFile>
