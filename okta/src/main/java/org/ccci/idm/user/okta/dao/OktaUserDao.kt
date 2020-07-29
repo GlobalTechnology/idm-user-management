@@ -129,7 +129,7 @@ class OktaUserDao(private val okta: Client, private val listeners: List<Listener
         assertWritable()
         assertValidUser(user)
 
-        UserBuilder.instance()
+        val builder = UserBuilder.instance()
             .putProfileProperty(PROFILE_THEKEY_GUID, user.theKeyGuid)
             .putProfileProperty(PROFILE_RELAY_GUID, user.relayGuid)
             .setEmail(user.email)
@@ -140,6 +140,8 @@ class OktaUserDao(private val okta: Client, private val listeners: List<Listener
             .putProfileProperty(PROFILE_US_EMPLOYEE_ID, user.employeeId)
             .putProfileProperty(PROFILE_US_DESIGNATION, user.cruDesignation)
             .putProfileProperty(PROFILE_PHONE_NUMBER, user.telephoneNumber)
+            .putProfileProperty(PROFILE_EMAIL_ALIASES, user.cruProxyAddresses.toList())
+            .setGroups(initialGroups)
 
             // Location profile attributes
             .putProfileProperty(PROFILE_CITY, user.city)
@@ -153,10 +155,12 @@ class OktaUserDao(private val okta: Client, private val listeners: List<Listener
             .putProfileProperty(PROFILE_DEPARTMENT, user.departmentNumber)
             .putProfileProperty(PROFILE_MANAGER_ID, user.cruManagerID)
 
-            .putProfileProperty(PROFILE_EMAIL_ALIASES, user.cruProxyAddresses.toList())
-            .setGroups(initialGroups)
-            .buildAndCreate(okta)
-            .also { user.oktaUserId = it.id }
+        try {
+            builder.buildAndCreate(okta)
+                .also { user.oktaUserId = it.id }
+        } catch (e: ResourceException) {
+            throw e.asIdmException(checkPasswordException = true)
+        }
 
         listeners?.onEach { it.onUserCreated(user) }
     }
@@ -324,7 +328,7 @@ class OktaUserDao(private val okta: Client, private val listeners: List<Listener
 
     private fun ResourceException.asIdmException(checkPasswordException: Boolean = false) = when {
         checkPasswordException && code == "E0000001" && error.message == "Api validation failed: password" ->
-            InvalidPasswordUserException(causes.firstOrNull()?.summary)
+            InvalidPasswordUserException(causes.firstOrNull()?.summary?.removePrefix("password: "))
         else -> OktaDaoException(this)
     }
 
