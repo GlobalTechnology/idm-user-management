@@ -62,6 +62,7 @@ private const val DEACTIVATED_LEGACY = "\$GUID$-="
 class OktaUserDao(private val okta: Client, private val listeners: List<Listener>? = null) : AbstractUserDao() {
     var maxSearchResults = SEARCH_NO_LIMIT
     var initialGroups: Set<String> = emptySet()
+    var loadGroups = true
 
     private fun findOktaUser(user: User) =
         findOktaUserByOktaUserId(user.oktaUserId) ?: findOktaUserByTheKeyGuid(user.theKeyGuid)
@@ -332,7 +333,7 @@ class OktaUserDao(private val okta: Client, private val listeners: List<Listener
         else -> OktaDaoException(this)
     }
 
-    private fun com.okta.sdk.resource.user.User.asIdmUser(loadGroups: Boolean = true): User {
+    private fun com.okta.sdk.resource.user.User.asIdmUser(loadGroups: Boolean = this@OktaUserDao.loadGroups): User {
         return User().apply {
             oktaUserId = id
             theKeyGuid = profile.getString(PROFILE_THEKEY_GUID)
